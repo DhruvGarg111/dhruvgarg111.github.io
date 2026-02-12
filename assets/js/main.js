@@ -24,6 +24,7 @@
     projectsGrid: document.getElementById("projects-grid"),
     skillsDescription: document.getElementById("skills-description"),
     skillsGrid: document.getElementById("skills-grid"),
+    techStackGrid: document.getElementById("tech-stack-grid"),
     contactKicker: document.getElementById("contact-kicker"),
     contactTitle: document.getElementById("contact-title"),
     contactCopy: document.getElementById("contact-copy"),
@@ -45,7 +46,9 @@
   renderHeroStats(data.heroStats, elements.heroStats);
   renderJourney(data.journey, elements.journeyGrid);
   renderProjects(data.projects, elements.projectsGrid);
+
   renderSkills(data.skills, elements.skillsGrid);
+  renderTechStack(data.techStack, elements.techStackGrid);
 
   setupHeaderScroll(elements.header);
   setupMobileMenu();
@@ -238,16 +241,16 @@ function renderSkills(skills, container) {
     .map((skill) => {
       const tools = Array.isArray(skill.tools)
         ? skill.tools
-            .map((tool) => {
-              const icon = getSkillIconMarkup(tool);
-              return `
+          .map((tool) => {
+            const icon = getSkillIconMarkup(tool);
+            return `
           <li class="skill-item">
             <span class="skill-icon" aria-hidden="true">${icon}</span>
             <span class="skill-text">${escapeHTML(tool)}</span>
           </li>
         `;
-            })
-            .join("")
+          })
+          .join("")
         : "";
       const summary = isNonEmptyString(skill.summary)
         ? `<p class="skill-summary">${escapeHTML(skill.summary)}</p>`
@@ -260,6 +263,42 @@ function renderSkills(skills, container) {
       <ul>${tools}</ul>
     </article>
   `;
+    })
+    .join("");
+}
+
+function renderTechStack(techStack, container) {
+  if (!container || !Array.isArray(techStack) || techStack.length === 0) {
+    return;
+  }
+
+  container.innerHTML = techStack
+    .map((tech) => {
+      let iconMarkup;
+      if (tech.icon.startsWith("<svg")) {
+        // Inline SVG
+        iconMarkup = tech.icon.replace("<svg", '<svg class="tech-icon-svg"');
+      } else if (tech.icon.startsWith("devicon-")) {
+        iconMarkup = `<i class="${escapeHTML(tech.icon)}"></i>`;
+      } else if (tech.icon.includes("/") || tech.icon.includes(".")) {
+        // Assume image path if contains / or .
+        // Treat local SVG icons as simple-icons for styling purposes (inversion in dark mode)
+        const isSimpleIcon = tech.icon.includes("assets/icons/") || tech.icon.includes("simple-icons");
+        const extraClass = isSimpleIcon ? " simple-icon-img" : "";
+        iconMarkup = `<img src="${escapeHTML(tech.icon)}" alt="${escapeHTML(tech.name)} icon" class="tech-icon-img${extraClass}" />`;
+      } else {
+        // Assume emoji or text
+        iconMarkup = `<span class="tech-icon-text">${escapeHTML(tech.icon)}</span>`;
+      }
+
+      return `
+        <div class="tech-item reveal">
+          <div class="tech-icon-wrapper">
+             ${iconMarkup}
+          </div>
+          <span class="tech-name">${escapeHTML(tech.name)}</span>
+        </div>
+      `;
     })
     .join("");
 }
