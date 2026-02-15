@@ -359,11 +359,26 @@ function setupThemeSwitcher(toggle) {
   const storageKey = "portfolio-theme";
   const className = "light-mode";
   const metaThemeColor = document.querySelector('meta[name="theme-color"]');
-  const darkThemeColor = "#020907";
-  const lightThemeColor = "#f6efe4";
+  const darkThemeColor = "#000101";
+  const lightThemeColor = "#f4eeda";
+  const darkLogos = Array.from(document.querySelectorAll(".profile-logo-dark"));
+  const lightLogos = Array.from(document.querySelectorAll(".profile-logo-light"));
+
+  const syncThemeLogos = (isLight) => {
+    darkLogos.forEach((logo) => {
+      logo.hidden = isLight;
+      logo.setAttribute("aria-hidden", String(isLight));
+    });
+
+    lightLogos.forEach((logo) => {
+      logo.hidden = !isLight;
+      logo.setAttribute("aria-hidden", String(!isLight));
+    });
+  };
 
   const applyTheme = (isLight) => {
     document.documentElement.classList.toggle(className, isLight);
+    syncThemeLogos(isLight);
     toggle.setAttribute("aria-pressed", String(isLight));
     toggle.setAttribute("aria-label", isLight ? "Switch to dark mode" : "Switch to light mode");
     if (metaThemeColor) {
