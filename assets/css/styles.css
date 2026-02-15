@@ -1,12 +1,12 @@
 ﻿:root {
-  --bg: #030303;
-  --bg-elev: #0a0a0c;
-  --surface: #0f0f12;
-  --surface-alt: #16161a;
-  --border: rgba(41, 244, 182, 0.25);
-  --text: #f0f0f0;
-  --text-dim: #c0c0c0;
-  --text-muted: #888899;
+  --bg: #000101;
+  --bg-elev: #050606;
+  --surface: #0a0b0d;
+  --surface-alt: #111418;
+  --border: rgba(41, 244, 182, 0.2);
+  --text: #f1f3f3;
+  --text-dim: #bcc4c4;
+  --text-muted: #7b8589;
   --accent: #29f4b6;
   /* Neon Green/Cyan */
   --accent-strong: #00ffcc;
@@ -17,24 +17,24 @@
   --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   --transition: 240ms cubic-bezier(0.2, 0.8, 0.2, 1);
   --radius: 8px;
-  --shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+  --shadow: 0 24px 66px rgba(0, 0, 0, 0.72);
 }
 
 :root.light-mode {
-  --bg: #f6efe4;
-  --bg-elev: #fcf7ed;
-  --surface: #eee1ce;
-  --surface-alt: #e2d1bb;
-  --border: rgba(74, 58, 40, 0.18);
-  --text: #221b16;
-  --text-dim: #4a3d31;
-  --text-muted: #7a6d5f;
-  --accent: #556247;
-  --accent-strong: #414c36;
-  --accent-soft: rgba(85, 98, 71, 0.1);
-  --focus: #4a563d;
+  --bg: #f4eeda;
+  --bg-elev: #f8f3e5;
+  --surface: #f6f0df;
+  --surface-alt: #efe7d2;
+  --border: rgba(61, 53, 39, 0.13);
+  --text: #16120d;
+  --text-dim: #373024;
+  --text-muted: #635746;
+  --accent: #4f5f40;
+  --accent-strong: #414f35;
+  --accent-soft: rgba(79, 95, 64, 0.1);
+  --focus: #3f4b34;
   --font-display: "Cormorant Garamond", Georgia, serif;
-  --shadow: 0 14px 42px rgba(36, 28, 18, 0.08);
+  --shadow: 0 10px 30px rgba(24, 18, 10, 0.06);
 }
 
 * {
@@ -55,8 +55,8 @@ body {
   font-feature-settings: "kern" 1, "liga" 1;
   text-rendering: optimizeLegibility;
   background:
-    radial-gradient(circle at 15% 50%, rgba(41, 244, 182, 0.08), transparent 25%),
-    radial-gradient(circle at 85% 30%, rgba(0, 217, 152, 0.05), transparent 25%);
+    radial-gradient(circle at 15% 50%, rgba(41, 244, 182, 0.05), transparent 25%),
+    radial-gradient(circle at 85% 30%, rgba(0, 217, 152, 0.03), transparent 25%);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
@@ -64,8 +64,8 @@ body {
 
 :root.light-mode body {
   background:
-    radial-gradient(140% 120% at 50% -20%, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0) 58%),
-    linear-gradient(180deg, #faf3e8 0%, #f3e8d8 46%, #eee0cd 100%);
+    radial-gradient(150% 120% at 50% -24%, rgba(255, 255, 255, 0.62) 0%, rgba(255, 255, 255, 0) 58%),
+    linear-gradient(180deg, #f8f3e6 0%, #f4eddb 46%, #f1e8d4 100%);
 }
 
 :root.light-mode {
@@ -74,54 +74,54 @@ body {
 
 /* Light mode overrides */
 :root.light-mode .hero-code-snippet {
-  background: rgba(255, 253, 248, 0.88);
-  border-color: rgba(74, 58, 40, 0.18);
-  box-shadow: 0 10px 30px rgba(36, 28, 18, 0.08);
-  color: #4c563e;
+  background: rgba(248, 243, 229, 0.92);
+  border-color: rgba(61, 53, 39, 0.16);
+  box-shadow: 0 6px 18px rgba(24, 18, 10, 0.05);
+  color: #303725;
 }
 
 :root.light-mode .site-header.scrolled {
-  background: rgba(249, 242, 233, 0.9);
+  background: rgba(246, 239, 223, 0.94);
   backdrop-filter: blur(12px);
-  border-bottom-color: rgba(74, 58, 40, 0.2);
+  border-bottom-color: rgba(61, 53, 39, 0.12);
 }
 
 :root.light-mode .button-secondary {
-  background: rgba(255, 253, 248, 0.72);
-  border-color: rgba(74, 58, 40, 0.2);
+  background: rgba(249, 245, 235, 0.92);
+  border-color: rgba(61, 53, 39, 0.14);
   color: var(--text-dim);
 }
 
 :root.light-mode .button-secondary:hover {
-  background: rgba(255, 255, 255, 0.95);
+  background: rgba(255, 255, 255, 0.98);
   border-color: var(--accent);
   color: var(--text);
 }
 
 :root.light-mode .button-ghost {
-  background: rgba(85, 98, 71, 0.09);
+  background: rgba(79, 95, 64, 0.08);
   color: var(--accent-strong);
-  border-color: rgba(85, 98, 71, 0.18);
+  border-color: rgba(79, 95, 64, 0.15);
 }
 
 :root.light-mode .button-ghost:hover {
-  background: rgba(85, 98, 71, 0.14);
-  border-color: rgba(85, 98, 71, 0.32);
+  background: rgba(79, 95, 64, 0.12);
+  border-color: rgba(79, 95, 64, 0.24);
 }
 
 :root.light-mode .contact-panel {
-  background: linear-gradient(145deg, rgba(254, 248, 240, 0.94), rgba(241, 229, 212, 0.94));
+  background: linear-gradient(145deg, rgba(250, 246, 236, 0.96), rgba(242, 234, 217, 0.93));
 }
 
 :root.light-mode .mobile-nav {
-  background: rgba(249, 242, 233, 0.98);
-  border-bottom-color: rgba(74, 58, 40, 0.2);
+  background: rgba(246, 239, 223, 0.98);
+  border-bottom-color: rgba(61, 53, 39, 0.13);
 }
 
 /* Soften noise for light mode */
 :root.light-mode body::before {
-  opacity: 0.035;
-  filter: sepia(0.35) saturate(0.65);
+  opacity: 0.016;
+  filter: sepia(0.22) saturate(0.5);
 }
 
 .hero-code-snippet {
@@ -200,7 +200,7 @@ body::before {
 }
 
 .site-header.scrolled {
-  background: rgba(2, 9, 7, 0.85);
+  background: rgba(0, 2, 2, 0.93);
   backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--border);
 }
@@ -247,7 +247,7 @@ body::before {
 
 :root.light-mode .site-nav a,
 :root.light-mode .mobile-nav a {
-  color: #4f4538;
+  color: #453a2d;
 }
 
 .menu-toggle {
@@ -285,14 +285,14 @@ body::before {
 }
 
 :root.light-mode .theme-toggle {
-  background: rgba(74, 58, 40, 0.06);
-  border-color: rgba(74, 58, 40, 0.16);
-  color: #5e5446;
+  background: rgba(61, 53, 39, 0.045);
+  border-color: rgba(61, 53, 39, 0.11);
+  color: #4f4334;
 }
 
 :root.light-mode .theme-toggle:hover {
-  background: rgba(85, 98, 71, 0.13);
-  border-color: rgba(85, 98, 71, 0.32);
+  background: rgba(79, 95, 64, 0.1);
+  border-color: rgba(79, 95, 64, 0.22);
   color: var(--accent-strong);
 }
 
@@ -347,6 +347,35 @@ html:not(.light-mode) .theme-toggle .sun-icon {
   gap: 0.9rem;
 }
 
+.logo-panel {
+  margin: 0;
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) + 4px);
+  overflow: hidden;
+  background: #010201;
+  box-shadow: var(--shadow);
+}
+
+.profile-logo {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  object-position: center;
+}
+
+.profile-logo-dark {
+  display: block;
+  mix-blend-mode: screen;
+}
+
+.profile-logo-light {
+  display: none;
+  mix-blend-mode: multiply;
+  /* Enhance contrast/brightness to make the background pure white so multiply doesn't darken the page */
+  filter: contrast(1.2) brightness(1.25);
+}
+
 .persona-card {
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -386,6 +415,22 @@ html:not(.light-mode) .theme-toggle .sun-icon {
 
 :root.light-mode .persona-label {
   color: #726656;
+}
+
+:root.light-mode .logo-panel {
+  padding: 0.36rem;
+  background: #f4eeda;
+  border-color: rgba(61, 53, 39, 0.16);
+  box-shadow: 0 6px 18px rgba(24, 18, 10, 0.05);
+}
+
+html.light-mode .profile-logo-dark {
+  display: none;
+}
+
+html.light-mode .profile-logo-light {
+  display: block;
+  border-radius: calc(var(--radius) - 2px);
 }
 
 .kicker {
@@ -508,7 +553,7 @@ h1 {
 }
 
 :root.light-mode .tone-chip:hover {
-  border-color: rgba(85, 98, 71, 0.34);
+  border-color: rgba(79, 95, 64, 0.26);
 }
 
 .tone-chip.is-active {
@@ -572,23 +617,23 @@ h1 {
 .button-secondary {
   border-color: var(--border);
   color: var(--text);
-  background: rgba(9, 22, 17, 0.68);
+  background: rgba(5, 12, 10, 0.8);
 }
 
 .button-secondary:hover {
   border-color: rgba(130, 207, 174, 0.65);
-  background: rgba(16, 35, 28, 0.9);
+  background: rgba(8, 18, 14, 0.93);
 }
 
 .button-ghost {
   border-color: rgba(130, 207, 174, 0.35);
   color: var(--accent);
-  background: rgba(9, 22, 17, 0.45);
+  background: rgba(5, 12, 10, 0.58);
 }
 
 .button-ghost:hover {
   border-color: var(--accent);
-  background: rgba(16, 35, 28, 0.8);
+  background: rgba(8, 18, 14, 0.86);
 }
 
 .stats-list {
@@ -613,9 +658,9 @@ h1 {
 :root.light-mode .skill-card,
 :root.light-mode .persona-card,
 :root.light-mode .journey-card {
-  background: linear-gradient(158deg, rgba(255, 253, 248, 0.92), rgba(243, 235, 223, 0.88));
-  border-color: rgba(74, 58, 40, 0.18);
-  box-shadow: 0 10px 28px rgba(36, 28, 18, 0.07);
+  background: linear-gradient(160deg, rgba(250, 246, 236, 0.97), rgba(243, 236, 220, 0.94));
+  border-color: rgba(61, 53, 39, 0.13);
+  box-shadow: 0 7px 18px rgba(24, 18, 10, 0.05);
 }
 
 .stat-label {
@@ -781,12 +826,12 @@ h1 {
 }
 
 :root.light-mode .maturity-badge {
-  border-color: rgba(74, 58, 40, 0.24);
+  border-color: rgba(61, 53, 39, 0.2);
   color: #4b3f31;
 }
 
 :root.light-mode .chip {
-  border-color: rgba(74, 58, 40, 0.16);
+  border-color: rgba(61, 53, 39, 0.14);
   color: #655a4c;
 }
 
@@ -816,7 +861,7 @@ h1 {
 }
 
 :root.light-mode .project-outcome {
-  border-left-color: rgba(74, 58, 40, 0.27);
+  border-left-color: rgba(61, 53, 39, 0.2);
   color: #665a4b;
 }
 
@@ -901,14 +946,14 @@ h1 {
   border: 1px solid var(--border);
   border-radius: var(--radius);
   background:
-    radial-gradient(95% 80% at 10% 10%, rgba(41, 244, 182, 0.1), transparent 55%),
-    linear-gradient(145deg, rgba(11, 28, 21, 0.95), rgba(6, 17, 13, 0.95));
+    radial-gradient(95% 80% at 10% 10%, rgba(41, 244, 182, 0.07), transparent 55%),
+    linear-gradient(145deg, rgba(4, 12, 10, 0.97), rgba(1, 7, 6, 0.98));
   padding: clamp(1.4rem, 3vw, 2.2rem);
   box-shadow: var(--shadow);
 }
 
 :root.light-mode .contact-panel {
-  box-shadow: 0 14px 34px rgba(36, 28, 18, 0.08);
+  box-shadow: 0 12px 28px rgba(36, 28, 18, 0.06);
 }
 
 .contact-title {
@@ -1069,7 +1114,7 @@ h1 {
     overflow: hidden;
     opacity: 0;
     border-bottom: 1px solid transparent;
-    background: rgba(2, 9, 7, 0.92);
+    background: rgba(0, 2, 2, 0.95);
     backdrop-filter: blur(16px);
     transition:
       max-height var(--transition),
@@ -1250,14 +1295,14 @@ h1 {
 
 /* Light Mode Overrides */
 :root.light-mode .tech-item {
-  background: linear-gradient(158deg, rgba(255, 253, 248, 0.92), rgba(243, 235, 223, 0.88));
-  border-color: rgba(74, 58, 40, 0.18);
-  box-shadow: 0 10px 28px rgba(36, 28, 18, 0.07);
+  background: linear-gradient(160deg, rgba(250, 246, 236, 0.97), rgba(243, 236, 220, 0.94));
+  border-color: rgba(61, 53, 39, 0.13);
+  box-shadow: 0 7px 18px rgba(24, 18, 10, 0.05);
 }
 
 :root.light-mode .tech-item:hover {
   border-color: var(--accent);
-  box-shadow: 0 12px 32px rgba(85, 98, 71, 0.2);
+  box-shadow: 0 8px 22px rgba(79, 95, 64, 0.14);
   background: #ffffff;
 }
 
