@@ -141,8 +141,8 @@ function renderHeroStats(stats, container) {
 
   container.innerHTML = stats
     .map(
-      (stat) => `
-    <li class="stat-item reveal">
+      (stat, index) => `
+    <li class="stat-item reveal" style="--reveal-delay:${getRevealDelay(index, 70, 360)}ms">
       <span class="stat-label">${escapeHTML(stat.label)}</span>
       <span class="stat-value">${escapeHTML(stat.value)}</span>
     </li>
@@ -185,8 +185,8 @@ function renderJourney(journey, container) {
 
   container.innerHTML = journey
     .map(
-      (item) => `
-    <article class="journey-card reveal">
+      (item, index) => `
+    <article class="journey-card reveal" style="--reveal-delay:${getRevealDelay(index, 90, 540)}ms">
       <p class="journey-phase">${escapeHTML(item.phase)}</p>
       <h3>${escapeHTML(item.title)}</h3>
       <p>${escapeHTML(item.detail)}</p>
@@ -202,7 +202,7 @@ function renderProjects(projects, container) {
   }
 
   container.innerHTML = projects
-    .map((project) => {
+    .map((project, index) => {
       const safeId = safeSlug(project.id || project.name || "project");
       const safeRepoUrl = safeExternalUrl(project.repoUrl);
       const stack = Array.isArray(project.stack)
@@ -211,9 +211,10 @@ function renderProjects(projects, container) {
       const outcome = isNonEmptyString(project.outcome)
         ? `<p class="project-outcome">${escapeHTML(project.outcome)}</p>`
         : "";
+      const delay = getRevealDelay(index, 110, 660);
 
       return `
-    <article class="project-card reveal" aria-labelledby="project-${safeId}">
+    <article class="project-card reveal" aria-labelledby="project-${safeId}" style="--reveal-delay:${delay}ms">
       <div class="project-meta">
         <h3 id="project-${safeId}">${escapeHTML(project.name)}</h3>
         <span class="maturity-badge">${escapeHTML(project.maturity)}</span>
@@ -238,7 +239,7 @@ function renderSkills(skills, container) {
   }
 
   container.innerHTML = skills
-    .map((skill) => {
+    .map((skill, index) => {
       const tools = Array.isArray(skill.tools)
         ? skill.tools
           .map((tool) => {
@@ -255,9 +256,10 @@ function renderSkills(skills, container) {
       const summary = isNonEmptyString(skill.summary)
         ? `<p class="skill-summary">${escapeHTML(skill.summary)}</p>`
         : "";
+      const delay = getRevealDelay(index, 85, 510);
 
       return `
-    <article class="skill-card reveal">
+    <article class="skill-card reveal" style="--reveal-delay:${delay}ms">
       <h3>${escapeHTML(skill.area)}</h3>
       ${summary}
       <ul>${tools}</ul>
@@ -273,7 +275,7 @@ function renderTechStack(techStack, container) {
   }
 
   container.innerHTML = techStack
-    .map((tech) => {
+    .map((tech, index) => {
       let iconMarkup;
       if (tech.icon.startsWith("<svg")) {
         // Inline SVG
@@ -292,7 +294,7 @@ function renderTechStack(techStack, container) {
       }
 
       return `
-        <div class="tech-item reveal">
+        <div class="tech-item reveal" style="--reveal-delay:${getRevealDelay(index, 45, 450)}ms">
           <div class="tech-icon-wrapper">
              ${iconMarkup}
           </div>
@@ -359,8 +361,8 @@ function setupThemeSwitcher(toggle) {
   const storageKey = "portfolio-theme";
   const className = "light-mode";
   const metaThemeColor = document.querySelector('meta[name="theme-color"]');
-  const darkThemeColor = "#000101";
-  const lightThemeColor = "#f4eeda";
+  const darkThemeColor = "#10131a";
+  const lightThemeColor = "#f7f1e6";
   const darkLogos = Array.from(document.querySelectorAll(".profile-logo-dark"));
   const lightLogos = Array.from(document.querySelectorAll(".profile-logo-light"));
 
@@ -585,6 +587,12 @@ function safeSlug(rawValue) {
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/^-+|-+$/g, "") || "project"
   );
+}
+
+function getRevealDelay(index, step = 80, max = 600) {
+  const numericIndex = Number.isFinite(index) ? index : 0;
+  const normalized = Math.max(0, numericIndex);
+  return Math.min(normalized * step, max);
 }
 
 function escapeHTML(rawValue) {

@@ -61,14 +61,14 @@ if (!prefersReducedMotion) {
 
     function getThemeColors() {
       const isLight = document.documentElement.classList.contains("light-mode");
-      canvas.style.opacity = isLight ? "0.06" : "0.3";
+      canvas.style.opacity = isLight ? "0.07" : "0.22";
 
       return {
-        r: isLight ? 140 : 41,
-        g: isLight ? 124 : 244,
-        b: isLight ? 96 : 182,
-        particleAlpha: isLight ? 0.035 : 0.42,
-        lineAlpha: isLight ? 0.08 : 0.88
+        r: isLight ? 156 : 255,
+        g: isLight ? 76 : 126,
+        b: isLight ? 27 : 41,
+        particleAlpha: isLight ? 0.05 : 0.2,
+        lineAlpha: isLight ? 0.1 : 0.36
       };
     }
 

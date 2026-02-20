@@ -28,7 +28,7 @@
     ],
     personalNote:
       "Outside coursework, I spend time learning independently, breaking down complex ideas, and refining long-term goals.",
-    email: "xyz156076@gmail.com",
+    email: "dhruvgarg.garg123@gmail.com",
     github: "https://github.com/DhruvGarg111",
     huggingFace: "https://huggingface.co/spaces/DhruvGarg111/Style-Transfer"
   },
