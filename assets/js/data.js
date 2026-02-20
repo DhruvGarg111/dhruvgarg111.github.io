@@ -1,11 +1,11 @@
 ﻿window.portfolioData = {
   profile: {
     name: "Dhruv Garg",
-    heroKicker: "Curious, disciplined, and quietly ambitious",
-    role: "Third-Year Student | AI, ML, and Deep Learning",
+    heroKicker: "Building practical AI systems, one focused iteration at a time",
+    role: "AI/ML Engineer in Training | Computer Vision + Generative AI",
     headline: "I build AI systems by staying consistent, experimental, and practical.",
     summary:
-      "I am a third-year college student balancing academics with focused AI practice. Python is my core language, and I spend most of my best hours in Colab training models, debugging loss curves, and visualizing results.",
+      "I build model-first prototypes in Python and PyTorch, then iterate toward deployable results. Most of my deep work happens in Colab through focused experiments, error analysis, and performance tuning.",
     projectsDescription:
       "A mix of predictive ML, computer vision, and generative experiments that show how my work is evolving from fundamentals to deployed systems.",
     skillsDescription:
@@ -18,8 +18,8 @@
       "If your team values consistency, curiosity, and practical ML execution, I would love to contribute. Email is the fastest way to reach me.",
     identityHighlights: [
       { label: "Mindset", value: "Curious, disciplined, quietly ambitious." },
-      { label: "Current Stage", value: "Third-year college student building technical depth." },
-      { label: "Primary Playground", value: "Python, PyTorch, and Google Colab." }
+      { label: "Current Mission", value: "Turning research ideas into usable AI tools." },
+      { label: "Primary Playground", value: "PyTorch, Colab, and rapid experiment loops." }
     ],
     nowLearning: [
       "Full-stack foundations for model-backed applications",
@@ -48,7 +48,7 @@
     recruiter: {
       heroHeadline: "A student engineer turning AI curiosity into real projects.",
       heroSummary:
-        "I am a third-year student with a strong Python and AI foundation, growing from core ML projects into deployable systems and end-to-end engineering skills.",
+        "I have a strong Python and AI foundation, and I am growing from core ML projects into deployable systems and end-to-end engineering skills.",
       projectsDescription:
         "Selected work that demonstrates initiative, disciplined learning, and measurable technical progress.",
       skillsDescription:
@@ -59,10 +59,10 @@
     }
   },
   heroStats: [
-    { label: "01 / Stage", value: "Third-Year Undergraduate" },
-    { label: "02 / Daily Flow", value: "Python + Colab + Experiments" },
-    { label: "03 / Core Direction", value: "AI, ML, and Deep Learning" },
-    { label: "04 / Working Style", value: "Steady, curious, disciplined" }
+    { label: "01 / Stage", value: "Undergraduate (Year 3)" },
+    { label: "02 / Strength", value: "Computer Vision + Generative AI" },
+    { label: "03 / Build Loop", value: "Experiment -> Evaluate -> Ship" },
+    { label: "04 / Current Goal", value: "AI Research / Engineering Internship" }
   ],
   journey: [
     {
@@ -104,8 +104,13 @@
       maturity: "Research Prototype",
       purpose:
         "Coarse-to-fine aerial forensics pipeline for small-object detection in 2K/4K imagery using LayerCAM-guided slicing.",
-      outcome: "Reduced unnecessary compute while preserving detection sensitivity.",
-      stack: ["YOLOv8/v9", "LayerCAM", "ResNet-50", "Adaptive Slicing", "OpenCV"]
+      problem:
+        "Tiny targets in 2K/4K aerial frames are easy to miss in a single full-frame pass.",
+      approach:
+        "Built a two-stage coarse-to-fine pipeline where LayerCAM proposes candidate regions and YOLO runs on adaptive high-resolution tiles.",
+      impact:
+        "Reduced expensive full-resolution scans while preserving small-object sensitivity during validation experiments.",
+      stack: ["YOLOv9", "LayerCAM", "ResNet-50", "Adaptive Slicing", "OpenCV"]
     },
     {
       id: "pygog-cli",
@@ -114,8 +119,13 @@
       maturity: "Developer Tool",
       purpose:
         "CLI and agentic interface for Google Workspace automation with composable commands and natural-language task orchestration.",
-      outcome: "Built as an end-to-end productivity tool with secure OAuth2 workflows and practical API integration.",
-      stack: ["Python", "Typer", "OAuth2", "LiteLLM", "Rich"]
+      problem:
+        "Workspace automations are scattered across APIs and become repetitive when executed manually.",
+      approach:
+        "Designed a command-first CLI with secure OAuth2 session handling and reusable modules for common Google Workspace workflows.",
+      impact:
+        "Converted multi-step tasks into single-command flows and made repeated operations reproducible for daily use.",
+      stack: ["Python", "Typer", "OAuth2", "LiteLLM", "AI Agent", "CLI"]
     },
     {
       id: "neural-canvas",
@@ -124,8 +134,13 @@
       maturity: "Deployed Favorite",
       purpose:
         "Fast feed-forward style transfer pipeline trained with perceptual loss in PyTorch and optimized for interactive inference.",
-      outcome: "Deployed on Hugging Face for practical real-time use and iteration.",
-      stack: ["PyTorch", "Gradio", "VGG-16", "Residual Blocks", "CUDA"]
+      problem:
+        "Optimization-based style transfer gives strong quality but is too slow for an interactive experience.",
+      approach:
+        "Trained a feed-forward transform network with perceptual losses, then deployed inference through Hugging Face Spaces.",
+      impact:
+        "Enabled near real-time stylization on typical laptop and Colab GPU sessions with a shareable live demo.",
+      stack: ["PyTorch", "Gradio", "VGG-16", "Residual Blocks", "CUDA", "API Support"]
     },
     {
       id: "depth-estimation",
@@ -134,7 +149,12 @@
       maturity: "Advanced Vision",
       purpose:
         "Multi-modal depth prediction by fusing RGB input, sparse depth cues, and semantic guidance into a supervised encoder-decoder setup.",
-      outcome: "Strengthened my understanding of fusion design and supervision strategy tradeoffs.",
+      problem:
+        "Sparse depth maps lose structure around object boundaries and in occluded indoor scenes.",
+      approach:
+        "Fused RGB, sparse depth, and semantic cues in a supervised encoder-decoder with normalization tuned for small-batch training.",
+      impact:
+        "Improved depth continuity and boundary plausibility across NYU Depth v2 validation experiments.",
       stack: ["U-Net", "NYU Depth v2", "Multimodal Fusion", "PyTorch", "GroupNorm"]
     }
   ],

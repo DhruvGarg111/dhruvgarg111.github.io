@@ -7,6 +7,7 @@
 
   const elements = {
     header: document.querySelector(".site-header"),
+    heroMain: document.querySelector(".hero-main"),
     heroKicker: document.getElementById("hero-kicker"),
     heroName: document.getElementById("hero-name"),
     heroRole: document.getElementById("hero-role"),
@@ -31,7 +32,7 @@
     contactEmailLink: document.getElementById("contact-email-link"),
     contactGithubLink: document.getElementById("contact-github-link"),
     contactDemoLink: document.getElementById("contact-demo-link"),
-    toneButtons: Array.from(document.querySelectorAll("[data-tone-option]")),
+    toneToggle: document.getElementById("tone-toggle"),
     footerYear: document.getElementById("footer-year"),
     themeToggle: document.getElementById("theme-toggle")
   };
@@ -52,6 +53,7 @@
 
   setupHeaderScroll(elements.header);
   setupMobileMenu();
+  setupSectionHighlighting(elements.header);
   setupRevealObserver();
 })();
 
@@ -87,8 +89,8 @@ function setupToneSwitcher(tones, elements) {
     return;
   }
 
-  const buttons = Array.isArray(elements.toneButtons) ? elements.toneButtons : [];
-  if (!buttons.length) {
+  const toggle = elements.toneToggle;
+  if (!toggle) {
     return;
   }
 
@@ -97,22 +99,29 @@ function setupToneSwitcher(tones, elements) {
     return;
   }
 
+  const toneOrder = getToneOrder(validTones);
   const initialTone = getInitialTone(validTones);
-  applyTone(initialTone, tones, elements, buttons);
+  applyTone(initialTone, tones, elements, toggle, toneOrder);
+  setupHeroToneHeightLock(validTones, tones, elements);
 
-  buttons.forEach((button) => {
-    button.addEventListener("click", () => {
-      const toneKey = button.getAttribute("data-tone-option");
-      if (!toneKey || !tones[toneKey]) {
-        return;
-      }
-      applyTone(toneKey, tones, elements, buttons);
-      saveTonePreference(toneKey);
-    });
+  if (toneOrder.left === toneOrder.right) {
+    toggle.setAttribute("disabled", "true");
+    return;
+  }
+
+  toggle.addEventListener("click", () => {
+    const currentTone = document.body.getAttribute("data-tone");
+    const nextTone = currentTone === toneOrder.right ? toneOrder.left : toneOrder.right;
+    if (!tones[nextTone]) {
+      return;
+    }
+    applyTone(nextTone, tones, elements, toggle, toneOrder);
+    lockHeroToneHeight(validTones, tones, elements);
+    saveTonePreference(nextTone);
   });
 }
 
-function applyTone(toneKey, tones, elements, buttons) {
+function applyTone(toneKey, tones, elements, toggle, toneOrder) {
   const tone = tones[toneKey];
   if (!tone) {
     return;
@@ -125,11 +134,10 @@ function applyTone(toneKey, tones, elements, buttons) {
   setText(elements.contactTitle, tone.contactTitle);
   setText(elements.contactCopy, tone.contactCopy);
 
-  buttons.forEach((button) => {
-    const active = button.getAttribute("data-tone-option") === toneKey;
-    button.classList.toggle("is-active", active);
-    button.setAttribute("aria-pressed", String(active));
-  });
+  const isRightTone = toneKey === toneOrder.right;
+  toggle.classList.toggle("is-right", isRightTone);
+  toggle.setAttribute("aria-checked", String(isRightTone));
+  toggle.setAttribute("aria-label", isRightTone ? "Switch to technical view" : "Switch to hiring view");
 
   document.body.setAttribute("data-tone", toneKey);
 }
@@ -206,11 +214,30 @@ function renderProjects(projects, container) {
       const safeId = safeSlug(project.id || project.name || "project");
       const safeRepoUrl = safeExternalUrl(project.repoUrl);
       const stack = Array.isArray(project.stack)
-        ? project.stack.map((item) => `<li class="chip">// ${escapeHTML(item)}</li>`).join("")
+        ? project.stack.map((item) => `<li class="chip">${escapeHTML(item)}</li>`).join("")
+        : "";
+      const purpose = isNonEmptyString(project.purpose)
+        ? `<p class="project-purpose">${escapeHTML(project.purpose)}</p>`
         : "";
       const outcome = isNonEmptyString(project.outcome)
         ? `<p class="project-outcome">${escapeHTML(project.outcome)}</p>`
         : "";
+      const caseStudyItems = buildProjectCaseStudy(project);
+      const caseStudy = caseStudyItems.length
+        ? `
+          <ul class="project-case-study">
+            ${caseStudyItems
+      .map(
+        (item) => `
+              <li class="project-case-item">
+                <span class="project-case-label">${escapeHTML(item.label)}</span>${escapeHTML(item.value)}
+              </li>
+            `
+      )
+      .join("")}
+          </ul>
+        `
+        : outcome;
       const delay = getRevealDelay(index, 110, 660);
 
       return `
@@ -220,8 +247,8 @@ function renderProjects(projects, container) {
         <span class="maturity-badge">${escapeHTML(project.maturity)}</span>
       </div>
       <div class="project-content">
-        <p class="project-purpose">${escapeHTML(project.purpose)}</p>
-        ${outcome}
+        ${purpose}
+        ${caseStudy}
         <ul class="chip-list">${stack}</ul>
         <footer class="project-footer">
           <a href="${safeRepoUrl}" target="_blank" rel="noopener noreferrer">Open Repository -></a>
@@ -231,6 +258,20 @@ function renderProjects(projects, container) {
   `;
     })
     .join("");
+}
+
+function buildProjectCaseStudy(project) {
+  if (!project || typeof project !== "object") {
+    return [];
+  }
+
+  const blocks = [
+    { label: "Problem", value: project.problem },
+    { label: "Approach", value: project.approach },
+    { label: "Impact", value: project.impact }
+  ];
+
+  return blocks.filter((item) => isNonEmptyString(item.value));
 }
 
 function renderSkills(skills, container) {
@@ -353,6 +394,66 @@ function setupMobileMenu() {
   });
 }
 
+function setupSectionHighlighting(header) {
+  const navLinks = Array.from(
+    document.querySelectorAll('.site-nav a[href^="#"], .mobile-nav a[href^="#"]')
+  );
+
+  if (!navLinks.length) {
+    return;
+  }
+
+  const sectionMap = new Map();
+  navLinks.forEach((link) => {
+    const hash = link.getAttribute("href");
+    if (!hash || hash === "#") {
+      return;
+    }
+
+    const section = document.querySelector(hash);
+    if (!section || sectionMap.has(hash)) {
+      return;
+    }
+
+    sectionMap.set(hash, section);
+  });
+
+  const sections = Array.from(sectionMap.entries()).map(([hash, section]) => ({ hash, section }));
+  if (!sections.length) {
+    return;
+  }
+
+  const setActiveLink = (activeHash) => {
+    navLinks.forEach((link) => {
+      const isActive = link.getAttribute("href") === activeHash;
+      link.classList.toggle("is-active", isActive);
+      if (isActive) {
+        link.setAttribute("aria-current", "page");
+      } else {
+        link.removeAttribute("aria-current");
+      }
+    });
+  };
+
+  const updateActiveLink = () => {
+    const headerOffset = (header?.offsetHeight || 88) + 24;
+    const scrollMarker = window.scrollY + headerOffset;
+    let activeHash = sections[0].hash;
+
+    sections.forEach(({ hash, section }) => {
+      if (section.offsetTop <= scrollMarker) {
+        activeHash = hash;
+      }
+    });
+
+    setActiveLink(activeHash);
+  };
+
+  updateActiveLink();
+  window.addEventListener("scroll", updateActiveLink, { passive: true });
+  window.addEventListener("resize", updateActiveLink);
+}
+
 function setupThemeSwitcher(toggle) {
   if (!toggle) {
     return;
@@ -381,7 +482,8 @@ function setupThemeSwitcher(toggle) {
   const applyTheme = (isLight) => {
     document.documentElement.classList.toggle(className, isLight);
     syncThemeLogos(isLight);
-    toggle.setAttribute("aria-pressed", String(isLight));
+    toggle.classList.toggle("is-light", isLight);
+    toggle.setAttribute("aria-checked", String(isLight));
     toggle.setAttribute("aria-label", isLight ? "Switch to dark mode" : "Switch to light mode");
     if (metaThemeColor) {
       metaThemeColor.setAttribute("content", isLight ? lightThemeColor : darkThemeColor);
@@ -448,6 +550,98 @@ function getInitialTone(validTones) {
 
 function saveTonePreference(toneKey) {
   setStoredValue("portfolio-tone", toneKey);
+}
+
+function getToneOrder(validTones) {
+  const left = validTones.includes("technical") ? "technical" : validTones[0];
+  const rightCandidate = validTones.includes("recruiter")
+    ? "recruiter"
+    : validTones.find((tone) => tone !== left);
+  const right = rightCandidate || left;
+
+  return { left, right };
+}
+
+function setupHeroToneHeightLock(validTones, tones, elements) {
+  if (!Array.isArray(validTones) || !validTones.length) {
+    return;
+  }
+
+  const updateHeight = () => lockHeroToneHeight(validTones, tones, elements);
+  updateHeight();
+
+  let resizeTimer = 0;
+  window.addEventListener("resize", () => {
+    window.clearTimeout(resizeTimer);
+    resizeTimer = window.setTimeout(updateHeight, 120);
+  });
+
+  if (document.fonts && typeof document.fonts.ready?.then === "function") {
+    document.fonts.ready.then(updateHeight).catch(() => {
+      // Ignore font readiness failures.
+    });
+  }
+}
+
+function lockHeroToneHeight(validTones, tones, elements) {
+  const heroMain = elements.heroMain;
+  if (!heroMain || !heroMain.isConnected) {
+    return;
+  }
+
+  const previousMinHeight = heroMain.style.minHeight;
+  heroMain.style.minHeight = "0px";
+
+  const width = heroMain.getBoundingClientRect().width;
+  if (!width) {
+    heroMain.style.minHeight = previousMinHeight;
+    return;
+  }
+
+  const clone = heroMain.cloneNode(true);
+  clone.querySelectorAll("[id]").forEach((node) => node.removeAttribute("id"));
+  clone.style.position = "absolute";
+  clone.style.left = "-9999px";
+  clone.style.top = "0";
+  clone.style.visibility = "hidden";
+  clone.style.pointerEvents = "none";
+  clone.style.width = `${width}px`;
+  clone.style.minHeight = "0";
+  clone.style.height = "auto";
+  clone.style.transform = "none";
+
+  const cloneHeadline = clone.querySelector(".hero-headline");
+  const cloneSummary = clone.querySelector(".hero-summary");
+
+  document.body.appendChild(clone);
+
+  let maxHeight = 0;
+
+  validTones.forEach((toneKey) => {
+    const tone = tones[toneKey];
+    if (!tone || !cloneHeadline || !cloneSummary) {
+      return;
+    }
+
+    if (isNonEmptyString(tone.heroHeadline)) {
+      cloneHeadline.textContent = tone.heroHeadline.trim();
+    }
+
+    if (isNonEmptyString(tone.heroSummary)) {
+      cloneSummary.textContent = tone.heroSummary.trim();
+    }
+
+    maxHeight = Math.max(maxHeight, Math.ceil(clone.getBoundingClientRect().height));
+  });
+
+  document.body.removeChild(clone);
+
+  if (maxHeight <= 0) {
+    heroMain.style.minHeight = previousMinHeight;
+    return;
+  }
+
+  heroMain.style.minHeight = `${maxHeight}px`;
 }
 
 function getSkillIconMarkup(toolName) {
@@ -611,3 +805,4 @@ function escapeHTML(rawValue) {
 function isNonEmptyString(value) {
   return typeof value === "string" && value.trim().length > 0;
 }
+
