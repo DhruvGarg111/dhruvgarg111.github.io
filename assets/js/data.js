@@ -5,13 +5,13 @@
     role: "AI/ML Engineer in Training | Computer Vision + Generative AI",
     headline: "I build AI systems by staying consistent, experimental, and practical.",
     summary:
-      "I build model-first prototypes in Python and PyTorch, then iterate toward deployable results. Most of my deep work happens in Colab through focused experiments, error analysis, and performance tuning.",
+      "I build model-first prototypes in Python and PyTorch, then harden them into full-stack AI applications with React frontends, FastAPI services, and cloud deployment workflows.",
     projectsDescription:
-      "A mix of predictive ML, computer vision, and generative experiments that show how my work is evolving from fundamentals to deployed systems.",
+      "A mix of predictive ML, computer vision, and generative experiments that now includes deployed full-stack AI systems.",
     skillsDescription:
-      "My growth pattern is simple: strong ML foundations, disciplined experimentation, and gradual expansion into full-stack, cloud, and DevOps.",
+      "My growth pattern is simple: strong ML foundations, disciplined experimentation, and production-minded expansion into full-stack, cloud, and DevOps.",
     journeyDescription:
-      "From regression baselines to deployed creative ML systems, each phase added one layer of rigor, one layer of engineering, and one layer of real-world relevance.",
+      "From regression baselines to shipped web AI systems, each phase added one layer of rigor, one layer of engineering, and one layer of real-world relevance.",
     contactKicker: "Collaborate",
     contactTitle: "I am looking for meaningful AI internships and research work.",
     contactCopy:
@@ -30,6 +30,8 @@
       "Outside coursework, I spend time learning independently, breaking down complex ideas, and refining long-term goals.",
     email: "dhruvgarg.garg123@gmail.com",
     github: "https://github.com/DhruvGarg111",
+    demoUrl: "https://the-searchlight-protocol.vercel.app",
+    neuralCanvasUrl: "https://huggingface.co/spaces/DhruvGarg111/Style-Transfer",
     huggingFace: "https://huggingface.co/spaces/DhruvGarg111/Style-Transfer"
   },
   tones: {
@@ -101,16 +103,20 @@
       id: "searchlight-protocol",
       name: "The Searchlight Protocol",
       repoUrl: "https://github.com/DhruvGarg111/The-Searchlight-Protocol",
-      maturity: "Research Prototype",
+      liveUrl: "https://the-searchlight-protocol.vercel.app",
+      liveLabel: "Launch App",
+      maturity: "Full-Stack System",
       purpose:
-        "Coarse-to-fine aerial forensics pipeline for small-object detection in 2K/4K imagery using LayerCAM-guided slicing.",
+        "A full-stack aerial intelligence console that runs a coarse-to-fine Searchlight pipeline through a React frontend and FastAPI backend.",
       problem:
-        "Tiny targets in 2K/4K aerial frames are easy to miss in a single full-frame pass.",
+        "Tiny targets in 2K/4K aerial imagery are easy to miss when running a single full-frame inference pass.",
       approach:
-        "Built a two-stage coarse-to-fine pipeline where LayerCAM proposes candidate regions and YOLO runs on adaptive high-resolution tiles.",
+        "Built a three-stage flow where LayerCAM guides candidate selection, intelligent slicing retains high-signal crops, and YOLO executes localized detection with global coordinate remapping.",
       impact:
-        "Reduced expensive full-resolution scans while preserving small-object sensitivity during validation experiments.",
-      stack: ["YOLOv9", "LayerCAM", "ResNet-50", "Adaptive Slicing", "OpenCV"]
+        "Reduced expensive full-resolution scanning while keeping small-object sensitivity, then packaged the pipeline into a usable web inference experience.",
+      deployment:
+        "Architecture: React/Vite frontend deployed on Vercel, with a FastAPI inference backend deployed on Hugging Face Spaces.",
+      stack: ["React", "FastAPI", "PyTorch", "LayerCAM", "YOLOv8", "Vercel", "HF Spaces"]
     },
     {
       id: "pygog-cli",
@@ -131,6 +137,8 @@
       id: "neural-canvas",
       name: "Neural Canvas",
       repoUrl: "https://github.com/DhruvGarg111/Neural-Style-Transfer",
+      liveUrl: "https://huggingface.co/spaces/DhruvGarg111/Style-Transfer",
+      liveLabel: "Open Demo",
       maturity: "Deployed Favorite",
       purpose:
         "Fast feed-forward style transfer pipeline trained with perceptual loss in PyTorch and optimized for interactive inference.",

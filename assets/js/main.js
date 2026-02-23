@@ -15,6 +15,7 @@
     heroSummary: document.getElementById("hero-summary"),
     heroGithubLink: document.getElementById("hero-github-link"),
     heroDemoLink: document.getElementById("hero-demo-link"),
+    heroCanvasLink: document.getElementById("hero-canvas-link"),
     heroStats: document.getElementById("hero-stats"),
     personaHighlights: document.getElementById("persona-highlights"),
     nowLearningList: document.getElementById("now-learning-list"),
@@ -32,6 +33,7 @@
     contactEmailLink: document.getElementById("contact-email-link"),
     contactGithubLink: document.getElementById("contact-github-link"),
     contactDemoLink: document.getElementById("contact-demo-link"),
+    contactCanvasLink: document.getElementById("contact-canvas-link"),
     toneToggle: document.getElementById("tone-toggle"),
     footerYear: document.getElementById("footer-year"),
     themeToggle: document.getElementById("theme-toggle")
@@ -75,10 +77,14 @@ function renderProfile(profile, elements) {
   setText(elements.contactTitle, profile.contactTitle);
   setText(elements.contactCopy, profile.contactCopy);
 
+  const demoUrl = isNonEmptyString(profile.demoUrl) ? profile.demoUrl : profile.huggingFace;
+  const neuralCanvasUrl = isNonEmptyString(profile.neuralCanvasUrl) ? profile.neuralCanvasUrl : profile.huggingFace;
   setExternalLink(elements.heroGithubLink, profile.github);
-  setExternalLink(elements.heroDemoLink, profile.huggingFace);
+  setExternalLink(elements.heroDemoLink, demoUrl);
+  setExternalLink(elements.heroCanvasLink, neuralCanvasUrl);
   setExternalLink(elements.contactGithubLink, profile.github);
-  setExternalLink(elements.contactDemoLink, profile.huggingFace);
+  setExternalLink(elements.contactDemoLink, demoUrl);
+  setExternalLink(elements.contactCanvasLink, neuralCanvasUrl);
   setEmailLink(elements.contactEmailLink, profile.email);
 
   renderPersona(profile, elements);
@@ -213,11 +219,15 @@ function renderProjects(projects, container) {
     .map((project, index) => {
       const safeId = safeSlug(project.id || project.name || "project");
       const safeRepoUrl = safeExternalUrl(project.repoUrl);
+      const safeLiveUrl = safeExternalUrl(project.liveUrl);
       const stack = Array.isArray(project.stack)
         ? project.stack.map((item) => `<li class="chip">${escapeHTML(item)}</li>`).join("")
         : "";
       const purpose = isNonEmptyString(project.purpose)
         ? `<p class="project-purpose">${escapeHTML(project.purpose)}</p>`
+        : "";
+      const deployment = isNonEmptyString(project.deployment)
+        ? `<p class="project-deployment">${escapeHTML(project.deployment)}</p>`
         : "";
       const outcome = isNonEmptyString(project.outcome)
         ? `<p class="project-outcome">${escapeHTML(project.outcome)}</p>`
@@ -238,6 +248,9 @@ function renderProjects(projects, container) {
           </ul>
         `
         : outcome;
+      const liveLink = isNonEmptyString(project.liveUrl)
+        ? `<a class="project-link project-link-live" href="${safeLiveUrl}" target="_blank" rel="noopener noreferrer">${escapeHTML(project.liveLabel || "Launch App")} -></a>`
+        : "";
       const delay = getRevealDelay(index, 110, 660);
 
       return `
@@ -249,9 +262,11 @@ function renderProjects(projects, container) {
       <div class="project-content">
         ${purpose}
         ${caseStudy}
+        ${deployment}
         <ul class="chip-list">${stack}</ul>
         <footer class="project-footer">
-          <a href="${safeRepoUrl}" target="_blank" rel="noopener noreferrer">Open Repository -></a>
+          ${liveLink}
+          <a class="project-link project-link-repo" href="${safeRepoUrl}" target="_blank" rel="noopener noreferrer">Open Repository -></a>
         </footer>
       </div>
     </article>
