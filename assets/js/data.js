@@ -100,6 +100,21 @@
   ],
   projects: [
     {
+      id: "pixel-queue",
+      name: "PixelQueue",
+      repoUrl: "https://github.com/DhruvGarg111/PixelQueue",
+      maturity: "Vision Intelligence Infrastructure",
+      purpose:
+        "A high-performance control panel for human-in-the-loop AI annotation, powered by decoupled ML microservices and robust task queues.",
+      problem:
+        "Image annotation workflows are often bottlenecked by synchronous processing and bloated, slow web interfaces.",
+      approach:
+        "Built a highly decoupled, event-driven topology with automated Celery workers and a hardware-accelerated React-Konva staging canvas.",
+      impact:
+        "Enabled non-blocking AI auto-labeling via YOLO/SAM while providing pure-speed, DOM-optimized rendering for human reviewers.",
+      stack: ["React", "FastAPI", "Celery", "PostgreSQL", "Docker", "PyTorch"]
+    },
+    {
       id: "searchlight-protocol",
       name: "The Searchlight Protocol",
       repoUrl: "https://github.com/DhruvGarg111/The-Searchlight-Protocol",
@@ -116,22 +131,7 @@
         "Reduced expensive full-resolution scanning while keeping small-object sensitivity, then packaged the pipeline into a usable web inference experience.",
       deployment:
         "Architecture: React/Vite frontend deployed on Vercel, with a FastAPI inference backend deployed on Hugging Face Spaces.",
-      stack: ["React", "FastAPI", "PyTorch", "LayerCAM", "YOLOv8", "Vercel", "HF Spaces"]
-    },
-    {
-      id: "pygog-cli",
-      name: "pygog",
-      repoUrl: "https://github.com/DhruvGarg111/py-goog-cli",
-      maturity: "Developer Tool",
-      purpose:
-        "CLI and agentic interface for Google Workspace automation with composable commands and natural-language task orchestration.",
-      problem:
-        "Workspace automations are scattered across APIs and become repetitive when executed manually.",
-      approach:
-        "Designed a command-first CLI with secure OAuth2 session handling and reusable modules for common Google Workspace workflows.",
-      impact:
-        "Converted multi-step tasks into single-command flows and made repeated operations reproducible for daily use.",
-      stack: ["Python", "Typer", "OAuth2", "LiteLLM", "AI Agent", "CLI"]
+      stack: ["React", "Vite", "FastAPI", "PyTorch", "LayerCAM", "YOLOv8"]
     },
     {
       id: "neural-canvas",
@@ -148,22 +148,22 @@
         "Trained a feed-forward transform network with perceptual losses, then deployed inference through Hugging Face Spaces.",
       impact:
         "Enabled near real-time stylization on typical laptop and Colab GPU sessions with a shareable live demo.",
-      stack: ["PyTorch", "Gradio", "VGG-16", "Residual Blocks", "CUDA", "API Support"]
+      stack: ["PyTorch", "Gradio", "VGG-16", "Residual Blocks", "CUDA"]
     },
     {
-      id: "depth-estimation",
-      name: "Depth Completion",
-      repoUrl: "https://github.com/DhruvGarg111/Depth-Estimation-with-Semantic-Segmentation",
-      maturity: "Advanced Vision",
+      id: "pygog-cli",
+      name: "pygog",
+      repoUrl: "https://github.com/DhruvGarg111/py-goog-cli",
+      maturity: "Developer Tool",
       purpose:
-        "Multi-modal depth prediction by fusing RGB input, sparse depth cues, and semantic guidance into a supervised encoder-decoder setup.",
+        "CLI and agentic interface for Google Workspace automation with composable commands and natural-language task orchestration.",
       problem:
-        "Sparse depth maps lose structure around object boundaries and in occluded indoor scenes.",
+        "Workspace automations are scattered across APIs and become repetitive when executed manually.",
       approach:
-        "Fused RGB, sparse depth, and semantic cues in a supervised encoder-decoder with normalization tuned for small-batch training.",
+        "Designed a command-first CLI with secure OAuth2 session handling and reusable modules for common Google Workspace workflows.",
       impact:
-        "Improved depth continuity and boundary plausibility across NYU Depth v2 validation experiments.",
-      stack: ["U-Net", "NYU Depth v2", "Multimodal Fusion", "PyTorch", "GroupNorm"]
+        "Converted multi-step tasks into single-command flows and made repeated operations reproducible for daily use.",
+      stack: ["Python", "Typer", "OAuth2", "LiteLLM", "AI Agent", "CLI"]
     }
   ],
   skills: [
