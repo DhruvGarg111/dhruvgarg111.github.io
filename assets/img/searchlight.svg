@@ -1,0 +1,297 @@
+<svg viewBox="0 0 800 360" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <!-- Gradients for blocks -->
+        <linearGradient id="bg-grad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#050510"/>
+            <stop offset="50%" stop-color="#0a0a1a"/>
+            <stop offset="100%" stop-color="#020205"/>
+        </linearGradient>
+
+        <linearGradient id="cyan-glow" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#06B6D4" stop-opacity="0.3"/>
+            <stop offset="100%" stop-color="#083344" stop-opacity="0.05"/>
+        </linearGradient>
+
+        <linearGradient id="blue-glow" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#3B82F6" stop-opacity="0.3"/>
+            <stop offset="100%" stop-color="#1E3A8A" stop-opacity="0.05"/>
+        </linearGradient>
+        
+        <linearGradient id="indigo-glow" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#6366F1" stop-opacity="0.3"/>
+            <stop offset="100%" stop-color="#312E81" stop-opacity="0.05"/>
+        </linearGradient>
+        
+        <linearGradient id="gold-glow" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#F59E0B" stop-opacity="0.8"/>
+            <stop offset="100%" stop-color="#B45309" stop-opacity="0.2"/>
+        </linearGradient>
+
+        <!-- Filters -->
+        <filter id="glow-cyan" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="8" result="blur" />
+            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+        </filter>
+        <filter id="glow-blue" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="8" result="blur" />
+            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+        </filter>
+        <filter id="glow-indigo" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="8" result="blur" />
+            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+        </filter>
+        <filter id="glow-red" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="6" result="blur" />
+            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+        </filter>
+
+        <!-- Patterns -->
+        <pattern id="grid" width="30" height="30" patternUnits="userSpaceOnUse">
+            <rect width="30" height="30" fill="none" stroke="#ffffff" stroke-opacity="0.03" stroke-width="1"/>
+            <circle cx="30" cy="30" r="1" fill="#ffffff" fill-opacity="0.1"/>
+        </pattern>
+        <pattern id="hex-bg" width="40" height="69.28" patternUnits="userSpaceOnUse" patternTransform="scale(0.6)">
+            <path d="M20 0 L40 11.55 L40 34.64 L20 46.19 L0 34.64 L0 11.55 Z" fill="none" stroke="#3B82F6" stroke-width="0.5" stroke-opacity="0.15"/>
+            <path d="M20 69.28 L40 57.74 L40 34.64 L20 46.19 L0 34.64 L0 57.74 Z" fill="none" stroke="#3B82F6" stroke-width="0.5" stroke-opacity="0.15"/>
+        </pattern>
+        
+        <!-- Drop Shadow -->
+        <filter id="drop-shadow" x="-20%" y="-20%" width="140%" height="140%">
+            <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000" flood-opacity="0.6"/>
+        </filter>
+        
+        <marker id="arrow-cyan" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 1 L 10 5 L 0 9 z" fill="#06B6D4" />
+        </marker>
+        <marker id="arrow-indigo" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 1 L 10 5 L 0 9 z" fill="#6366F1" />
+        </marker>
+    </defs>
+
+    <!-- Base Background -->
+    <rect width="100%" height="100%" fill="url(#bg-grad)"/>
+    <rect width="100%" height="100%" fill="url(#hex-bg)"/>
+    <rect width="100%" height="100%" fill="url(#grid)"/>
+
+    <!-- Subtle vignette -->
+    <radialGradient id="vignette" cx="50%" cy="50%" r="70%">
+        <stop offset="60%" stop-color="#000" stop-opacity="0"/>
+        <stop offset="100%" stop-color="#000" stop-opacity="0.7"/>
+    </radialGradient>
+    <rect width="100%" height="100%" fill="url(#vignette)" pointer-events="none"/>
+
+    <!-- Connections (Animated data flow) -->
+    <!-- From drone to core -->
+    <g>
+        <path id="path1" d="M 230 140 C 270 140, 270 160, 310 160" fill="none" stroke="#1E293B" stroke-width="3"/>
+        <path d="M 230 140 C 270 140, 270 160, 310 160" fill="none" stroke="#06B6D4" stroke-width="3" stroke-dasharray="8 8" filter="url(#glow-cyan)" marker-end="url(#arrow-cyan)">
+            <animate attributeName="stroke-dashoffset" values="32;0" dur="1s" repeatCount="indefinite" />
+        </path>
+        <text x="250" y="130" fill="#06B6D4" font-family="monospace" font-size="10" font-weight="bold" opacity="0.8">RAW_FEED</text>
+    </g>
+
+    <!-- From core to detector -->
+    <g>
+        <path id="path2" d="M 530 160 C 570 160, 570 140, 610 140" fill="none" stroke="#1E293B" stroke-width="3"/>
+        <path d="M 530 160 C 570 160, 570 140, 610 140" fill="none" stroke="#6366F1" stroke-width="3" stroke-dasharray="8 8" filter="url(#glow-indigo)" marker-end="url(#arrow-indigo)">
+            <animate attributeName="stroke-dashoffset" values="32;0" dur="1s" repeatCount="indefinite" />
+        </path>
+         <text x="545" y="130" fill="#6366F1" font-family="monospace" font-size="10" font-weight="bold" opacity="0.8">TENSOR_OUT</text>
+    </g>
+
+    <!-- Module 1: UAV Input -->
+    <g transform="translate(40, 60)" filter="url(#drop-shadow)">
+        <rect x="0" y="0" width="190" height="150" rx="12" fill="#0A0F1C" stroke="#1E293B" stroke-width="2"/>
+        <rect x="0" y="0" width="190" height="150" rx="12" fill="url(#cyan-glow)"/>
+        
+        <!-- Header -->
+        <path d="M 0 12 Q 0 0 12 0 L 178 0 Q 190 0 190 12 L 190 35 L 0 35 Z" fill="#06B6D4" fill-opacity="0.1"/>
+        <line x1="0" y1="35" x2="190" y2="35" stroke="#06B6D4" stroke-width="1.5" stroke-opacity="0.5"/>
+        
+        <circle cx="20" cy="17" r="4" fill="#06B6D4" filter="url(#glow-cyan)"/>
+        <text x="35" y="21" fill="#E2E8F0" font-family="system-ui, sans-serif" font-size="12" font-weight="600" letter-spacing="1">UAV.T_DATA</text>
+        <rect x="145" y="10" width="35" height="16" rx="4" fill="#06B6D4" fill-opacity="0.2" stroke="#06B6D4" stroke-width="1"/>
+        <text x="151" y="22" fill="#06B6D4" font-family="monospace" font-size="9" font-weight="bold">4K</text>
+
+        <!-- Drone Visual -->
+        <g transform="translate(95, 95)">
+            <!-- Outer Radar Ring -->
+            <circle cx="0" cy="0" r="38" fill="none" stroke="#06B6D4" stroke-width="1" stroke-dasharray="4 4" opacity="0.3">
+                <animateTransform attributeName="transform" type="rotate" from="360" to="0" dur="10s" repeatCount="indefinite"/>
+            </circle>
+            <circle cx="0" cy="0" r="30" fill="none" stroke="#06B6D4" stroke-width="2" opacity="0.6"/>
+            
+            <!-- Rotating Scanner -->
+            <g>
+                <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="3s" repeatCount="indefinite"/>
+                <path d="M 0 0 L 0 -30 A 30 30 0 0 1 25.98 -15 Z" fill="#06B6D4" opacity="0.3" filter="url(#glow-cyan)"/>
+                <line x1="0" y1="0" x2="0" y2="-30" stroke="#06B6D4" stroke-width="2" filter="url(#glow-cyan)"/>
+            </g>
+            
+            <!-- Crosshair -->
+            <line x1="-40" y1="0" x2="-20" y2="0" stroke="#E2E8F0" stroke-width="1.5" opacity="0.5"/>
+            <line x1="20" y1="0" x2="40" y2="0" stroke="#E2E8F0" stroke-width="1.5" opacity="0.5"/>
+            <line x1="0" y1="-40" x2="0" y2="-20" stroke="#E2E8F0" stroke-width="1.5" opacity="0.5"/>
+            <line x1="0" y1="20" x2="0" y2="40" stroke="#E2E8F0" stroke-width="1.5" opacity="0.5"/>
+            
+            <rect x="-6" y="-6" width="12" height="12" fill="none" stroke="#06B6D4" stroke-width="1.5" filter="url(#glow-cyan)"/>
+            
+            <!-- Data points -->
+            <circle cx="-15" cy="-12" r="2.5" fill="#06B6D4" filter="url(#glow-cyan)">
+                <animate attributeName="opacity" values="0.2;1;0.2" dur="2s" repeatCount="indefinite"/>
+            </circle>
+            <circle cx="12" cy="18" r="2" fill="#06B6D4" filter="url(#glow-cyan)">
+                <animate attributeName="opacity" values="1;0.3;1" dur="1.5s" repeatCount="indefinite"/>
+            </circle>
+        </g>
+        <text x="15" y="135" fill="#94A3B8" font-family="monospace" font-size="8">ALT: 120m</text>
+        <text x="140" y="135" fill="#94A3B8" font-family="monospace" font-size="8">FPS: 60</text>
+    </g>
+
+    <!-- Module 2: SEARCHLIGHT CORE -->
+    <g transform="translate(310, 40)" filter="url(#drop-shadow)">
+        <rect x="0" y="0" width="220" height="230" rx="12" fill="#0A0F1C" stroke="#1E293B" stroke-width="2"/>
+        <rect x="0" y="0" width="220" height="230" rx="12" fill="url(#blue-glow)"/>
+        
+        <!-- Header -->
+        <path d="M 0 12 Q 0 0 12 0 L 208 0 Q 220 0 220 12 L 220 35 L 0 35 Z" fill="#3B82F6" fill-opacity="0.1"/>
+        <line x1="0" y1="35" x2="220" y2="35" stroke="#3B82F6" stroke-width="1.5" stroke-opacity="0.5"/>
+        
+        <circle cx="20" cy="17" r="4" fill="#3B82F6" filter="url(#glow-blue)"/>
+        <text x="35" y="21" fill="#E2E8F0" font-family="system-ui, sans-serif" font-size="12" font-weight="600" letter-spacing="1">SEARCHLIGHT_CORE</text>
+        
+        <!-- Sub-module 1: LayerCAM -->
+        <g transform="translate(20, 55)">
+            <rect x="0" y="0" width="180" height="70" rx="6" fill="#0F172A" stroke="#3B82F6" stroke-width="1.5" stroke-opacity="0.8"/>
+            <rect x="0" y="0" width="180" height="70" rx="6" fill="#3B82F6" fill-opacity="0.05"/>
+            <text x="12" y="18" fill="#60A5FA" font-family="monospace" font-size="10" font-weight="bold">MODULE_1: LAYER_CAM</text>
+            
+            <g transform="translate(10, 25)">
+                <rect x="0" y="0" width="160" height="35" rx="4" fill="#020617" stroke="#1E293B" stroke-width="1"/>
+                <!-- Heatmap abstraction -->
+                <defs>
+                    <radialGradient id="heat1" cx="30%" cy="50%" r="50%">
+                        <stop offset="0%" stop-color="#EF4444" stop-opacity="0.8"/>
+                        <stop offset="50%" stop-color="#F59E0B" stop-opacity="0.5"/>
+                        <stop offset="100%" stop-color="#3B82F6" stop-opacity="0"/>
+                    </radialGradient>
+                    <radialGradient id="heat2" cx="70%" cy="60%" r="40%">
+                        <stop offset="0%" stop-color="#EF4444" stop-opacity="0.7"/>
+                        <stop offset="40%" stop-color="#F59E0B" stop-opacity="0.4"/>
+                        <stop offset="100%" stop-color="#3B82F6" stop-opacity="0"/>
+                    </radialGradient>
+                </defs>
+                <rect x="0" y="0" width="160" height="35" rx="4" fill="url(#heat1)"/>
+                <rect x="0" y="0" width="160" height="35" rx="4" fill="url(#heat2)"/>
+                <!-- Pulse animation on hotspots -->
+                <circle cx="48" cy="17" r="2" fill="#fff" filter="url(#glow-red)">
+                    <animate attributeName="r" values="1;3;1" dur="1s" repeatCount="indefinite"/>
+                </circle>
+                <circle cx="112" cy="21" r="1.5" fill="#fff" filter="url(#glow-red)">
+                    <animate attributeName="r" values="1;2.5;1" dur="1.2s" repeatCount="indefinite"/>
+                </circle>
+            </g>
+        </g>
+
+        <!-- Vertical connector -->
+        <g transform="translate(110, 125)">
+            <line x1="0" y1="0" x2="0" y2="20" stroke="#3B82F6" stroke-width="2" stroke-dasharray="4 4">
+                <animate attributeName="stroke-dashoffset" values="8;0" dur="0.5s" repeatCount="indefinite"/>
+            </line>
+            <polygon points="0,25 -4,17 4,17" fill="#3B82F6" filter="url(#glow-blue)"/>
+        </g>
+
+        <!-- Sub-module 2: Intelligent Slicer -->
+        <g transform="translate(20, 150)">
+            <rect x="0" y="0" width="180" height="65" rx="6" fill="#0F172A" stroke="#3B82F6" stroke-width="1.5" stroke-opacity="0.8">
+                 <animate attributeName="stroke-opacity" values="0.4;1;0.4" dur="2s" repeatCount="indefinite"/>
+            </rect>
+            <rect x="0" y="0" width="180" height="65" rx="6" fill="#3B82F6" fill-opacity="0.05"/>
+            <text x="12" y="18" fill="#60A5FA" font-family="monospace" font-size="10" font-weight="bold">MODULE_2: INTEL_SLICER</text>
+            
+            <g transform="translate(15, 25)">
+                <!-- Crop patches -->
+                <g opacity="0.9">
+                    <rect x="0" y="0" width="30" height="30" fill="none" stroke="#60A5FA" stroke-width="1" stroke-dasharray="2 2"/>
+                    <rect x="3" y="3" width="24" height="24" fill="url(#gold-glow)"/>
+                    <text x="15" y="18" fill="#fff" font-size="6" font-family="monospace" text-anchor="middle">C-1</text>
+                </g>
+                <g transform="translate(45, 0)" opacity="0.9">
+                    <rect x="0" y="0" width="30" height="30" fill="none" stroke="#60A5FA" stroke-width="1" stroke-dasharray="2 2"/>
+                    <rect x="3" y="3" width="24" height="24" fill="url(#gold-glow)"/>
+                     <text x="15" y="18" fill="#fff" font-size="6" font-family="monospace" text-anchor="middle">C-2</text>
+                </g>
+                <g transform="translate(90, 0)" opacity="0.3">
+                    <rect x="0" y="0" width="30" height="30" fill="none" stroke="#475569" stroke-width="1" stroke-dasharray="2 2"/>
+                    <text x="15" y="18" fill="#475569" font-size="8" font-family="monospace" text-anchor="middle">...</text>
+                </g>
+                <g transform="translate(120, 0)" opacity="0.9">
+                    <rect x="0" y="0" width="30" height="30" fill="none" stroke="#60A5FA" stroke-width="1" stroke-dasharray="2 2"/>
+                    <rect x="3" y="3" width="24" height="24" fill="url(#gold-glow)"/>
+                    <text x="15" y="18" fill="#fff" font-size="6" font-family="monospace" text-anchor="middle">C-N</text>
+                </g>
+            </g>
+        </g>
+    </g>
+
+    <!-- Module 3: YOLO Detector -->
+    <g transform="translate(610, 60)" filter="url(#drop-shadow)">
+        <rect x="0" y="0" width="160" height="150" rx="12" fill="#0A0F1C" stroke="#1E293B" stroke-width="2"/>
+        <rect x="0" y="0" width="160" height="150" rx="12" fill="url(#indigo-glow)"/>
+        <rect x="0" y="0" width="160" height="150" rx="12" fill="none" stroke="#6366F1" stroke-width="1" stroke-opacity="0.5" filter="url(#glow-indigo)"/>
+        
+        <!-- Header -->
+        <path d="M 0 12 Q 0 0 12 0 L 148 0 Q 160 0 160 12 L 160 35 L 0 35 Z" fill="#6366F1" fill-opacity="0.1"/>
+        <line x1="0" y1="35" x2="160" y2="35" stroke="#6366F1" stroke-width="1.5" stroke-opacity="0.5"/>
+        
+        <circle cx="20" cy="17" r="4" fill="#6366F1" filter="url(#glow-indigo)"/>
+        <text x="35" y="21" fill="#E2E8F0" font-family="system-ui, sans-serif" font-size="12" font-weight="600" letter-spacing="1">YOLOv8 DETECT</text>
+        
+        <!-- Inner Screen -->
+        <g transform="translate(20, 50)">
+            <rect x="0" y="0" width="120" height="80" rx="4" fill="#020617" stroke="#312E81" stroke-width="1.5"/>
+            
+            <!-- Grid lines inside screen -->
+            <path d="M 0 20 L 120 20 M 0 40 L 120 40 M 0 60 L 120 60" stroke="#1E293B" stroke-width="0.5"/>
+            <path d="M 30 0 L 30 80 M 60 0 L 60 80 M 90 0 L 90 80" stroke="#1E293B" stroke-width="0.5"/>
+            
+            <!-- Target Objects Boxes -->
+            <!-- Object 1 -->
+            <g transform="translate(20, 15)">
+                <rect x="0" y="0" width="35" height="40" fill="none" stroke="#6366F1" stroke-width="1.5" filter="url(#glow-indigo)"/>
+                <!-- Corner accents -->
+                <path d="M 0 5 L 0 0 L 5 0 M 30 0 L 35 0 L 35 5 M 35 35 L 35 40 L 30 40 M 5 40 L 0 40 L 0 35" fill="none" stroke="#A5B4FC" stroke-width="2"/>
+                <!-- Label -->
+                <rect x="0" y="-10" width="30" height="10" fill="#6366F1"/>
+                <text x="3" y="-3" fill="#FFF" font-size="6" font-family="sans-serif" font-weight="bold">PERSON</text>
+                <text x="3" y="36" fill="#A5B4FC" font-size="5" font-family="sans-serif">0.98</text>
+            </g>
+
+            <!-- Object 2 -->
+            <g transform="translate(75, 40)">
+                <rect x="0" y="0" width="25" height="25" fill="none" stroke="#6366F1" stroke-width="1.5" filter="url(#glow-indigo)"/>
+                <path d="M 0 3 L 0 0 L 3 0 M 22 0 L 25 0 L 25 3 M 25 22 L 25 25 L 22 25 M 3 25 L 0 25 L 0 22" fill="none" stroke="#A5B4FC" stroke-width="2"/>
+                <rect x="0" y="-10" width="25" height="10" fill="#6366F1"/>
+                <text x="3" y="-3" fill="#FFF" font-size="6" font-family="sans-serif" font-weight="bold">TRUCK</text>
+                <text x="3" y="22" fill="#A5B4FC" font-size="5" font-family="sans-serif">0.89</text>
+            </g>
+        </g>
+    </g>
+
+    <!-- Telemetry & Status Bar -->
+    <g transform="translate(40, 310)">
+        <rect x="0" y="0" width="730" height="25" rx="4" fill="#0A0F1C" stroke="#1E293B" stroke-width="1"/>
+        <rect x="0" y="0" width="730" height="25" rx="4" fill="#10B981" fill-opacity="0.05"/>
+        
+        <circle cx="15" cy="12.5" r="4" fill="#10B981">
+             <animate attributeName="opacity" values="1;0.4;1" dur="1s" repeatCount="indefinite"/>
+        </circle>
+        
+        <text x="28" y="16.5" fill="#10B981" font-size="10" font-family="monospace" font-weight="bold" letter-spacing="1">SYSTEM_ONLINE :: PROTOCOL_ACTIVE</text>
+        
+        <text x="250" y="16.5" fill="#475569" font-size="10" font-family="monospace">THROUGHPUT: <tspan fill="#3B82F6">120 MB/s</tspan></text>
+        <text x="400" y="16.5" fill="#475569" font-size="10" font-family="monospace">MEMORY: <tspan fill="#F59E0B">4.2 GB</tspan></text>
+        <text x="550" y="16.5" fill="#475569" font-size="10" font-family="monospace">LATENCY: <tspan fill="#10B981">45ms / FR</tspan></text>
+        <text x="680" y="16.5" fill="#6366F1" font-size="10" font-family="monospace" font-weight="bold">SIG: OK</text>
+    </g>
+</svg>

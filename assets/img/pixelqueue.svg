@@ -1,0 +1,167 @@
+<svg viewBox="0 0 800 320" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <filter id="glow-purple" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="8" result="blur" />
+            <feMerge>
+                <feMergeNode in="blur" />
+                <feMergeNode in="SourceGraphic" />
+            </feMerge>
+        </filter>
+        <filter id="glow-cyan" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="8" result="blur" />
+            <feMerge>
+                <feMergeNode in="blur" />
+                <feMergeNode in="SourceGraphic" />
+            </feMerge>
+        </filter>
+        <linearGradient id="purple-fade" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#8B5CF6" stop-opacity="0.3"/>
+            <stop offset="100%" stop-color="#1E1B4B" stop-opacity="0.1"/>
+        </linearGradient>
+        <linearGradient id="cyan-fade" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#06B6D4" stop-opacity="0.3"/>
+            <stop offset="100%" stop-color="#083344" stop-opacity="0.1"/>
+        </linearGradient>
+        <pattern id="hex-bg" width="40" height="69.28" patternUnits="userSpaceOnUse" patternTransform="scale(0.5)">
+            <path d="M20 0 L40 11.55 L40 34.64 L20 46.19 L0 34.64 L0 11.55 Z" fill="none" stroke="#1E293B" stroke-width="1.5" opacity="0.4"/>
+            <path d="M20 69.28 L40 57.74 L40 34.64 L20 46.19 L0 34.64 L0 57.74 Z" fill="none" stroke="#1E293B" stroke-width="1.5" opacity="0.4"/>
+        </pattern>
+        <linearGradient id="bg-grad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#020617"/>
+            <stop offset="100%" stop-color="#0F172A"/>
+        </linearGradient>
+    </defs>
+
+    <!-- Background -->
+    <rect width="100%" height="100%" fill="url(#bg-grad)"/>
+    <rect width="100%" height="100%" fill="url(#hex-bg)"/>
+
+    <!-- Left Box: UI Canvas -->
+    <g transform="translate(60, 40)">
+        <rect x="0" y="0" width="240" height="180" rx="8" fill="#000" stroke="#1E293B" stroke-width="2"/>
+        <rect x="0" y="0" width="240" height="180" rx="8" fill="url(#cyan-fade)"/>
+        
+        <!-- Toolbar -->
+        <rect x="0" y="0" width="240" height="32" rx="8" fill="#0F172A"/>
+        <rect x="0" y="24" width="240" height="8" fill="#0F172A"/>
+        <circle cx="20" cy="16" r="4" fill="#334155"/>
+        <circle cx="36" cy="16" r="4" fill="#334155"/>
+        <circle cx="52" cy="16" r="4" fill="#334155"/>
+        <text x="76" y="20" fill="#64748B" font-size="12" font-family="monospace">PixelQueue UI</text>
+
+        <!-- Canvas inner -->
+        <rect x="20" y="52" width="140" height="110" rx="4" fill="#020617" stroke="#1E293B" stroke-width="1.5"/>
+        
+        <!-- Sidebar items -->
+        <rect x="172" y="52" width="50" height="14" rx="2" fill="#1E293B"/>
+        <rect x="172" y="74" width="50" height="6" rx="2" fill="#334155"/>
+        <rect x="172" y="86" width="34" height="6" rx="2" fill="#334155"/>
+        
+        <!-- Action Buttons -->
+        <rect x="172" y="112" width="50" height="20" rx="4" fill="#06B6D4" opacity="0.8"/>
+        <text x="197" y="126" fill="#020617" font-size="10" font-family="sans-serif" text-anchor="middle" font-weight="900">APPROVE</text>
+
+        <rect x="172" y="142" width="50" height="20" rx="4" fill="none" stroke="#EF4444" stroke-width="1.5"/>
+        <text x="197" y="156" fill="#EF4444" font-size="10" font-family="sans-serif" text-anchor="middle" font-weight="900">REJECT</text>
+
+        <!-- Bounding Box -->
+        <g transform="translate(45, 75)">
+            <rect x="0" y="0" width="60" height="48" fill="none" stroke="#06B6D4" stroke-width="2" stroke-dasharray="4 4"/>
+            <rect x="-4" y="-4" width="8" height="8" fill="#06B6D4"/>
+            <rect x="56" y="-4" width="8" height="8" fill="#06B6D4"/>
+            <rect x="-4" y="44" width="8" height="8" fill="#06B6D4"/>
+            <rect x="56" y="44" width="8" height="8" fill="#06B6D4"/>
+            
+            <polygon points="15,20 15,30 25,25" fill="#06B6D4" opacity="0.6"/>
+            
+            <!-- Glow around box -->
+            <rect x="-2" y="-2" width="64" height="52" fill="none" stroke="#06B6D4" stroke-width="2" filter="url(#glow-cyan)" opacity="0.5"/>
+        </g>
+    </g>
+
+    <!-- Center Bridge (Lines & Flow) -->
+    <!-- Line 1: HitL to Broker -->
+    <path d="M 300 130 L 370 130 C 390 130, 410 80, 430 80 L 480 80" fill="none" stroke="#1E293B" stroke-width="3"/>
+    <path d="M 300 130 L 370 130 C 390 130, 410 80, 430 80 L 480 80" fill="none" stroke="#06B6D4" stroke-width="3" stroke-dasharray="6 12" stroke-dashoffset="0">
+        <animate attributeName="stroke-dashoffset" values="36;0" dur="1.5s" repeatCount="indefinite"/>
+    </path>
+    <!-- Label 1 -->
+    <rect x="360" y="65" width="60" height="24" rx="12" fill="#020617" stroke="#06B6D4" stroke-width="1.5"/>
+    <text x="390" y="81" fill="#06B6D4" font-size="10" font-family="sans-serif" text-anchor="middle" font-weight="bold">HTTP/WSS</text>
+
+    <!-- Line 2: Broker to Worker -->
+    <path d="M 300 160 L 350 160 C 380 160, 400 230, 430 230 L 480 230" fill="none" stroke="#1E293B" stroke-width="3"/>
+    <path d="M 300 160 L 350 160 C 380 160, 400 230, 430 230 L 480 230" fill="none" stroke="#8B5CF6" stroke-width="3" stroke-dasharray="6 12" stroke-dashoffset="0">
+        <animate attributeName="stroke-dashoffset" values="0;36" dur="1.5s" repeatCount="indefinite"/>
+    </path>
+    <!-- Label 2 -->
+    <rect x="350" y="218" width="60" height="24" rx="12" fill="#020617" stroke="#8B5CF6" stroke-width="1.5"/>
+    <text x="380" y="234" fill="#8B5CF6" font-size="10" font-family="sans-serif" text-anchor="middle" font-weight="bold">REDIS</text>
+
+    <!-- Right Box 1: API / Core Gateway -->
+    <g transform="translate(480, 30)">
+        <rect x="0" y="0" width="240" height="110" rx="8" fill="#000" stroke="#1E293B" stroke-width="2"/>
+        <rect x="0" y="0" width="240" height="110" rx="8" fill="url(#cyan-fade)"/>
+        
+        <!-- Header -->
+        <rect x="0" y="0" width="240" height="28" rx="8" fill="#0F172A"/>
+        <rect x="0" y="20" width="240" height="8" fill="#0F172A"/>
+        <text x="16" y="18" fill="#06B6D4" font-size="12" font-family="monospace" font-weight="bold">CORE :: API</text>
+        <line x1="0" y1="28" x2="240" y2="28" stroke="#1E293B" stroke-width="1.5"/>
+        <text x="180" y="18" fill="#64748B" font-size="12" font-family="monospace">FASTAPI</text>
+        
+        <!-- Content -->
+        <rect x="16" y="44" width="208" height="32" rx="4" fill="#0F172A" stroke="#1E293B" stroke-width="1.5"/>
+        <text x="28" y="64" fill="#94A3B8" font-size="12" font-family="monospace">POST /api/predict</text>
+        <circle cx="204" cy="60" r="4" fill="#10B981" filter="url(#glow-cyan)"/>
+        
+        <rect x="16" y="86" width="208" height="12" rx="2" fill="#0F172A" stroke="#1E293B" stroke-width="1"/>
+        <rect x="24" y="88" width="40" height="8" rx="2" fill="#06B6D4" opacity="0.4"/>
+        <rect x="68" y="88" width="60" height="8" rx="2" fill="#3B82F6" opacity="0.4"/>
+        <rect x="132" y="88" width="86" height="8" rx="2" fill="#8B5CF6" opacity="0.4"/>
+    </g>
+
+    <!-- Right Box 2: Celery Worker Nodes -->
+    <g transform="translate(480, 160)">
+        <rect x="0" y="0" width="240" height="130" rx="8" fill="#000" stroke="#1E293B" stroke-width="2"/>
+        <rect x="0" y="0" width="240" height="130" rx="8" fill="url(#purple-fade)"/>
+        
+        <!-- Header -->
+        <rect x="0" y="0" width="240" height="28" rx="8" fill="#0F172A"/>
+        <rect x="0" y="20" width="240" height="8" fill="#0F172A"/>
+        <text x="16" y="18" fill="#8B5CF6" font-size="12" font-family="monospace" font-weight="bold">WORKER :: ASYNC</text>
+        <line x1="0" y1="28" x2="240" y2="28" stroke="#1E293B" stroke-width="1.5"/>
+        
+        <!-- Nodes -->
+        <g transform="translate(16, 44)">
+            <rect x="0" y="0" width="100" height="40" rx="4" fill="#0F172A" stroke="#8B5CF6" stroke-width="1.5"/>
+            <text x="12" y="16" fill="#C084FC" font-size="10" font-family="monospace">YOLOv8 NODE</text>
+            <rect x="12" y="26" width="76" height="4" rx="2" fill="#334155"/>
+            <rect x="12" y="26" width="56" height="4" rx="2" fill="#8B5CF6" filter="url(#glow-purple)"/>
+        </g>
+        
+        <g transform="translate(124, 44)">
+            <rect x="0" y="0" width="100" height="40" rx="4" fill="#0F172A" stroke="#1E293B" stroke-width="1.5"/>
+            <text x="12" y="16" fill="#64748B" font-size="10" font-family="monospace">SAM NODE</text>
+            <rect x="12" y="26" width="76" height="4" rx="2" fill="#334155"/>
+            <rect x="12" y="26" width="24" height="4" rx="2" fill="#64748B"/>
+        </g>
+        
+        <!-- Export / Format Compiler -->
+        <g transform="translate(16, 96)">
+            <rect x="0" y="0" width="208" height="20" rx="4" fill="#020617" stroke="#334155" stroke-width="1"/>
+            <text x="12" y="14" fill="#94A3B8" font-size="10" font-family="monospace">EXPORT_ENGINE</text>
+            
+            <circle cx="106" cy="10" r="2.5" fill="#3B82F6"/>
+            <circle cx="118" cy="10" r="2.5" fill="#3B82F6"/>
+            <circle cx="130" cy="10" r="2.5" fill="#3B82F6"/>
+            
+            <rect x="160" y="4" width="36" height="12" rx="2" fill="#1E293B"/>
+            <text x="178" y="12" fill="#94A3B8" font-size="8" font-family="monospace" text-anchor="middle">.JSON</text>
+        </g>
+    </g>
+
+    <!-- Floating UI Decorative Elements -->
+    <text x="30" y="310" fill="#475569" font-size="10" font-family="monospace" letter-spacing="1">STATUS :: 🟢 ACTIVE_CLUSTER</text>
+    <text x="560" y="310" fill="#475569" font-size="10" font-family="monospace" letter-spacing="1">ORCHESTRATION :: DOCKER_COMPOSE</text>
+</svg>
