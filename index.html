@@ -80,52 +80,192 @@
             <main class="flex-1 w-full">
                 <div class="@container mb-24 mt-12">
                     <div class="flex flex-col gap-12 @[864px]:flex-row items-center">
-                        <div class="flex flex-col gap-8 w-full @[864px]:w-3/5 @[864px]:pr-12">
+                        <!-- Left Content: 60% -->
+                        <div class="flex flex-col gap-6 w-full @[864px]:w-3/5 @[864px]:pr-12">
                             <div class="flex flex-col gap-4 text-left">
                                 <div
-                                    class="inline-block px-3 py-1 rounded-full border border-primary/30 bg-primary/10 text-primary text-xs font-mono uppercase tracking-widest w-fit mb-4">
+                                    class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-primary/30 bg-primary/10 text-primary text-xs font-mono uppercase tracking-widest w-fit">
+                                    <span class="inline-block w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
                                     System Initialized v2.0
                                 </div>
                                 <h1
-                                    class="text-slate-900 dark:text-slate-100 text-5xl sm:text-6xl md:text-7xl font-black leading-tight tracking-tighter uppercase">
-                                    Dhruv Garg
+                                    class="text-5xl sm:text-6xl md:text-7xl font-black leading-[0.95] tracking-tighter uppercase mt-2">
+                                    <span class="text-slate-900 dark:text-slate-100 block">Dhruv</span>
+                                    <span class="text-primary block neon-text">Garg</span>
                                 </h1>
                                 <h2
-                                    class="text-primary text-lg sm:text-xl md:text-2xl font-mono leading-relaxed mt-2 neon-text">
+                                    class="text-primary/80 dark:text-primary/90 text-base sm:text-lg md:text-xl font-mono leading-relaxed mt-3">
                                     &gt; AI/ML Engineer in Training<br />
                                     &gt; Computer Vision + Generative AI
                                 </h2>
                                 <p
-                                    class="text-slate-600 dark:text-slate-400 text-base md:text-lg max-w-xl leading-relaxed mt-4 font-light">
+                                    class="text-slate-600 dark:text-slate-400 text-base md:text-lg max-w-xl leading-relaxed mt-2 font-light border-l-2 border-primary/30 pl-4">
                                     I build model-first prototypes in Python and PyTorch, then harden them into
                                     full-stack AI applications with React frontends, FastAPI services, and cloud
                                     deployment workflows.
                                 </p>
                             </div>
-                            <div class="flex-wrap gap-4 flex mt-4">
+                            <!-- CTA Buttons -->
+                            <div class="flex-wrap gap-4 flex mt-2">
                                 <a href="#projects"
-                                    class="flex min-w-[140px] cursor-pointer items-center justify-center overflow-hidden rounded h-12 px-6 bg-primary text-background-dark text-sm font-bold uppercase tracking-widest hover:bg-orange-400 transition-colors shadow-[0_0_15px_rgba(255,126,41,0.4)]">
-                                    <span class="truncate">Explore Work</span>
+                                    class="flex min-w-[140px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-6 bg-primary text-background-dark text-sm font-bold uppercase tracking-widest hover:bg-orange-400 transition-all shadow-[0_0_15px_rgba(255,126,41,0.4)] hover:shadow-[0_0_25px_rgba(255,126,41,0.6)] group">
+                                    <span class="truncate">Explore Projects</span>
+                                    <span
+                                        class="material-symbols-outlined ml-2 text-base group-hover:translate-x-1 transition-transform">arrow_forward</span>
                                 </a>
                                 <a href="https://github.com/DhruvGarg111"
-                                    class="flex min-w-[140px] cursor-pointer items-center justify-center overflow-hidden rounded h-12 px-6 bg-transparent border border-primary text-primary text-sm font-bold uppercase tracking-widest hover:bg-primary/10 transition-colors group"
+                                    class="flex min-w-[140px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-6 bg-transparent border border-primary/50 text-primary text-sm font-bold uppercase tracking-widest hover:bg-primary/10 transition-all group"
                                     target="_blank">
                                     <span
                                         class="material-symbols-outlined mr-2 text-lg group-hover:animate-pulse">terminal</span>
                                     <span class="truncate">GitHub</span>
                                 </a>
                             </div>
+                            <!-- Tech Stack Pills -->
+                            <div class="flex items-center gap-3 mt-2 flex-wrap">
+                                <span
+                                    class="text-xs font-mono uppercase tracking-wider text-slate-500 dark:text-slate-500">Core
+                                    Stack:</span>
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <span
+                                        class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-surface-light dark:bg-surface-darker border border-border-light dark:border-border-dark text-xs font-mono text-slate-600 dark:text-slate-400 hover:border-primary/40 transition-colors">
+                                        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/pytorch/pytorch-original.svg"
+                                            alt="PyTorch" class="w-3.5 h-3.5" />
+                                        PyTorch
+                                    </span>
+                                    <span
+                                        class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-surface-light dark:bg-surface-darker border border-border-light dark:border-border-dark text-xs font-mono text-slate-600 dark:text-slate-400 hover:border-primary/40 transition-colors">
+                                        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/fastapi/fastapi-original.svg"
+                                            alt="FastAPI" class="w-3.5 h-3.5" />
+                                        FastAPI
+                                    </span>
+                                    <span
+                                        class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-surface-light dark:bg-surface-darker border border-border-light dark:border-border-dark text-xs font-mono text-slate-600 dark:text-slate-400 hover:border-primary/40 transition-colors">
+                                        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg"
+                                            alt="React" class="w-3.5 h-3.5" />
+                                        React
+                                    </span>
+                                    <span
+                                        class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-surface-light dark:bg-surface-darker border border-border-light dark:border-border-dark text-xs font-mono text-slate-600 dark:text-slate-400 hover:border-primary/40 transition-colors">
+                                        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg"
+                                            alt="Python" class="w-3.5 h-3.5" />
+                                        Python
+                                    </span>
+                                </div>
+                            </div>
                         </div>
-                        <!-- Abstract Visual Representation instead of a standard image -->
-                        <div
-                            class="w-full @[864px]:w-2/5 aspect-square relative rounded-2xl overflow-hidden glass-panel glow-border transition-all duration-500 group flex items-center justify-center p-4">
-                            <div class="absolute inset-0 bg-gradient-to-br from-primary/20 to-transparent z-0"></div>
-                            <img src="./assets/img/dhruv_logo_dark.webp" alt="Dhruv Garg logo"
-                                class="relative z-10 w-full h-full object-contain opacity-90 transition-opacity duration-300 group-hover:opacity-100 mix-blend-normal dark:mix-blend-lighten hidden dark:block" />
-                            <img src="./assets/img/dhruv_logo_light.webp" alt="Dhruv Garg logo"
-                                class="relative z-10 w-full h-full object-contain opacity-90 transition-opacity duration-300 group-hover:opacity-100 mix-blend-multiply dark:hidden block" />
-                            <div class="absolute bottom-4 left-4 text-xs font-mono text-primary/70 z-20">
-                                [NEURAL_CORE_ACTIVE]
+                        <!-- Right Visual: Code Editor Window -->
+                        <div class="w-full @[864px]:w-2/5 relative group">
+                            <div
+                                class="relative rounded-2xl overflow-hidden glass-panel glow-border transition-all duration-500">
+                                <!-- Code Editor Title Bar -->
+                                <div
+                                    class="flex items-center justify-between px-4 py-3 border-b border-border-light dark:border-border-dark bg-surface-light/50 dark:bg-surface-darker/80">
+                                    <div class="flex items-center gap-2">
+                                        <span class="w-3 h-3 rounded-full bg-red-400/80"></span>
+                                        <span class="w-3 h-3 rounded-full bg-yellow-400/80"></span>
+                                        <span class="w-3 h-3 rounded-full bg-green-400/80"></span>
+                                    </div>
+                                    <span
+                                        class="text-xs font-mono text-slate-500 dark:text-slate-500">model_server.py</span>
+                                    <div class="w-16"></div>
+                                </div>
+                                <!-- Code Content -->
+                                <div class="p-5 font-mono text-xs sm:text-sm leading-relaxed overflow-x-auto">
+                                    <div class="space-y-1">
+                                        <p><span class="text-purple-600 dark:text-purple-400">import</span> <span
+                                                class="text-slate-800 dark:text-slate-200">torch</span></p>
+                                        <p><span class="text-purple-600 dark:text-purple-400">from</span> <span
+                                                class="text-slate-800 dark:text-slate-200">fastapi</span> <span
+                                                class="text-purple-600 dark:text-purple-400">import</span> <span
+                                                class="text-slate-800 dark:text-slate-200">FastAPI</span></p>
+                                        <p><span class="text-purple-600 dark:text-purple-400">from</span> <span
+                                                class="text-slate-800 dark:text-slate-200">transformers</span> <span
+                                                class="text-purple-600 dark:text-purple-400">import</span> <span
+                                                class="text-slate-800 dark:text-slate-200">AutoModel</span></p>
+                                        <p class="mt-3"><span class="text-slate-800 dark:text-slate-200">app</span>
+                                            <span class="text-primary">=</span> <span
+                                                class="text-slate-800 dark:text-slate-200">FastAPI</span><span
+                                                class="text-slate-500">(</span><span
+                                                class="text-slate-800 dark:text-slate-200">title</span><span
+                                                class="text-primary">=</span><span
+                                                class="text-green-600 dark:text-green-400">"DhruvAI"</span><span
+                                                class="text-slate-500">)</span></p>
+                                        <p class="mt-3"><span
+                                                class="text-slate-500 dark:text-slate-500">@app.on_event</span><span
+                                                class="text-slate-500">(</span><span
+                                                class="text-green-600 dark:text-green-400">"startup"</span><span
+                                                class="text-slate-500">)</span></p>
+                                        <p><span class="text-purple-600 dark:text-purple-400">async def</span> <span
+                                                class="text-amber-600 dark:text-amber-400">load_model</span><span
+                                                class="text-slate-500">():</span></p>
+                                        <p class="pl-4"><span
+                                                class="text-slate-800 dark:text-slate-200">app.state.model</span> <span
+                                                class="text-primary">=</span> <span
+                                                class="text-slate-800 dark:text-slate-200">AutoModel</span><span
+                                                class="text-slate-500">.</span><span
+                                                class="text-slate-800 dark:text-slate-200">from_pretrained</span><span
+                                                class="text-slate-500">(</span></p>
+                                        <p class="pl-8"><span
+                                                class="text-green-600 dark:text-green-400">"dhruv/transformer-v2"</span>
+                                        </p>
+                                        <p class="pl-4"><span class="text-slate-500">)</span></p>
+                                        <p class="pl-4"><span
+                                                class="text-slate-800 dark:text-slate-200">app.state.model</span><span
+                                                class="text-slate-500">.</span><span
+                                                class="text-slate-800 dark:text-slate-200">eval</span><span
+                                                class="text-slate-500">()</span></p>
+                                        <p class="mt-3"><span
+                                                class="text-slate-500 dark:text-slate-500">@app.post</span><span
+                                                class="text-slate-500">(</span><span
+                                                class="text-green-600 dark:text-green-400">"/predict"</span><span
+                                                class="text-slate-500">)</span></p>
+                                        <p><span class="text-purple-600 dark:text-purple-400">async def</span> <span
+                                                class="text-amber-600 dark:text-amber-400">predict</span><span
+                                                class="text-slate-500">(</span><span
+                                                class="text-slate-800 dark:text-slate-200">data</span><span
+                                                class="text-slate-500">:</span> <span
+                                                class="text-slate-800 dark:text-slate-200">dict</span><span
+                                                class="text-slate-500">):</span></p>
+                                        <p class="pl-4"><span class="text-slate-500 dark:text-slate-500 italic">#
+                                                Process input tensor</span></p>
+                                        <p class="pl-4"><span class="text-purple-600 dark:text-purple-400">with</span>
+                                            <span class="text-slate-800 dark:text-slate-200">torch</span><span
+                                                class="text-slate-500">.</span><span
+                                                class="text-slate-800 dark:text-slate-200">no_grad</span><span
+                                                class="text-slate-500">():</span></p>
+                                        <p class="pl-8"><span class="text-slate-800 dark:text-slate-200">output</span>
+                                            <span class="text-primary">=</span> <span
+                                                class="text-slate-800 dark:text-slate-200">app.state.model</span><span
+                                                class="text-slate-500">(</span><span
+                                                class="text-slate-800 dark:text-slate-200">data</span><span
+                                                class="text-slate-500">)</span></p>
+                                        <p class="pl-4"><span class="text-purple-600 dark:text-purple-400">return</span>
+                                            <span class="text-slate-500">{</span><span
+                                                class="text-green-600 dark:text-green-400">"status"</span><span
+                                                class="text-slate-500">:</span> <span
+                                                class="text-green-600 dark:text-green-400">"success"</span><span
+                                                class="text-slate-500">,</span> <span
+                                                class="text-green-600 dark:text-green-400">"result"</span><span
+                                                class="text-slate-500">:</span> <span
+                                                class="text-slate-800 dark:text-slate-200">output</span><span
+                                                class="text-slate-500">}</span></p>
+                                    </div>
+                                </div>
+                                <!-- Subtle bottom status bar -->
+                                <div
+                                    class="flex items-center justify-between px-4 py-2 border-t border-border-light dark:border-border-dark bg-surface-light/50 dark:bg-surface-darker/80 text-[10px] font-mono text-slate-400 dark:text-slate-500">
+                                    <span class="flex items-center gap-1.5">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-green-400"></span>
+                                        Python 3.11
+                                    </span>
+                                    <span>UTF-8</span>
+                                    <span>Ln 1, Col 1</span>
+                                </div>
+                            </div>
+                            <!-- Ambient glow behind the code window -->
+                            <div
+                                class="absolute -inset-4 bg-gradient-to-br from-primary/10 via-transparent to-primary/5 rounded-3xl blur-2xl -z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
                             </div>
                         </div>
                     </div>
@@ -618,238 +758,367 @@
                     <p class="text-slate-600 dark:text-slate-400 text-base leading-relaxed mb-12 max-w-2xl">
                         Applied strengths across model development, reproducibility, and deployment-aware engineering.
                     </p>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                        <!-- Skill Card 1: Model Building Discipline -->
-                        <div class="glass-panel p-8 rounded-2xl glow-border">
-                            <h3 class="text-sm font-bold text-primary uppercase tracking-[0.2em] font-mono mb-4">
-                                Model Building Discipline
-                            </h3>
-                            <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-6">
-                                I enjoy iterating on architectures with clear hypotheses and measurable outcomes.
-                            </p>
-                            <ul class="font-mono text-sm text-slate-600 dark:text-slate-400 space-y-3">
-                                <li class="flex items-start gap-2">
-                                    <span class="text-primary mt-0.5">&diamond;</span> PyTorch and Torchvision
-                                </li>
-                                <li class="flex items-start gap-2">
-                                    <span class="text-primary mt-0.5">&#x2699;</span> CNN and Transformer Architectures
-                                </li>
-                                <li class="flex items-start gap-2">
-                                    <span class="text-primary mt-0.5">&#x2699;</span> Depth and Multi-Modal Modeling
-                                </li>
-                                <li class="flex items-start gap-2">
-                                    <span class="text-primary mt-0.5">&#x2197;</span> Loss Function Debugging
-                                </li>
-                                <li class="flex items-start gap-2">
-                                    <span class="text-primary mt-0.5">&diamond;</span> Experiment-Driven Iteration
-                                </li>
-                            </ul>
+
+                    <!-- Capabilities — 3-column card grid with rich item descriptions -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <!-- Card 1: Model Building Discipline -->
+                        <div class="glass-panel rounded-2xl glow-border overflow-hidden">
+                            <div class="h-1 bg-gradient-to-r from-primary to-orange-400"></div>
+                            <div class="p-8">
+                                <div class="flex items-center gap-3 mb-5">
+                                    <div
+                                        class="size-10 rounded-lg bg-primary/10 flex items-center justify-center border border-primary/20">
+                                        <span
+                                            class="material-symbols-outlined text-primary text-xl">model_training</span>
+                                    </div>
+                                    <h3 class="text-xs font-bold text-primary uppercase tracking-[0.2em] font-mono">
+                                        Model Building Discipline
+                                    </h3>
+                                </div>
+                                <p
+                                    class="text-slate-500 dark:text-slate-500 text-sm leading-relaxed mb-6 border-l-2 border-primary/20 pl-3 italic">
+                                    Iterating on architectures with clear hypotheses and measurable outcomes.
+                                </p>
+                                <div class="space-y-4">
+                                    <div class="flex items-start gap-3">
+                                        <span class="text-primary mt-1 text-xs">◇</span>
+                                        <div>
+                                            <p class="text-slate-800 dark:text-slate-200 text-sm font-semibold">PyTorch
+                                            </p>
+                                            <p class="text-slate-500 dark:text-slate-500 text-xs mt-0.5">Deep learning
+                                                framework for robust model training</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-start gap-3">
+                                        <span class="text-primary mt-1 text-xs">⚙</span>
+                                        <div>
+                                            <p class="text-slate-800 dark:text-slate-200 text-sm font-semibold">CNN /
+                                                Transformer</p>
+                                            <p class="text-slate-500 dark:text-slate-500 text-xs mt-0.5">Convolutional
+                                                and attention-based architectures</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-start gap-3">
+                                        <span class="text-primary mt-1 text-xs">⚙</span>
+                                        <div>
+                                            <p class="text-slate-800 dark:text-slate-200 text-sm font-semibold">Depth
+                                                Estimation</p>
+                                            <p class="text-slate-500 dark:text-slate-500 text-xs mt-0.5">Multi-modal
+                                                modeling and representation learning</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-start gap-3">
+                                        <span class="text-primary mt-1 text-xs">↗</span>
+                                        <div>
+                                            <p class="text-slate-800 dark:text-slate-200 text-sm font-semibold">Loss
+                                                Debugging</p>
+                                            <p class="text-slate-500 dark:text-slate-500 text-xs mt-0.5">Diagnosing
+                                                training dynamics and convergence</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <!-- Skill Card 2: Creative + Applied AI -->
-                        <div class="glass-panel p-8 rounded-2xl glow-border">
-                            <h3 class="text-sm font-bold text-primary uppercase tracking-[0.2em] font-mono mb-4">
-                                Creative + Applied AI
-                            </h3>
-                            <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-6">
-                                I like projects where engineering rigor and creative output meet.
-                            </p>
-                            <ul class="font-mono text-sm text-slate-600 dark:text-slate-400 space-y-3">
-                                <li class="flex items-start gap-2">
-                                    <span class="text-primary mt-0.5">&#x2699;</span> Neural Style Transfer
-                                </li>
-                                <li class="flex items-start gap-2">
-                                    <span class="text-primary mt-0.5">&#x2699;</span> GAN Experimentation
-                                </li>
-                                <li class="flex items-start gap-2">
-                                    <span class="text-primary mt-0.5">&#x2197;</span> Perceptual Loss Training
-                                </li>
-                                <li class="flex items-start gap-2">
-                                    <span class="text-primary mt-0.5">&#x2197;</span> Inference Optimization
-                                </li>
-                                <li class="flex items-start gap-2">
-                                    <span class="text-primary mt-0.5">&diams;</span> Interactive Demo Deployment
-                                </li>
-                            </ul>
+
+                        <!-- Card 2: Creative + Applied AI -->
+                        <div class="glass-panel rounded-2xl glow-border overflow-hidden">
+                            <div class="h-1 bg-gradient-to-r from-amber-500 to-primary"></div>
+                            <div class="p-8">
+                                <div class="flex items-center gap-3 mb-5">
+                                    <div
+                                        class="size-10 rounded-lg bg-primary/10 flex items-center justify-center border border-primary/20">
+                                        <span class="material-symbols-outlined text-primary text-xl">auto_awesome</span>
+                                    </div>
+                                    <h3 class="text-xs font-bold text-primary uppercase tracking-[0.2em] font-mono">
+                                        Creative + Applied AI
+                                    </h3>
+                                </div>
+                                <p
+                                    class="text-slate-500 dark:text-slate-500 text-sm leading-relaxed mb-6 border-l-2 border-primary/20 pl-3 italic">
+                                    Projects where engineering rigor and creative output meet.
+                                </p>
+                                <div class="space-y-4">
+                                    <div class="flex items-start gap-3">
+                                        <span class="text-primary mt-1 text-xs">⚙</span>
+                                        <div>
+                                            <p class="text-slate-800 dark:text-slate-200 text-sm font-semibold">Style
+                                                Transfer</p>
+                                            <p class="text-slate-500 dark:text-slate-500 text-xs mt-0.5">Real-time
+                                                neural style transfer pipelines</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-start gap-3">
+                                        <span class="text-primary mt-1 text-xs">⚙</span>
+                                        <div>
+                                            <p class="text-slate-800 dark:text-slate-200 text-sm font-semibold">GAN
+                                                Experimentation</p>
+                                            <p class="text-slate-500 dark:text-slate-500 text-xs mt-0.5">Training
+                                                dynamics, instability, and controllability</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-start gap-3">
+                                        <span class="text-primary mt-1 text-xs">↗</span>
+                                        <div>
+                                            <p class="text-slate-800 dark:text-slate-200 text-sm font-semibold">
+                                                Perceptual Loss</p>
+                                            <p class="text-slate-500 dark:text-slate-500 text-xs mt-0.5">Feature-level
+                                                loss functions for visual quality</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-start gap-3">
+                                        <span class="text-primary mt-1 text-xs">◆</span>
+                                        <div>
+                                            <p class="text-slate-800 dark:text-slate-200 text-sm font-semibold">Demo
+                                                Deployment</p>
+                                            <p class="text-slate-500 dark:text-slate-500 text-xs mt-0.5">Interactive
+                                                inference via Gradio and Hugging Face</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <!-- Skill Card 3: Systems Expansion -->
-                        <div class="glass-panel p-8 rounded-2xl glow-border">
-                            <h3 class="text-sm font-bold text-primary uppercase tracking-[0.2em] font-mono mb-4">
-                                Systems Expansion
-                            </h3>
-                            <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-6">
-                                I am actively moving from model-first work to complete product delivery.
-                            </p>
-                            <ul class="font-mono text-sm text-slate-600 dark:text-slate-400 space-y-3">
-                                <li class="flex items-start gap-2">
-                                    <span class="text-primary mt-0.5">&diamond;</span> Modular Python Design
-                                </li>
-                                <li class="flex items-start gap-2">
-                                    <span class="text-primary mt-0.5">&diamond;</span> API and CLI Thinking
-                                </li>
-                                <li class="flex items-start gap-2">
-                                    <span class="text-primary mt-0.5">&diamond;</span> Containerization Basics
-                                </li>
-                                <li class="flex items-start gap-2">
-                                    <span class="text-primary mt-0.5">&diamond;</span> Cloud Learning Path
-                                </li>
-                                <li class="flex items-start gap-2">
-                                    <span class="text-primary mt-0.5">&diams;</span> DevOps Fundamentals in Progress
-                                </li>
-                            </ul>
+
+                        <!-- Card 3: Systems & Deployment -->
+                        <div class="glass-panel rounded-2xl glow-border overflow-hidden">
+                            <div class="h-1 bg-gradient-to-r from-primary to-amber-600"></div>
+                            <div class="p-8">
+                                <div class="flex items-center gap-3 mb-5">
+                                    <div
+                                        class="size-10 rounded-lg bg-primary/10 flex items-center justify-center border border-primary/20">
+                                        <span
+                                            class="material-symbols-outlined text-primary text-xl">deployed_code</span>
+                                    </div>
+                                    <h3 class="text-xs font-bold text-primary uppercase tracking-[0.2em] font-mono">
+                                        Systems Expansion
+                                    </h3>
+                                </div>
+                                <p
+                                    class="text-slate-500 dark:text-slate-500 text-sm leading-relaxed mb-6 border-l-2 border-primary/20 pl-3 italic">
+                                    Moving from model-first work to complete product delivery.
+                                </p>
+                                <div class="space-y-4">
+                                    <div class="flex items-start gap-3">
+                                        <span class="text-primary mt-1 text-xs">◇</span>
+                                        <div>
+                                            <p class="text-slate-800 dark:text-slate-200 text-sm font-semibold">Modular
+                                                Python</p>
+                                            <p class="text-slate-500 dark:text-slate-500 text-xs mt-0.5">Clean package
+                                                design and reusable components</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-start gap-3">
+                                        <span class="text-primary mt-1 text-xs">◇</span>
+                                        <div>
+                                            <p class="text-slate-800 dark:text-slate-200 text-sm font-semibold">API /
+                                                CLI Design</p>
+                                            <p class="text-slate-500 dark:text-slate-500 text-xs mt-0.5">RESTful
+                                                endpoints and command-line interfaces</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-start gap-3">
+                                        <span class="text-primary mt-1 text-xs">◇</span>
+                                        <div>
+                                            <p class="text-slate-800 dark:text-slate-200 text-sm font-semibold">
+                                                Containerization</p>
+                                            <p class="text-slate-500 dark:text-slate-500 text-xs mt-0.5">Docker-based
+                                                development and deployment</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-start gap-3">
+                                        <span class="text-primary mt-1 text-xs">◆</span>
+                                        <div>
+                                            <p class="text-slate-800 dark:text-slate-200 text-sm font-semibold">Cloud &
+                                                DevOps</p>
+                                            <p class="text-slate-500 dark:text-slate-500 text-xs mt-0.5">Learning cloud
+                                                workflows and CI/CD fundamentals</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Technology Stack Grid -->
+                    <!-- Technology Stack -->
                     <div class="mt-24">
-                        <h3 class="text-slate-900 dark:text-slate-100 text-2xl font-bold uppercase tracking-wide mb-10">
-                            Technology Stack
-                        </h3>
-                        <div class="skills-grid" id="skills-grid">
-                            <!-- Row 1 — AI / ML & Data Science -->
-                            <div class="skill-card">
-                                <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg"
-                                    alt="Python" />
-                                <span>Python</span>
+                        <div class="flex flex-col gap-2 mb-10">
+                            <h3 class="text-slate-900 dark:text-slate-100 text-2xl font-bold tracking-tight">
+                                Technology Stack
+                            </h3>
+                            <p class="text-slate-500 dark:text-slate-500 text-sm font-mono">Tools and technologies I
+                                work with daily</p>
+                        </div>
+
+                        <!-- AI / ML & Data Science -->
+                        <div class="mb-6">
+                            <p
+                                class="text-xs font-mono uppercase tracking-widest text-slate-400 dark:text-slate-600 mb-3 flex items-center gap-2">
+                                <span class="inline-block w-4 h-px bg-slate-300 dark:bg-slate-700"></span> AI / ML &
+                                Data Science
+                            </p>
+                            <div class="skills-grid" id="skills-grid">
+                                <div class="skill-card">
+                                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg"
+                                        alt="Python" />
+                                    <span>Python</span>
+                                </div>
+                                <div class="skill-card">
+                                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/pytorch/pytorch-original.svg"
+                                        alt="PyTorch" />
+                                    <span>PyTorch</span>
+                                </div>
+                                <div class="skill-card">
+                                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/tensorflow/tensorflow-original.svg"
+                                        alt="TensorFlow" />
+                                    <span>TensorFlow</span>
+                                </div>
+                                <div class="skill-card">
+                                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/numpy/numpy-original.svg"
+                                        alt="NumPy" />
+                                    <span>NumPy</span>
+                                </div>
+                                <div class="skill-card">
+                                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/pandas/pandas-original.svg"
+                                        alt="Pandas" />
+                                    <span>Pandas</span>
+                                </div>
+                                <div class="skill-card">
+                                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/scikitlearn/scikitlearn-original.svg"
+                                        alt="Scikit-learn" />
+                                    <span>Scikit-Learn</span>
+                                </div>
+                                <div class="skill-card">
+                                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/matplotlib/matplotlib-original.svg"
+                                        alt="Matplotlib" />
+                                    <span>Matplotlib</span>
+                                </div>
+                                <div class="skill-card">
+                                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/opencv/opencv-original.svg"
+                                        alt="OpenCV" />
+                                    <span>OpenCV</span>
+                                </div>
+                                <div class="skill-card">
+                                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/jupyter/jupyter-original.svg"
+                                        alt="Jupyter" />
+                                    <span>Jupyter</span>
+                                </div>
+                                <div class="skill-card">
+                                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"
+                                            fill="#F9AB00" opacity="0.85" />
+                                        <path d="M16 12c0 2.21-1.79 4-4 4s-4-1.79-4-4 1.79-4 4-4 4 1.79 4 4z"
+                                            fill="#E8710A" />
+                                        <path d="M12 6v2c2.21 0 4 1.79 4 4h2c0-3.31-2.69-6-6-6z"
+                                            class="fill-slate-600 dark:fill-white" opacity="0.5" />
+                                    </svg>
+                                    <span>Google Colab</span>
+                                </div>
+                                <div class="skill-card">
+                                    <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+                                        <circle cx="60" cy="60" r="56" fill="#FFD21E" />
+                                        <ellipse cx="42" cy="52" rx="7" ry="9" fill="#1B1B1B" />
+                                        <ellipse cx="78" cy="52" rx="7" ry="9" fill="#1B1B1B" />
+                                        <ellipse cx="44" cy="49" rx="2.5" ry="3"
+                                            class="fill-slate-600 dark:fill-white" />
+                                        <ellipse cx="80" cy="49" rx="2.5" ry="3"
+                                            class="fill-slate-600 dark:fill-white" />
+                                        <path d="M38 74 C48 88, 72 88, 82 74" stroke="#1B1B1B" stroke-width="4"
+                                            fill="none" stroke-linecap="round" />
+                                        <ellipse cx="28" cy="62" rx="8" ry="5" fill="#FF9D00" opacity="0.5" />
+                                        <ellipse cx="92" cy="62" rx="8" ry="5" fill="#FF9D00" opacity="0.5" />
+                                    </svg>
+                                    <span>Hugging Face</span>
+                                </div>
+                                <div class="skill-card">
+                                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M13 2L4 14h7l-2 8 9-12h-7l2-8z" fill="#792EE5" stroke="#792EE5"
+                                            stroke-width="0.5" stroke-linejoin="round" />
+                                    </svg>
+                                    <span>Lightning</span>
+                                </div>
                             </div>
-                            <div class="skill-card">
-                                <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/pytorch/pytorch-original.svg"
-                                    alt="PyTorch" />
-                                <span>PyTorch</span>
+                        </div>
+
+                        <!-- Infrastructure & DevOps -->
+                        <div class="mb-6">
+                            <p
+                                class="text-xs font-mono uppercase tracking-widest text-slate-400 dark:text-slate-600 mb-3 flex items-center gap-2">
+                                <span class="inline-block w-4 h-px bg-slate-300 dark:bg-slate-700"></span>
+                                Infrastructure & DevOps
+                            </p>
+                            <div class="skills-grid" id="skills-grid-2">
+                                <div class="skill-card">
+                                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/fastapi/fastapi-original.svg"
+                                        alt="FastAPI" />
+                                    <span>FastAPI</span>
+                                </div>
+                                <div class="skill-card">
+                                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/docker/docker-plain.svg"
+                                        alt="Docker" />
+                                    <span>Docker</span>
+                                </div>
+                                <div class="skill-card">
+                                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/git/git-original.svg"
+                                        alt="Git" />
+                                    <span>Git</span>
+                                </div>
+                                <div class="skill-card">
+                                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg"
+                                        alt="GitHub" class="dark:invert" />
+                                    <span>GitHub</span>
+                                </div>
+                                <div class="skill-card">
+                                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/vscode/vscode-original.svg"
+                                        alt="VS Code" />
+                                    <span>VS Code</span>
+                                </div>
                             </div>
-                            <div class="skill-card">
-                                <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/numpy/numpy-original.svg"
-                                    alt="NumPy" />
-                                <span>NumPy</span>
-                            </div>
-                            <div class="skill-card">
-                                <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/pandas/pandas-original.svg"
-                                    alt="Pandas" />
-                                <span>Pandas</span>
-                            </div>
-                            <div class="skill-card">
-                                <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/matplotlib/matplotlib-original.svg"
-                                    alt="Matplotlib" />
-                                <span>Matplotlib</span>
-                            </div>
-                            <div class="skill-card">
-                                <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/scikitlearn/scikitlearn-original.svg"
-                                    alt="Scikit-learn" />
-                                <span>Scikit-Learn</span>
-                            </div>
-                            <!-- Row 2 — Deep Learning & Infra -->
-                            <div class="skill-card">
-                                <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/tensorflow/tensorflow-original.svg"
-                                    alt="TensorFlow" />
-                                <span>TensorFlow</span>
-                            </div>
-                            <div class="skill-card">
-                                <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/opencv/opencv-original.svg"
-                                    alt="OpenCV" />
-                                <span>OpenCV</span>
-                            </div>
-                            <div class="skill-card">
-                                <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/jupyter/jupyter-original.svg"
-                                    alt="Jupyter" />
-                                <span>Jupyter</span>
-                            </div>
-                            <div class="skill-card">
-                                <!-- Google Colab — no devicon; using a custom inline SVG -->
-                                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"
-                                        fill="#F9AB00" opacity="0.85" />
-                                    <path d="M16 12c0 2.21-1.79 4-4 4s-4-1.79-4-4 1.79-4 4-4 4 1.79 4 4z"
-                                        fill="#E8710A" />
-                                    <path d="M12 6v2c2.21 0 4 1.79 4 4h2c0-3.31-2.69-6-6-6z"
-                                        class="fill-slate-600 dark:fill-white" opacity="0.5" />
-                                </svg>
-                                <span>Google Colab</span>
-                            </div>
-                            <div class="skill-card">
-                                <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/fastapi/fastapi-original.svg"
-                                    alt="FastAPI" />
-                                <span>FastAPI</span>
-                            </div>
-                            <div class="skill-card">
-                                <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/docker/docker-plain.svg"
-                                    alt="Docker" />
-                                <span>Docker</span>
-                            </div>
-                            <!-- Row 3 — Version Control & Languages -->
-                            <div class="skill-card">
-                                <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/git/git-original.svg"
-                                    alt="Git" />
-                                <span>Git</span>
-                            </div>
-                            <div class="skill-card">
-                                <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg"
-                                    alt="GitHub" class="dark:invert" />
-                                <span>GitHub</span>
-                            </div>
-                            <div class="skill-card">
-                                <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/html5/html5-original.svg"
-                                    alt="HTML5" />
-                                <span>HTML5</span>
-                            </div>
-                            <div class="skill-card">
-                                <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/css3/css3-original.svg"
-                                    alt="CSS3" />
-                                <span>CSS3</span>
-                            </div>
-                            <div class="skill-card">
-                                <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/javascript/javascript-original.svg"
-                                    alt="JavaScript" />
-                                <span>JavaScript</span>
-                            </div>
-                            <div class="skill-card">
-                                <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg"
-                                    alt="React" />
-                                <span>React</span>
-                            </div>
-                            <div class="skill-card">
-                                <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/java/java-original.svg"
-                                    alt="Java" />
-                                <span>Java</span>
-                            </div>
-                            <!-- Row 4 — Tools & Misc -->
-                            <div class="skill-card">
-                                <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/c/c-original.svg"
-                                    alt="C" />
-                                <span>C</span>
-                            </div>
-                            <div class="skill-card">
-                                <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/vscode/vscode-original.svg"
-                                    alt="VS Code" />
-                                <span>VS Code</span>
-                            </div>
-                            <div class="skill-card">
-                                <!-- Hugging Face — custom SVG icon -->
-                                <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
-                                    <circle cx="60" cy="60" r="56" fill="#FFD21E" />
-                                    <ellipse cx="42" cy="52" rx="7" ry="9" fill="#1B1B1B" />
-                                    <ellipse cx="78" cy="52" rx="7" ry="9" fill="#1B1B1B" />
-                                    <ellipse cx="44" cy="49" rx="2.5" ry="3" class="fill-slate-600 dark:fill-white" />
-                                    <ellipse cx="80" cy="49" rx="2.5" ry="3" class="fill-slate-600 dark:fill-white" />
-                                    <path d="M38 74 C48 88, 72 88, 82 74" stroke="#1B1B1B" stroke-width="4" fill="none"
-                                        stroke-linecap="round" />
-                                    <ellipse cx="28" cy="62" rx="8" ry="5" fill="#FF9D00" opacity="0.5" />
-                                    <ellipse cx="92" cy="62" rx="8" ry="5" fill="#FF9D00" opacity="0.5" />
-                                </svg>
-                                <span>Hugging Face</span>
-                            </div>
-                            <div class="skill-card">
-                                <!-- PyTorch Lightning — lightning bolt SVG -->
-                                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M13 2L4 14h7l-2 8 9-12h-7l2-8z" fill="#792EE5" stroke="#792EE5"
-                                        stroke-width="0.5" stroke-linejoin="round" />
-                                </svg>
-                                <span>PyTorch Lightning</span>
+                        </div>
+
+                        <!-- Languages & Web -->
+                        <div>
+                            <p
+                                class="text-xs font-mono uppercase tracking-widest text-slate-400 dark:text-slate-600 mb-3 flex items-center gap-2">
+                                <span class="inline-block w-4 h-px bg-slate-300 dark:bg-slate-700"></span> Languages &
+                                Web
+                            </p>
+                            <div class="skills-grid" id="skills-grid-3">
+                                <div class="skill-card">
+                                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/javascript/javascript-original.svg"
+                                        alt="JavaScript" />
+                                    <span>JavaScript</span>
+                                </div>
+                                <div class="skill-card">
+                                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg"
+                                        alt="React" />
+                                    <span>React</span>
+                                </div>
+                                <div class="skill-card">
+                                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/html5/html5-original.svg"
+                                        alt="HTML5" />
+                                    <span>HTML5</span>
+                                </div>
+                                <div class="skill-card">
+                                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/css3/css3-original.svg"
+                                        alt="CSS3" />
+                                    <span>CSS3</span>
+                                </div>
+                                <div class="skill-card">
+                                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/java/java-original.svg"
+                                        alt="Java" />
+                                    <span>Java</span>
+                                </div>
+                                <div class="skill-card">
+                                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/c/c-original.svg"
+                                        alt="C" />
+                                    <span>C</span>
+                                </div>
                             </div>
                         </div>
                     </div>
 
                     <script>
                         // Intersection Observer for staggered fade-in animation
-                        const observer = new IntersectionObserver((entries) => {
+                        const observerCallback = (entries, obs) => {
                             entries.forEach(entry => {
                                 if (entry.isIntersecting) {
                                     const cards = entry.target.querySelectorAll('.skill-card');
@@ -857,11 +1126,12 @@
                                         card.style.animationDelay = `${i * 0.05}s`;
                                         card.classList.add('animate-fade-in-up');
                                     });
-                                    observer.unobserve(entry.target);
+                                    obs.unobserve(entry.target);
                                 }
                             });
-                        }, { threshold: 0.15 });
-                        observer.observe(document.getElementById('skills-grid'));
+                        };
+                        const observer = new IntersectionObserver(observerCallback, { threshold: 0.15 });
+                        document.querySelectorAll('.skills-grid').forEach(grid => observer.observe(grid));
                     </script>
                 </section>
 
