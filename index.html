@@ -5,7 +5,7 @@
 <head>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>Dhruv Garg AI/ML Portfolio Landing Page</title>
+    <title>Dhruv Garg</title>
     <meta name="description"
         content="Portfolio of Dhruv Garg, an AI/ML Engineer in Training specializing in Computer Vision and Generative AI.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -20,9 +20,19 @@
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
         rel="stylesheet" />
     <link href="./assets/css/style.css?v=20260318b" rel="stylesheet" />
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+
+        section[id] {
+            scroll-margin-top: 140px !important;
+            /* Increase gap to clear the sticky header prominently */
+        }
+    </style>
 </head>
 
-<body
+<body id="top"
     class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display min-h-screen relative overflow-x-hidden selection:bg-primary selection:text-white">
     <!-- Background Grid -->
     <div
@@ -40,31 +50,43 @@
     <!-- Dark mode: vignette -->
     <div class="fixed inset-0 pointer-events-none z-[1] dark-vignette"></div>
     <!-- Dark mode: floating particles -->
-    <div class="floating-particle particle-sm drift-1" style="left:8%;bottom:-10px;animation-duration:18s;animation-delay:0s"></div>
-    <div class="floating-particle particle-md drift-2" style="left:22%;bottom:-10px;animation-duration:22s;animation-delay:3s"></div>
-    <div class="floating-particle particle-sm drift-3" style="left:35%;bottom:-10px;animation-duration:16s;animation-delay:7s"></div>
-    <div class="floating-particle particle-lg drift-1" style="left:48%;bottom:-10px;animation-duration:25s;animation-delay:1s"></div>
-    <div class="floating-particle particle-ring drift-pulse" style="left:55%;bottom:-10px;animation-duration:20s;animation-delay:5s"></div>
-    <div class="floating-particle particle-sm drift-2" style="left:65%;bottom:-10px;animation-duration:19s;animation-delay:9s"></div>
-    <div class="floating-particle particle-diamond drift-3" style="left:75%;bottom:-10px;animation-duration:23s;animation-delay:2s"></div>
-    <div class="floating-particle particle-md drift-1" style="left:85%;bottom:-10px;animation-duration:17s;animation-delay:6s"></div>
-    <div class="floating-particle particle-sm drift-pulse" style="left:15%;bottom:-10px;animation-duration:21s;animation-delay:11s"></div>
-    <div class="floating-particle particle-ring drift-2" style="left:42%;bottom:-10px;animation-duration:26s;animation-delay:4s"></div>
-    <div class="floating-particle particle-lg drift-3" style="left:92%;bottom:-10px;animation-duration:20s;animation-delay:8s"></div>
-    <div class="floating-particle particle-diamond drift-1" style="left:5%;bottom:-10px;animation-duration:24s;animation-delay:13s"></div>
+    <div class="floating-particle particle-sm drift-1"
+        style="left:8%;bottom:-10px;animation-duration:18s;animation-delay:0s"></div>
+    <div class="floating-particle particle-md drift-2"
+        style="left:22%;bottom:-10px;animation-duration:22s;animation-delay:3s"></div>
+    <div class="floating-particle particle-sm drift-3"
+        style="left:35%;bottom:-10px;animation-duration:16s;animation-delay:7s"></div>
+    <div class="floating-particle particle-lg drift-1"
+        style="left:48%;bottom:-10px;animation-duration:25s;animation-delay:1s"></div>
+    <div class="floating-particle particle-ring drift-pulse"
+        style="left:55%;bottom:-10px;animation-duration:20s;animation-delay:5s"></div>
+    <div class="floating-particle particle-sm drift-2"
+        style="left:65%;bottom:-10px;animation-duration:19s;animation-delay:9s"></div>
+    <div class="floating-particle particle-diamond drift-3"
+        style="left:75%;bottom:-10px;animation-duration:23s;animation-delay:2s"></div>
+    <div class="floating-particle particle-md drift-1"
+        style="left:85%;bottom:-10px;animation-duration:17s;animation-delay:6s"></div>
+    <div class="floating-particle particle-sm drift-pulse"
+        style="left:15%;bottom:-10px;animation-duration:21s;animation-delay:11s"></div>
+    <div class="floating-particle particle-ring drift-2"
+        style="left:42%;bottom:-10px;animation-duration:26s;animation-delay:4s"></div>
+    <div class="floating-particle particle-lg drift-3"
+        style="left:92%;bottom:-10px;animation-duration:20s;animation-delay:8s"></div>
+    <div class="floating-particle particle-diamond drift-1"
+        style="left:5%;bottom:-10px;animation-duration:24s;animation-delay:13s"></div>
     <div class="relative z-10 flex h-auto min-h-screen w-full flex-col group/design-root">
         <div class="layout-container flex h-full grow flex-col w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <!-- Top Navigation -->
             <header
                 class="flex items-center justify-between whitespace-nowrap border-b border-solid border-border-light dark:border-border-dark py-6 mt-4 glass-panel rounded-2xl px-6 mb-12 sticky top-4 z-50">
-                <div class="flex items-center gap-4 text-slate-900 dark:text-slate-100">
-                    <div class="size-6 text-primary">
-                        <span class="material-symbols-outlined text-2xl">memory</span>
+                <a href="#top" class="flex items-center gap-4 text-slate-900 dark:text-slate-100 group transition-all">
+                    <div class="size-6 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+                        <span class="material-symbols-outlined text-2xl leading-none">memory</span>
                     </div>
                     <h2
-                        class="text-slate-900 dark:text-slate-100 text-xl font-bold leading-tight tracking-tight uppercase tracking-widest">
+                        class="text-slate-900 dark:text-slate-100 text-xl font-bold leading-tight tracking-tight uppercase tracking-widest group-hover:text-primary transition-colors">
                         Dhruv Garg</h2>
-                </div>
+                </a>
                 <div class="hidden md:flex flex-1 justify-end gap-8">
                     <div class="flex items-center gap-9">
                         <a class="text-slate-700 dark:text-slate-300 hover:text-primary transition-colors text-sm font-medium leading-normal uppercase tracking-wider"
@@ -74,14 +96,14 @@
                         <a class="text-slate-700 dark:text-slate-300 hover:text-primary transition-colors text-sm font-medium leading-normal uppercase tracking-wider"
                             href="#skills">Skills</a>
                     </div>
-                    <div class="flex gap-4">
+                    <div class="flex items-center gap-4">
 
                         <button id="theme-toggle"
                             class="mr-4 text-slate-900 dark:text-slate-300 hover:text-primary dark:hover:text-primary transition-colors flex items-center justify-center pointer"
                             aria-label="Toggle Theme">
-                            <span class="material-symbols-outlined text-2xl" id="theme-icon">dark_mode</span>
+                            <span class="material-symbols-outlined text-2xl leading-none" id="theme-icon">dark_mode</span>
                         </button>
-                        <a href="mailto:dhruvgarg.garg123@gmail.com"
+                        <a href="#contact"
                             class="flex min-w-[100px] cursor-pointer items-center justify-center overflow-hidden rounded h-10 px-5 bg-primary/10 text-primary border border-primary/30 hover:bg-primary/20 transition-all text-sm font-bold uppercase tracking-wider">
                             <span class="truncate">Contact</span>
                         </a>
@@ -1054,7 +1076,8 @@
                 </section>
 
                 <!-- Contact Section -->
-                <section class="mb-32 glass-panel rounded-2xl p-12 relative overflow-hidden text-center glow-border"
+                <section
+                    class="mb-32 glass-panel rounded-2xl p-12 relative overflow-hidden text-center glow-border scroll-mt-[100px]"
                     id="contact">
                     <div class="absolute inset-0 bg-gradient-to-t from-primary/10 to-transparent z-0"></div>
                     <div class="relative z-10 flex flex-col items-center">
