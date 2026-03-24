@@ -1,297 +1,209 @@
-<svg viewBox="0 0 800 360" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+<svg viewBox="0 0 800 400" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
     <defs>
-        <!-- Gradients for blocks -->
-        <linearGradient id="bg-grad" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stop-color="#050510"/>
-            <stop offset="50%" stop-color="#0a0a1a"/>
-            <stop offset="100%" stop-color="#020205"/>
+        <!-- Deep Aerial/Radar Background -->
+        <radialGradient id="radarAura" cx="50%" cy="50%" r="70%">
+            <stop offset="0%" stop-color="#0F2B48" stop-opacity="0.9"/>
+            <stop offset="60%" stop-color="#061A2E" stop-opacity="1"/>
+            <stop offset="100%" stop-color="#020812" stop-opacity="1"/>
+        </radialGradient>
+        
+        <pattern id="radarGrid" width="80" height="80" patternUnits="userSpaceOnUse" patternTransform="scale(0.8)">
+            <circle cx="40" cy="40" r="40" fill="none" stroke="#38BDF8" stroke-width="0.3" stroke-opacity="0.15"/>
+            <path d="M 0 40 L 80 40 M 40 0 L 40 80" stroke="#38BDF8" stroke-width="0.3" stroke-opacity="0.15"/>
+        </pattern>
+        
+        <pattern id="dotGrid" width="20" height="20" patternUnits="userSpaceOnUse">
+            <circle cx="2" cy="2" r="1" fill="#38BDF8" opacity="0.1"/>
+        </pattern>
+
+        <!-- Glass Planes -->
+        <linearGradient id="glassLinear" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#38BDF8" stop-opacity="0.15"/>
+            <stop offset="50%" stop-color="#38BDF8" stop-opacity="0.03"/>
+            <stop offset="100%" stop-color="#38BDF8" stop-opacity="0.1"/>
         </linearGradient>
 
-        <linearGradient id="cyan-glow" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stop-color="#06B6D4" stop-opacity="0.3"/>
-            <stop offset="100%" stop-color="#083344" stop-opacity="0.05"/>
+        <linearGradient id="neonCyan" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#E0F2FE"/>
+            <stop offset="50%" stop-color="#38BDF8"/>
+            <stop offset="100%" stop-color="#0284C7"/>
         </linearGradient>
 
-        <linearGradient id="blue-glow" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stop-color="#3B82F6" stop-opacity="0.3"/>
-            <stop offset="100%" stop-color="#1E3A8A" stop-opacity="0.05"/>
-        </linearGradient>
-        
-        <linearGradient id="indigo-glow" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stop-color="#6366F1" stop-opacity="0.3"/>
-            <stop offset="100%" stop-color="#312E81" stop-opacity="0.05"/>
-        </linearGradient>
-        
-        <linearGradient id="gold-glow" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stop-color="#F59E0B" stop-opacity="0.8"/>
-            <stop offset="100%" stop-color="#B45309" stop-opacity="0.2"/>
-        </linearGradient>
+        <!-- Heatmap / Target Glows -->
+        <radialGradient id="hotspot" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#EF4444" stop-opacity="0.95"/>
+            <stop offset="50%" stop-color="#F59E0B" stop-opacity="0.7"/>
+            <stop offset="100%" stop-color="#3B82F6" stop-opacity="0"/>
+        </radialGradient>
+
+        <radialGradient id="targetGlow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#EF4444" stop-opacity="0.6"/>
+            <stop offset="100%" stop-color="#EF4444" stop-opacity="0"/>
+        </radialGradient>
 
         <!-- Filters -->
-        <filter id="glow-cyan" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur stdDeviation="8" result="blur" />
-            <feComposite in="SourceGraphic" in2="blur" operator="over" />
-        </filter>
-        <filter id="glow-blue" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur stdDeviation="8" result="blur" />
-            <feComposite in="SourceGraphic" in2="blur" operator="over" />
-        </filter>
-        <filter id="glow-indigo" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur stdDeviation="8" result="blur" />
-            <feComposite in="SourceGraphic" in2="blur" operator="over" />
-        </filter>
-        <filter id="glow-red" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur stdDeviation="6" result="blur" />
-            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+        <filter id="glassBlur" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="8" result="blur"/>
+            <feComposite in="SourceGraphic" in2="blur" operator="over"/>
         </filter>
 
-        <!-- Patterns -->
-        <pattern id="grid" width="30" height="30" patternUnits="userSpaceOnUse">
-            <rect width="30" height="30" fill="none" stroke="#ffffff" stroke-opacity="0.03" stroke-width="1"/>
-            <circle cx="30" cy="30" r="1" fill="#ffffff" fill-opacity="0.1"/>
-        </pattern>
-        <pattern id="hex-bg" width="40" height="69.28" patternUnits="userSpaceOnUse" patternTransform="scale(0.6)">
-            <path d="M20 0 L40 11.55 L40 34.64 L20 46.19 L0 34.64 L0 11.55 Z" fill="none" stroke="#3B82F6" stroke-width="0.5" stroke-opacity="0.15"/>
-            <path d="M20 69.28 L40 57.74 L40 34.64 L20 46.19 L0 34.64 L0 57.74 Z" fill="none" stroke="#3B82F6" stroke-width="0.5" stroke-opacity="0.15"/>
-        </pattern>
-        
-        <!-- Drop Shadow -->
-        <filter id="drop-shadow" x="-20%" y="-20%" width="140%" height="140%">
-            <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000" flood-opacity="0.6"/>
+        <filter id="glowCyan" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="15" result="blur2"/>
+            <feGaussianBlur stdDeviation="5" result="blur1"/>
+            <feMerge>
+                <feMergeNode in="blur2"/>
+                <feMergeNode in="blur1"/>
+                <feMergeNode in="SourceGraphic"/>
+            </feMerge>
         </filter>
         
-        <marker id="arrow-cyan" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-            <path d="M 0 1 L 10 5 L 0 9 z" fill="#06B6D4" />
-        </marker>
-        <marker id="arrow-indigo" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-            <path d="M 0 1 L 10 5 L 0 9 z" fill="#6366F1" />
-        </marker>
+        <filter id="glowRed" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="6" result="blur1"/>
+            <feMerge>
+                <feMergeNode in="blur1"/>
+                <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+        </filter>
+
+        <filter id="shadowHeavy" x="-30%" y="-30%" width="160%" height="160%">
+            <feDropShadow dx="0" dy="35" stdDeviation="30" flood-color="#000" flood-opacity="0.9"/>
+            <feDropShadow dx="0" dy="15" stdDeviation="10" flood-color="#011F36" flood-opacity="0.8"/>
+        </filter>
+
+        <!-- Connecting Beams -->
+        <linearGradient id="beam" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#38BDF8" stop-opacity="0"/>
+            <stop offset="50%" stop-color="#38BDF8" stop-opacity="0.9"/>
+            <stop offset="100%" stop-color="#38BDF8" stop-opacity="0"/>
+        </linearGradient>
     </defs>
 
-    <!-- Base Background -->
-    <rect width="100%" height="100%" fill="url(#bg-grad)"/>
-    <rect width="100%" height="100%" fill="url(#hex-bg)"/>
-    <rect width="100%" height="100%" fill="url(#grid)"/>
+    <!-- Base Canvas -->
+    <rect width="100%" height="100%" fill="url(#radarAura)"/>
+    <rect width="100%" height="100%" fill="url(#radarGrid)"/>
+    <rect width="100%" height="100%" fill="url(#dotGrid)"/>
+    
+    <!-- Sweeping Radar Line Background -->
+    <path d="M 400 200 L 900 200 A 500 500 0 0 1 400 700 Z" fill="#38BDF8" opacity="0.04">
+        <animateTransform attributeName="transform" type="rotate" from="0 400 200" to="360 400 200" dur="10s" repeatCount="indefinite"/>
+    </path>
 
-    <!-- Subtle vignette -->
-    <radialGradient id="vignette" cx="50%" cy="50%" r="70%">
-        <stop offset="60%" stop-color="#000" stop-opacity="0"/>
-        <stop offset="100%" stop-color="#000" stop-opacity="0.7"/>
-    </radialGradient>
-    <rect width="100%" height="100%" fill="url(#vignette)" pointer-events="none"/>
-
-    <!-- Connections (Animated data flow) -->
-    <!-- From drone to core -->
-    <g>
-        <path id="path1" d="M 230 140 C 270 140, 270 160, 310 160" fill="none" stroke="#1E293B" stroke-width="3"/>
-        <path d="M 230 140 C 270 140, 270 160, 310 160" fill="none" stroke="#06B6D4" stroke-width="3" stroke-dasharray="8 8" filter="url(#glow-cyan)" marker-end="url(#arrow-cyan)">
-            <animate attributeName="stroke-dashoffset" values="32;0" dur="1s" repeatCount="indefinite" />
-        </path>
-        <text x="250" y="130" fill="#06B6D4" font-family="monospace" font-size="10" font-weight="bold" opacity="0.8">RAW_FEED</text>
+    <!-- Top Left Decor: Global Coordinate Tracking -->
+    <g transform="translate(30, 30)">
+        <path d="M 0 15 L 0 0 L 15 0" fill="none" stroke="#38BDF8" stroke-width="1.5" opacity="0.7"/>
+        <text x="25" y="10" fill="#7DD3FC" font-family="monospace" font-size="10" letter-spacing="1">UAV_SYS // ACTIVE</text>
+        <text x="25" y="25" fill="#0284C7" font-family="monospace" font-size="9" letter-spacing="1">LAT: 34.0522° N, LON: 118.2437° W</text>
     </g>
 
-    <!-- From core to detector -->
-    <g>
-        <path id="path2" d="M 530 160 C 570 160, 570 140, 610 140" fill="none" stroke="#1E293B" stroke-width="3"/>
-        <path d="M 530 160 C 570 160, 570 140, 610 140" fill="none" stroke="#6366F1" stroke-width="3" stroke-dasharray="8 8" filter="url(#glow-indigo)" marker-end="url(#arrow-indigo)">
-            <animate attributeName="stroke-dashoffset" values="32;0" dur="1s" repeatCount="indefinite" />
-        </path>
-         <text x="545" y="130" fill="#6366F1" font-family="monospace" font-size="10" font-weight="bold" opacity="0.8">TENSOR_OUT</text>
+    <!-- Top Right Decor: System Load -->
+    <g transform="translate(620, 30)">
+        <path d="M 150 15 L 150 0 L 135 0" fill="none" stroke="#38BDF8" stroke-width="1.5" opacity="0.7"/>
+        <text x="125" y="10" fill="#7DD3FC" font-family="monospace" font-size="10" letter-spacing="1" text-anchor="end">GPU ACCELERATION: ON</text>
+        <text x="125" y="25" fill="#34D399" font-family="monospace" font-size="9" letter-spacing="1" text-anchor="end">COMPUTE SAVED: 92.4%</text>
     </g>
 
-    <!-- Module 1: UAV Input -->
-    <g transform="translate(40, 60)" filter="url(#drop-shadow)">
-        <rect x="0" y="0" width="190" height="150" rx="12" fill="#0A0F1C" stroke="#1E293B" stroke-width="2"/>
-        <rect x="0" y="0" width="190" height="150" rx="12" fill="url(#cyan-glow)"/>
+    <!-- Header Panel -->
+    <g transform="translate(180, 20)" filter="url(#shadowHeavy)">
+        <rect width="440" height="70" rx="10" fill="url(#glassLinear)" stroke="#38BDF8" stroke-width="0.5" stroke-opacity="0.5" filter="url(#glassBlur)"/>
+        <path d="M 0 10 C 0 4.5 4.5 0 10 0 L 430 0 C 435.5 0 440 4.5 440 10" fill="none" stroke="url(#neonCyan)" stroke-width="2.5" filter="url(#glowCyan)"/>
         
-        <!-- Header -->
-        <path d="M 0 12 Q 0 0 12 0 L 178 0 Q 190 0 190 12 L 190 35 L 0 35 Z" fill="#06B6D4" fill-opacity="0.1"/>
-        <line x1="0" y1="35" x2="190" y2="35" stroke="#06B6D4" stroke-width="1.5" stroke-opacity="0.5"/>
-        
-        <circle cx="20" cy="17" r="4" fill="#06B6D4" filter="url(#glow-cyan)"/>
-        <text x="35" y="21" fill="#E2E8F0" font-family="system-ui, sans-serif" font-size="12" font-weight="600" letter-spacing="1">UAV.T_DATA</text>
-        <rect x="145" y="10" width="35" height="16" rx="4" fill="#06B6D4" fill-opacity="0.2" stroke="#06B6D4" stroke-width="1"/>
-        <text x="151" y="22" fill="#06B6D4" font-family="monospace" font-size="9" font-weight="bold">4K</text>
-
-        <!-- Drone Visual -->
-        <g transform="translate(95, 95)">
-            <!-- Outer Radar Ring -->
-            <circle cx="0" cy="0" r="38" fill="none" stroke="#06B6D4" stroke-width="1" stroke-dasharray="4 4" opacity="0.3">
-                <animateTransform attributeName="transform" type="rotate" from="360" to="0" dur="10s" repeatCount="indefinite"/>
-            </circle>
-            <circle cx="0" cy="0" r="30" fill="none" stroke="#06B6D4" stroke-width="2" opacity="0.6"/>
-            
-            <!-- Rotating Scanner -->
-            <g>
-                <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="3s" repeatCount="indefinite"/>
-                <path d="M 0 0 L 0 -30 A 30 30 0 0 1 25.98 -15 Z" fill="#06B6D4" opacity="0.3" filter="url(#glow-cyan)"/>
-                <line x1="0" y1="0" x2="0" y2="-30" stroke="#06B6D4" stroke-width="2" filter="url(#glow-cyan)"/>
-            </g>
-            
-            <!-- Crosshair -->
-            <line x1="-40" y1="0" x2="-20" y2="0" stroke="#E2E8F0" stroke-width="1.5" opacity="0.5"/>
-            <line x1="20" y1="0" x2="40" y2="0" stroke="#E2E8F0" stroke-width="1.5" opacity="0.5"/>
-            <line x1="0" y1="-40" x2="0" y2="-20" stroke="#E2E8F0" stroke-width="1.5" opacity="0.5"/>
-            <line x1="0" y1="20" x2="0" y2="40" stroke="#E2E8F0" stroke-width="1.5" opacity="0.5"/>
-            
-            <rect x="-6" y="-6" width="12" height="12" fill="none" stroke="#06B6D4" stroke-width="1.5" filter="url(#glow-cyan)"/>
-            
-            <!-- Data points -->
-            <circle cx="-15" cy="-12" r="2.5" fill="#06B6D4" filter="url(#glow-cyan)">
-                <animate attributeName="opacity" values="0.2;1;0.2" dur="2s" repeatCount="indefinite"/>
-            </circle>
-            <circle cx="12" cy="18" r="2" fill="#06B6D4" filter="url(#glow-cyan)">
-                <animate attributeName="opacity" values="1;0.3;1" dur="1.5s" repeatCount="indefinite"/>
-            </circle>
-        </g>
-        <text x="15" y="135" fill="#94A3B8" font-family="monospace" font-size="8">ALT: 120m</text>
-        <text x="140" y="135" fill="#94A3B8" font-family="monospace" font-size="8">FPS: 60</text>
+        <text x="220" y="32" fill="#FFFFFF" font-family="system-ui, sans-serif" font-size="22" font-weight="900" letter-spacing="5" text-anchor="middle">THE SEARCHLIGHT PROTOCOL</text>
+        <text x="220" y="52" fill="#BAE6FD" font-family="monospace" font-size="10" font-weight="600" letter-spacing="3" text-anchor="middle">AERIAL INTELLIGENCE SYSTEM</text>
     </g>
 
-    <!-- Module 2: SEARCHLIGHT CORE -->
-    <g transform="translate(310, 40)" filter="url(#drop-shadow)">
-        <rect x="0" y="0" width="220" height="230" rx="12" fill="#0A0F1C" stroke="#1E293B" stroke-width="2"/>
-        <rect x="0" y="0" width="220" height="230" rx="12" fill="url(#blue-glow)"/>
-        
-        <!-- Header -->
-        <path d="M 0 12 Q 0 0 12 0 L 208 0 Q 220 0 220 12 L 220 35 L 0 35 Z" fill="#3B82F6" fill-opacity="0.1"/>
-        <line x1="0" y1="35" x2="220" y2="35" stroke="#3B82F6" stroke-width="1.5" stroke-opacity="0.5"/>
-        
-        <circle cx="20" cy="17" r="4" fill="#3B82F6" filter="url(#glow-blue)"/>
-        <text x="35" y="21" fill="#E2E8F0" font-family="system-ui, sans-serif" font-size="12" font-weight="600" letter-spacing="1">SEARCHLIGHT_CORE</text>
-        
-        <!-- Sub-module 1: LayerCAM -->
-        <g transform="translate(20, 55)">
-            <rect x="0" y="0" width="180" height="70" rx="6" fill="#0F172A" stroke="#3B82F6" stroke-width="1.5" stroke-opacity="0.8"/>
-            <rect x="0" y="0" width="180" height="70" rx="6" fill="#3B82F6" fill-opacity="0.05"/>
-            <text x="12" y="18" fill="#60A5FA" font-family="monospace" font-size="10" font-weight="bold">MODULE_1: LAYER_CAM</text>
-            
-            <g transform="translate(10, 25)">
-                <rect x="0" y="0" width="160" height="35" rx="4" fill="#020617" stroke="#1E293B" stroke-width="1"/>
-                <!-- Heatmap abstraction -->
-                <defs>
-                    <radialGradient id="heat1" cx="30%" cy="50%" r="50%">
-                        <stop offset="0%" stop-color="#EF4444" stop-opacity="0.8"/>
-                        <stop offset="50%" stop-color="#F59E0B" stop-opacity="0.5"/>
-                        <stop offset="100%" stop-color="#3B82F6" stop-opacity="0"/>
-                    </radialGradient>
-                    <radialGradient id="heat2" cx="70%" cy="60%" r="40%">
-                        <stop offset="0%" stop-color="#EF4444" stop-opacity="0.7"/>
-                        <stop offset="40%" stop-color="#F59E0B" stop-opacity="0.4"/>
-                        <stop offset="100%" stop-color="#3B82F6" stop-opacity="0"/>
-                    </radialGradient>
-                </defs>
-                <rect x="0" y="0" width="160" height="35" rx="4" fill="url(#heat1)"/>
-                <rect x="0" y="0" width="160" height="35" rx="4" fill="url(#heat2)"/>
-                <!-- Pulse animation on hotspots -->
-                <circle cx="48" cy="17" r="2" fill="#fff" filter="url(#glow-red)">
-                    <animate attributeName="r" values="1;3;1" dur="1s" repeatCount="indefinite"/>
-                </circle>
-                <circle cx="112" cy="21" r="1.5" fill="#fff" filter="url(#glow-red)">
-                    <animate attributeName="r" values="1;2.5;1" dur="1.2s" repeatCount="indefinite"/>
-                </circle>
-            </g>
-        </g>
+    <!-- Foreground Dense Telemetry Lines -->
+    <path d="M 0 360 L 120 360 L 150 390 L 800 390" fill="none" stroke="#0284C7" stroke-width="1" opacity="0.4"/>
+    <path d="M 0 340 L 60 340 L 80 360" fill="none" stroke="#0284C7" stroke-width="1" opacity="0.2"/>
+    <text x="160" y="385" fill="#0284C7" font-family="monospace" font-size="9" letter-spacing="2">PIPELINE TRACE: GUIDE -> SLICE -> DETECT</text>
 
-        <!-- Vertical connector -->
-        <g transform="translate(110, 125)">
-            <line x1="0" y1="0" x2="0" y2="20" stroke="#3B82F6" stroke-width="2" stroke-dasharray="4 4">
-                <animate attributeName="stroke-dashoffset" values="8;0" dur="0.5s" repeatCount="indefinite"/>
-            </line>
-            <polygon points="0,25 -4,17 4,17" fill="#3B82F6" filter="url(#glow-blue)"/>
-        </g>
-
-        <!-- Sub-module 2: Intelligent Slicer -->
-        <g transform="translate(20, 150)">
-            <rect x="0" y="0" width="180" height="65" rx="6" fill="#0F172A" stroke="#3B82F6" stroke-width="1.5" stroke-opacity="0.8">
-                 <animate attributeName="stroke-opacity" values="0.4;1;0.4" dur="2s" repeatCount="indefinite"/>
+    <!-- ISOMETRIC COARSE-TO-FINE PIPELINE -->
+    <!-- Increased scale from (1.2, 0.6) to (1.6, 0.8) to fill the screen better -->
+    <g transform="translate(400, 220) scale(1.6, 0.8) rotate(-30)">
+        
+        <!-- The piercing beam -->
+        <line x1="-350" y1="0" x2="350" y2="0" stroke="url(#beam)" stroke-width="10" filter="url(#glowCyan)"/>
+        <line x1="-350" y1="0" x2="350" y2="0" stroke="#FFF" stroke-width="2.5" stroke-dasharray="25 50">
+            <animate attributeName="stroke-dashoffset" values="75;0" dur="1s" repeatCount="indefinite"/>
+        </line>
+        
+        <!-- PLANE 1: Raw High-Res Feed (Leftmost) -->
+        <g transform="translate(-200, 0)">
+            <rect x="-80" y="-80" width="160" height="160" fill="url(#glassLinear)" stroke="#0284C7" stroke-width="2.5" filter="url(#shadowHeavy)"/>
+            <path d="M -80 0 L 80 0 M 0 -80 L 0 80" stroke="#0284C7" opacity="0.8" stroke-width="1.5"/>
+            <path d="M -40 -80 L -40 80 M 40 -80 L 40 80 M -80 -40 L 80 -40 M -80 40 L 80 40" stroke="#38BDF8" opacity="0.2" stroke-width="1"/>
+            <circle cx="0" cy="0" r="2.5" fill="#BAE6FD"/>
+            <circle cx="30" cy="-40" r="2" fill="#BAE6FD"/>
+            <circle cx="-50" cy="50" r="1.5" fill="#BAE6FD" opacity="0.5"/>
+            <!-- Scanning reticle -->
+            <rect x="-70" y="-70" width="140" height="140" fill="none" stroke="#fff" stroke-width="1" stroke-dasharray="10 20" opacity="0.3">
+                <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="8s" repeatCount="indefinite"/>
             </rect>
-            <rect x="0" y="0" width="180" height="65" rx="6" fill="#3B82F6" fill-opacity="0.05"/>
-            <text x="12" y="18" fill="#60A5FA" font-family="monospace" font-size="10" font-weight="bold">MODULE_2: INTEL_SLICER</text>
+        </g>
+
+        <!-- PLANE 2: LayerCAM Heatmap (Middle) -->
+        <g transform="translate(0, 0)">
+            <rect x="-80" y="-80" width="160" height="160" fill="url(#glassLinear)" stroke="#EF4444" stroke-width="2" filter="url(#shadowHeavy)"/>
             
-            <g transform="translate(15, 25)">
-                <!-- Crop patches -->
-                <g opacity="0.9">
-                    <rect x="0" y="0" width="30" height="30" fill="none" stroke="#60A5FA" stroke-width="1" stroke-dasharray="2 2"/>
-                    <rect x="3" y="3" width="24" height="24" fill="url(#gold-glow)"/>
-                    <text x="15" y="18" fill="#fff" font-size="6" font-family="monospace" text-anchor="middle">C-1</text>
-                </g>
-                <g transform="translate(45, 0)" opacity="0.9">
-                    <rect x="0" y="0" width="30" height="30" fill="none" stroke="#60A5FA" stroke-width="1" stroke-dasharray="2 2"/>
-                    <rect x="3" y="3" width="24" height="24" fill="url(#gold-glow)"/>
-                     <text x="15" y="18" fill="#fff" font-size="6" font-family="monospace" text-anchor="middle">C-2</text>
-                </g>
-                <g transform="translate(90, 0)" opacity="0.3">
-                    <rect x="0" y="0" width="30" height="30" fill="none" stroke="#475569" stroke-width="1" stroke-dasharray="2 2"/>
-                    <text x="15" y="18" fill="#475569" font-size="8" font-family="monospace" text-anchor="middle">...</text>
-                </g>
-                <g transform="translate(120, 0)" opacity="0.9">
-                    <rect x="0" y="0" width="30" height="30" fill="none" stroke="#60A5FA" stroke-width="1" stroke-dasharray="2 2"/>
-                    <rect x="3" y="3" width="24" height="24" fill="url(#gold-glow)"/>
-                    <text x="15" y="18" fill="#fff" font-size="6" font-family="monospace" text-anchor="middle">C-N</text>
-                </g>
-            </g>
+            <rect x="-15" y="-75" width="90" height="70" fill="url(#hotspot)"/>
+            <circle cx="30" cy="-40" r="5" fill="#FFF" filter="url(#glowRed)"/>
+            
+            <rect x="-35" y="-35" width="70" height="70" fill="url(#hotspot)"/>
+            <circle cx="0" cy="0" r="7" fill="#FFF" filter="url(#glowRed)">
+                <animate attributeName="opacity" values="0.7;1;0.7" dur="1.5s" repeatCount="indefinite"/>
+            </circle>
+            
+            <!-- Tracking corners -->
+            <path d="M -75 -60 L -75 -75 L -60 -75 M 75 -60 L 75 -75 L 60 -75 M -75 60 L -75 75 L -60 75 M 75 60 L 75 75 L 60 75" fill="none" stroke="#EF4444" stroke-width="2" opacity="0.8"/>
+        </g>
+
+        <!-- PLANE 3: Active Crop / YOLO Fusion (Rightmost) -->
+        <g transform="translate(200, 0)">
+            <rect x="-60" y="-60" width="120" height="120" fill="url(#glassLinear)" stroke="#38BDF8" stroke-width="2.5" filter="url(#shadowHeavy)"/>
+            
+            <!-- Slice extracted -->
+            <rect x="-25" y="-25" width="50" height="50" fill="url(#targetGlow)" stroke="#FBBF24" stroke-width="2" stroke-dasharray="5 5"/>
+            
+            <!-- Bounding Box -->
+            <rect x="-12" y="-12" width="24" height="24" fill="none" stroke="#EF4444" stroke-width="2.5"/>
+            <circle cx="0" cy="0" r="3.5" fill="#EF4444"/>
+            <polygon points="-12,-12 -6,-18 12,-18 12,-12" fill="#EF4444"/>
+            
+            <!-- Final target lock reticle overlay -->
+            <circle cx="0" cy="0" r="35" fill="none" stroke="#38BDF8" stroke-width="2.5" stroke-dasharray="10 20">
+                <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="3s" repeatCount="indefinite"/>
+            </circle>
+            <circle cx="0" cy="0" r="5" fill="#FFF" filter="url(#glowCyan)"/>
         </g>
     </g>
 
-    <!-- Module 3: YOLO Detector -->
-    <g transform="translate(610, 60)" filter="url(#drop-shadow)">
-        <rect x="0" y="0" width="160" height="150" rx="12" fill="#0A0F1C" stroke="#1E293B" stroke-width="2"/>
-        <rect x="0" y="0" width="160" height="150" rx="12" fill="url(#indigo-glow)"/>
-        <rect x="0" y="0" width="160" height="150" rx="12" fill="none" stroke="#6366F1" stroke-width="1" stroke-opacity="0.5" filter="url(#glow-indigo)"/>
-        
-        <!-- Header -->
-        <path d="M 0 12 Q 0 0 12 0 L 148 0 Q 160 0 160 12 L 160 35 L 0 35 Z" fill="#6366F1" fill-opacity="0.1"/>
-        <line x1="0" y1="35" x2="160" y2="35" stroke="#6366F1" stroke-width="1.5" stroke-opacity="0.5"/>
-        
-        <circle cx="20" cy="17" r="4" fill="#6366F1" filter="url(#glow-indigo)"/>
-        <text x="35" y="21" fill="#E2E8F0" font-family="system-ui, sans-serif" font-size="12" font-weight="600" letter-spacing="1">YOLOv8 DETECT</text>
-        
-        <!-- Inner Screen -->
-        <g transform="translate(20, 50)">
-            <rect x="0" y="0" width="120" height="80" rx="4" fill="#020617" stroke="#312E81" stroke-width="1.5"/>
-            
-            <!-- Grid lines inside screen -->
-            <path d="M 0 20 L 120 20 M 0 40 L 120 40 M 0 60 L 120 60" stroke="#1E293B" stroke-width="0.5"/>
-            <path d="M 30 0 L 30 80 M 60 0 L 60 80 M 90 0 L 90 80" stroke="#1E293B" stroke-width="0.5"/>
-            
-            <!-- Target Objects Boxes -->
-            <!-- Object 1 -->
-            <g transform="translate(20, 15)">
-                <rect x="0" y="0" width="35" height="40" fill="none" stroke="#6366F1" stroke-width="1.5" filter="url(#glow-indigo)"/>
-                <!-- Corner accents -->
-                <path d="M 0 5 L 0 0 L 5 0 M 30 0 L 35 0 L 35 5 M 35 35 L 35 40 L 30 40 M 5 40 L 0 40 L 0 35" fill="none" stroke="#A5B4FC" stroke-width="2"/>
-                <!-- Label -->
-                <rect x="0" y="-10" width="30" height="10" fill="#6366F1"/>
-                <text x="3" y="-3" fill="#FFF" font-size="6" font-family="sans-serif" font-weight="bold">PERSON</text>
-                <text x="3" y="36" fill="#A5B4FC" font-size="5" font-family="sans-serif">0.98</text>
-            </g>
-
-            <!-- Object 2 -->
-            <g transform="translate(75, 40)">
-                <rect x="0" y="0" width="25" height="25" fill="none" stroke="#6366F1" stroke-width="1.5" filter="url(#glow-indigo)"/>
-                <path d="M 0 3 L 0 0 L 3 0 M 22 0 L 25 0 L 25 3 M 25 22 L 25 25 L 22 25 M 3 25 L 0 25 L 0 22" fill="none" stroke="#A5B4FC" stroke-width="2"/>
-                <rect x="0" y="-10" width="25" height="10" fill="#6366F1"/>
-                <text x="3" y="-3" fill="#FFF" font-size="6" font-family="sans-serif" font-weight="bold">TRUCK</text>
-                <text x="3" y="22" fill="#A5B4FC" font-size="5" font-family="sans-serif">0.89</text>
-            </g>
-        </g>
+    <!-- Technical Specs & Descriptions Background Boxes -->
+    <!-- Left -->
+    <g transform="translate(40, 260)" filter="url(#shadowHeavy)">
+        <rect width="210" height="60" rx="6" fill="#020812" stroke="#0284C7" stroke-width="1" opacity="0.8"/>
+        <text x="15" y="25" fill="#0284C7" font-family="monospace" font-size="12" font-weight="900" letter-spacing="2">STAGE 01</text>
+        <text x="15" y="42" fill="#7DD3FC" font-family="monospace" font-size="9" letter-spacing="1">RAW 4K UAV FEED</text>
     </g>
 
-    <!-- Telemetry & Status Bar -->
-    <g transform="translate(40, 310)">
-        <rect x="0" y="0" width="730" height="25" rx="4" fill="#0A0F1C" stroke="#1E293B" stroke-width="1"/>
-        <rect x="0" y="0" width="730" height="25" rx="4" fill="#10B981" fill-opacity="0.05"/>
-        
-        <circle cx="15" cy="12.5" r="4" fill="#10B981">
-             <animate attributeName="opacity" values="1;0.4;1" dur="1s" repeatCount="indefinite"/>
-        </circle>
-        
-        <text x="28" y="16.5" fill="#10B981" font-size="10" font-family="monospace" font-weight="bold" letter-spacing="1">SYSTEM_ONLINE :: PROTOCOL_ACTIVE</text>
-        
-        <text x="250" y="16.5" fill="#475569" font-size="10" font-family="monospace">THROUGHPUT: <tspan fill="#3B82F6">120 MB/s</tspan></text>
-        <text x="400" y="16.5" fill="#475569" font-size="10" font-family="monospace">MEMORY: <tspan fill="#F59E0B">4.2 GB</tspan></text>
-        <text x="550" y="16.5" fill="#475569" font-size="10" font-family="monospace">LATENCY: <tspan fill="#10B981">45ms / FR</tspan></text>
-        <text x="680" y="16.5" fill="#6366F1" font-size="10" font-family="monospace" font-weight="bold">SIG: OK</text>
+    <!-- Middle -->
+    <g transform="translate(290, 310)" filter="url(#shadowHeavy)">
+        <rect width="220" height="60" rx="6" fill="#020812" stroke="#EF4444" stroke-width="1" opacity="0.8"/>
+        <text x="110" y="25" fill="#EF4444" font-family="monospace" font-size="12" font-weight="900" letter-spacing="2" text-anchor="middle">STAGE 02 / GUIDE</text>
+        <text x="110" y="42" fill="#FCA5A5" font-family="monospace" font-size="9" letter-spacing="1" text-anchor="middle">ResNet + LayerCAM</text>
     </g>
+
+    <!-- Right -->
+    <g transform="translate(550, 260)" filter="url(#shadowHeavy)">
+        <rect width="210" height="60" rx="6" fill="#020812" stroke="#38BDF8" stroke-width="1" opacity="0.8"/>
+        <text x="195" y="25" fill="#38BDF8" font-family="monospace" font-size="12" font-weight="900" letter-spacing="2" text-anchor="end">STAGE 03 / SLICER</text>
+        <text x="195" y="42" fill="#BAE6FD" font-family="monospace" font-size="9" letter-spacing="1" text-anchor="end">YOLOv8 GLOBAL FUSION</text>
+    </g>
+
+    <!-- Bottom Left Decor -->
+    <g stroke="#38BDF8" stroke-width="1.5" fill="none" opacity="0.7">
+        <path d="M 30 370 L 30 385 L 45 385"/>
+    </g>
+    <g stroke="#38BDF8" stroke-width="1.5" fill="none" opacity="0.7">
+        <path d="M 770 370 L 770 385 L 755 385"/>
+    </g>
+
 </svg>

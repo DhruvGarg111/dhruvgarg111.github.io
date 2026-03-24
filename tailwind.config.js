@@ -1,35 +1,27 @@
-/** @type {import('tailwindcss').Config} */
 module.exports = {
-    darkMode: "class",
-    content: ["./index.html", "./**/*.js"],
-    theme: {
-        extend: {
-            colors: {
-                "primary": "#38bdf8",
-                "primary-light": "#7dd3fc",
-                "accent-cyan": "#2dd4bf",
-                "background-light": "#ebe7e0",
-                "background-dark": "#0b1120",
-                "surface-dark": "#111a2e",
-                "surface-darker": "#0d1424",
-                "border-dark": "#1e2d4a",
-                "surface-light": "#ede8df",
-                "surface-lighter": "#e8e2d8",
-                "border-light": "#d4cdc2",
-            },
-            fontFamily: {
-                "display": ["Space Grotesk", "sans-serif"],
-                "mono": ["JetBrains Mono", "monospace"],
-            },
-            borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
-            backgroundImage: {
-                'grid-pattern-dark': "radial-gradient(ellipse at center, rgba(56,189,248,0.03) 0%, transparent 70%), linear-gradient(to right, rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.03) 1px, transparent 1px)",
-                'grid-pattern-light': "linear-gradient(to right, rgba(0,0,0,0.03) 1px, transparent 1px), linear-gradient(to bottom, rgba(0,0,0,0.03) 1px, transparent 1px)",
-            },
-        },
+  content: ["./index.html", "./assets/**/*.js"],
+  theme: {
+    extend: {
+      colors: {
+        void:     "#0b0b0f",
+        ink:      "#121218",
+        charcoal: "#1a1a22",
+        slate:    "#2a2a34",
+        ash:      "#3a3a46",
+        mist:     "#8a8a96",
+        bone:     "#e8e6e1",
+        cream:    "#f5f3ee",
+        gold:     "#c5a059",
+        "gold-dim": "#a07d3a",
+        copper:   "#d4956a",
+        arctic:   "#b0c6f9",
+      },
+      fontFamily: {
+        display: ["'Instrument Serif'", "serif"],
+        body:    ["'Satoshi'", "sans-serif"],
+        mono:    ["'DM Mono'", "monospace"],
+      },
     },
-    plugins: [
-        require('@tailwindcss/forms'),
-        require('@tailwindcss/container-queries')
-    ],
+  },
+  plugins: [],
 }

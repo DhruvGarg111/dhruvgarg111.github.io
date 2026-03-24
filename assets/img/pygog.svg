@@ -1,155 +1,161 @@
-<svg viewBox="0 0 800 320" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+<svg viewBox="0 0 800 400" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
     <defs>
-        <filter id="glow-emerald" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur stdDeviation="6" result="blur" />
-            <feMerge>
-                <feMergeNode in="blur" />
-                <feMergeNode in="SourceGraphic" />
-            </feMerge>
-        </filter>
-        <filter id="glow-green" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur stdDeviation="8" result="blur" />
-            <feMerge>
-                <feMergeNode in="blur" />
-                <feMergeNode in="SourceGraphic" />
-            </feMerge>
-        </filter>
-        <filter id="glow-teal" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur stdDeviation="5" result="blur" />
-            <feMerge>
-                <feMergeNode in="blur" />
-                <feMergeNode in="SourceGraphic" />
-            </feMerge>
-        </filter>
-        <linearGradient id="emerald-fade" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stop-color="#10B981" stop-opacity="0.2"/>
-            <stop offset="100%" stop-color="#064E3B" stop-opacity="0.05"/>
+        <radialGradient id="emeraldAura" cx="40%" cy="50%" r="65%">
+            <stop offset="0%" stop-color="#064E3B" stop-opacity="0.9"/>
+            <stop offset="60%" stop-color="#042F2E" stop-opacity="1"/>
+            <stop offset="100%" stop-color="#020617" stop-opacity="1"/>
+        </radialGradient>
+        
+        <radialGradient id="cyanAura" cx="80%" cy="40%" r="55%">
+            <stop offset="0%" stop-color="#0F766E"/>
+            <stop offset="100%" stop-color="#020617" stop-opacity="0"/>
+        </radialGradient>
+
+        <linearGradient id="neonCyan" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#2DD4BF"/>
+            <stop offset="100%" stop-color="#10B981"/>
         </linearGradient>
-        <linearGradient id="green-fade" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stop-color="#34D399" stop-opacity="0.2"/>
-            <stop offset="100%" stop-color="#022C22" stop-opacity="0.05"/>
+
+        <linearGradient id="glassLinear" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#ffffff" stop-opacity="0.2"/>
+            <stop offset="50%" stop-color="#ffffff" stop-opacity="0.03"/>
+            <stop offset="100%" stop-color="#ffffff" stop-opacity="0.08"/>
         </linearGradient>
-        <linearGradient id="teal-fade" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stop-color="#14B8A6" stop-opacity="0.2"/>
-            <stop offset="100%" stop-color="#134E4A" stop-opacity="0.05"/>
-        </linearGradient>        
-        <pattern id="hex-bg" width="40" height="69.28" patternUnits="userSpaceOnUse" patternTransform="scale(0.5)">
-            <path d="M20 0 L40 11.55 L40 34.64 L20 46.19 L0 34.64 L0 11.55 Z" fill="none" stroke="#1E293B" stroke-width="1.5" opacity="0.4"/>
-            <path d="M20 69.28 L40 57.74 L40 34.64 L20 46.19 L0 34.64 L0 57.74 Z" fill="none" stroke="#1E293B" stroke-width="1.5" opacity="0.4"/>
+
+        <filter id="glassBlur" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="12" result="blur"/>
+            <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+        </filter>
+
+        <filter id="glowGreen" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="20" result="blur2"/>
+            <feGaussianBlur stdDeviation="6" result="blur1"/>
+            <feMerge>
+                <feMergeNode in="blur2"/>
+                <feMergeNode in="blur1"/>
+                <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+        </filter>
+
+        <filter id="shadowHeavy" x="-30%" y="-30%" width="160%" height="160%">
+            <feDropShadow dx="0" dy="30" stdDeviation="30" flood-color="#000" flood-opacity="1"/>
+            <feDropShadow dx="0" dy="12" stdDeviation="8" flood-color="#042F2E" flood-opacity="0.8"/>
+        </filter>
+        
+        <pattern id="matrixPattern" width="120" height="24" patternUnits="userSpaceOnUse">
+            <text x="5" y="18" fill="#10B981" font-family="monospace" font-size="12" opacity="0.15">01100101 01101110</text>
+            <text x="75" y="18" fill="#34D399" font-family="monospace" font-size="12" opacity="0.08">SYS_OK</text>
         </pattern>
-        <linearGradient id="bg-grad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#020617"/>
-            <stop offset="100%" stop-color="#0F172A"/>
-        </linearGradient>
     </defs>
 
-    <!-- Background -->
-    <rect width="100%" height="100%" fill="url(#bg-grad)"/>
-    <rect width="100%" height="100%" fill="url(#hex-bg)"/>
+    <!-- Base Canvas -->
+    <rect width="100%" height="100%" fill="url(#emeraldAura)"/>
+    <rect width="100%" height="100%" fill="url(#cyanAura)" opacity="0.7"/>
+    <rect width="100%" height="100%" fill="url(#matrixPattern)"/>
 
-    <!-- Flow Paths -->
-    <path d="M 280 100 C 330 100, 310 160, 360 160" fill="none" stroke="#10B981" stroke-width="2" stroke-dasharray="6 6">
-        <animate attributeName="stroke-dashoffset" values="24;0" dur="1.5s" repeatCount="indefinite" />
-    </path>
-    <path d="M 520 160 C 560 160, 560 100, 600 100" fill="none" stroke="#34D399" stroke-width="2" stroke-dasharray="6 6">
-        <animate attributeName="stroke-dashoffset" values="24;0" dur="1.5s" repeatCount="indefinite" />
-    </path>
-    <path d="M 520 160 C 560 160, 560 220, 600 220" fill="none" stroke="#14B8A6" stroke-width="2" stroke-dasharray="6 6">
-        <animate attributeName="stroke-dashoffset" values="24;0" dur="1.5s" repeatCount="indefinite" />
-    </path>
+    <!-- Central Floating Dashboard -->
+    <g transform="translate(150, 30)" filter="url(#shadowHeavy)">
+        <rect width="500" height="95" rx="12" fill="url(#glassLinear)" stroke="#10B981" stroke-width="1.5" stroke-opacity="0.5" filter="url(#glassBlur)"/>
+        
+        <path d="M 0 12 C 0 5.3 5.3 0 12 0 L 488 0 C 494.6 0 500 5.3 500 12" fill="none" stroke="url(#neonCyan)" stroke-width="3" filter="url(#glowGreen)"/>
+        
+        <text x="250" y="38" fill="#FFFFFF" font-family="system-ui, sans-serif" font-size="28" font-weight="900" letter-spacing="8" text-anchor="middle">pygog CLI</text>
+        <text x="250" y="60" fill="#6EE7B7" font-family="monospace" font-size="11" font-weight="600" letter-spacing="4" text-anchor="middle">GOOGLE IN YOUR TERMINAL</text>
+        
+        <circle cx="250" cy="80" r="4.5" fill="#10B981" filter="url(#glowGreen)">
+            <animate attributeName="opacity" values="0.4;1;0.4" dur="2s" repeatCount="indefinite"/>
+        </circle>
+    </g>
 
-    <!-- Block 1: Terminal CLI -->
-    <g transform="translate(60, 40)">
-        <rect x="0" y="0" width="220" height="180" rx="6" fill="#000" stroke="#1E293B" stroke-width="1.5"/>
-        <rect x="0" y="0" width="220" height="180" rx="6" fill="url(#green-fade)"/>
+    <!-- Isometric Tech Routing Network -->
+    <g transform="translate(420, 240) scale(1.4, 0.7) rotate(45)">
         
-        <rect x="0" y="0" width="220" height="24" rx="6" fill="#0F172A"/>
-        <line x1="0" y1="24" x2="220" y2="24" stroke="#1E293B" stroke-width="1.5"/>
-        
-        <circle cx="16" cy="12" r="4" fill="#EF4444"/>
-        <circle cx="28" cy="12" r="4" fill="#F59E0B"/>
-        <circle cx="40" cy="12" r="4" fill="#10B981"/>
-        <text x="110" y="16" fill="#34D399" font-family="monospace" font-size="10" font-weight="bold" text-anchor="middle">pygog ~ client</text>
-        
-        <!-- Terminal Body -->
-        <g transform="translate(16, 45)">
-            <text x="0" y="10" fill="#E2E8F0" font-size="10" font-family="monospace">&gt; pygog do "Draft reply</text>
-            <text x="14" y="24" fill="#E2E8F0" font-size="10" font-family="monospace">for repo access request"</text>
-            <text x="0" y="44" fill="#94A3B8" font-size="10" font-family="monospace">[core] routing module...</text>
-            <text x="0" y="60" fill="#10B981" font-size="10" font-family="monospace">- Dispatching to LLM</text>
-            <text x="0" y="76" fill="#10B981" font-size="10" font-family="monospace">- Connecting to APIs</text>
-            <!-- Cursor -->
-            <rect x="0" y="90" width="8" height="14" fill="#10B981">
-                <animate attributeName="opacity" values="1;0" dur="0.8s" repeatCount="indefinite" />
-            </rect>
+        <!-- Base Grid -->
+        <rect x="-300" y="-300" width="600" height="600" fill="none" stroke="#6EE7B7" stroke-width="0.8" opacity="0.15"/>
+        <line x1="0" y1="-300" x2="0" y2="300" stroke="#10B981" opacity="0.3"/>
+        <line x1="-300" y1="0" x2="300" y2="0" stroke="#10B981" opacity="0.3"/>
+
+        <!-- Abstract User Prompt Stream -->
+        <path d="M -300 300 L 0 0" fill="none" stroke="#2DD4BF" stroke-width="6" stroke-dasharray="15 40" opacity="0.9" filter="url(#glowGreen)">
+            <animate attributeName="stroke-dashoffset" values="55;0" dur="1s" repeatCount="indefinite"/>
+        </path>
+        <!-- Floating command strings alongside path -->
+        <g transform="translate(-150, 150) rotate(-45)">
+             <text x="0" y="-12" fill="#A7F3D0" font-family="monospace" font-size="10" font-weight="900" letter-spacing="1">ask "Find Q4 Report"</text>
+             <animate attributeName="opacity" values="1;0" dur="2s" repeatCount="indefinite"/>
+        </g>
+
+        <!-- THE AGENT CORE (Center) -->
+        <g transform="translate(0, 0)">
+            <rect x="-50" y="-50" width="100" height="100" fill="url(#glassLinear)" stroke="#34D399" stroke-width="3" filter="url(#shadowHeavy)"/>
+            <polygon points="-25,0 0,-25 25,0 0,25" fill="url(#neonCyan)" filter="url(#glowGreen)">
+                 <animate attributeName="opacity" values="0.6;1;0.6" dur="1.5s" repeatCount="indefinite"/>
+            </polygon>
+            <circle cx="0" cy="0" r="7" fill="#fff" filter="url(#glowGreen)"/>
+            
+            <circle cx="-35" cy="-35" r="10" fill="#38BDF8" filter="url(#glowGreen)"/>
+            <circle cx="35" cy="-35" r="10" fill="#A78BFA" filter="url(#glowGreen)"/>
+            <circle cx="35" cy="35" r="10" fill="#F43F5E" filter="url(#glowGreen)"/>
+        </g>
+
+        <!-- Router Beams out to APIs -->
+        <path d="M 0 0 L 0 -160" fill="none" stroke="url(#neonCyan)" stroke-width="3" filter="url(#glowGreen)"/>
+        <circle cx="0" cy="-160" r="4.5" fill="#FFF">
+             <animate attributeName="opacity" values="0;1;0" dur="1s" repeatCount="indefinite"/>
+        </circle>
+
+        <path d="M 0 0 L 160 0" fill="none" stroke="url(#neonCyan)" stroke-width="3" filter="url(#glowGreen)"/>
+        <circle cx="160" cy="0" r="4.5" fill="#FFF">
+            <animate attributeName="opacity" values="0;1;0" dur="1.2s" repeatCount="indefinite"/>
+        </circle>
+
+        <!-- API TARGET 1 (Gmail/Drive) -->
+        <g transform="translate(0, -160)">
+            <rect x="-35" y="-35" width="70" height="70" fill="url(#glassLinear)" stroke="#F87171" stroke-width="2.5" filter="url(#shadowHeavy)"/>
+            <circle cx="0" cy="0" r="12" fill="#EF4444" filter="url(#glowGreen)"/>
+        </g>
+
+        <!-- API TARGET 2 (Calendar/Tasks) -->
+        <g transform="translate(160, 0)">
+            <rect x="-35" y="-35" width="70" height="70" fill="url(#glassLinear)" stroke="#38BDF8" stroke-width="2.5" filter="url(#shadowHeavy)"/>
+            <circle cx="0" cy="0" r="12" fill="#0EA5E9" filter="url(#glowGreen)"/>
         </g>
     </g>
 
-    <!-- Block 2: Agent Core -->
-    <g transform="translate(360, 100)">
-        <rect x="0" y="0" width="160" height="120" rx="6" fill="#000" stroke="#1E293B" stroke-width="1.5"/>
-        <rect x="0" y="0" width="160" height="120" rx="6" fill="url(#emerald-fade)"/>
-        <rect x="0" y="0" width="160" height="120" rx="6" fill="none" stroke="#10B981" stroke-width="1.5" filter="url(#glow-emerald)" opacity="0.6"/>
-        
-        <text x="12" y="20" fill="#10B981" font-family="monospace" font-size="10" font-weight="bold">AGENT_CORE Node</text>
-        <line x1="0" y1="28" x2="160" y2="28" stroke="#1E293B" stroke-width="1.5"/>
-        
-        <!-- Nodes Representation -->
-        <g transform="translate(80, 65)">
-            <circle cx="0" cy="0" r="14" fill="none" stroke="#10B981" stroke-width="2" filter="url(#glow-emerald)"/>
-            <circle cx="0" cy="0" r="4" fill="#34D399"/>
-            
-            <circle cx="-30" cy="15" r="4" fill="#059669"/>
-            <circle cx="30" cy="15" r="4" fill="#059669"/>
-            <circle cx="0" cy="-25" r="4" fill="#059669"/>
-            
-            <line x1="0" y1="0" x2="-30" y2="15" stroke="#10B981" stroke-width="1.5" opacity="0.5"/>
-            <line x1="0" y1="0" x2="30" y2="15" stroke="#10B981" stroke-width="1.5" opacity="0.5"/>
-            <line x1="0" y1="0" x2="0" y2="-25" stroke="#10B981" stroke-width="1.5" opacity="0.5"/>
-            
-            <text x="0" y="35" fill="#10B981" font-size="9" font-family="monospace" text-anchor="middle" font-weight="bold">GEMINI // OPENAI</text>
-        </g>
+    <!-- Solid Background Tech Specs Floating in Space -->
+    <g transform="translate(40, 140)" filter="url(#shadowHeavy)">
+        <rect width="200" height="60" rx="6" fill="#020617" stroke="#047857" stroke-width="1.5" opacity="0.9"/>
+        <text x="15" y="25" fill="#10B981" font-family="monospace" font-size="12" font-weight="900" letter-spacing="2">INPUT_CMD</text>
+        <text x="15" y="45" fill="#A7F3D0" font-family="monospace" font-size="10" letter-spacing="1">NATURAL LANG PROMPT</text>
+    </g>
+    
+    <g transform="translate(40, 290)" filter="url(#shadowHeavy)">
+        <rect width="200" height="60" rx="6" fill="#020617" stroke="#6D28D9" stroke-width="1.5" opacity="0.9"/>
+        <text x="15" y="25" fill="#A78BFA" font-family="monospace" font-size="12" font-weight="900" letter-spacing="2">OS_KEYRING</text>
+        <text x="15" y="45" fill="#E9D5FF" font-family="monospace" font-size="10" letter-spacing="1">SECURE OAUTH TOKENS</text>
     </g>
 
-    <!-- Block 3: Google APIs -->
-    <g transform="translate(600, 40)">
-        <rect x="0" y="0" width="160" height="100" rx="6" fill="#000" stroke="#1E293B" stroke-width="1.5"/>
-        <rect x="0" y="0" width="160" height="100" rx="6" fill="url(#green-fade)"/>
-        
-        <text x="12" y="20" fill="#34D399" font-family="monospace" font-size="10" font-weight="bold">WORKSPACE_API</text>
-        <line x1="0" y1="28" x2="160" y2="28" stroke="#1E293B" stroke-width="1.5"/>
-        
-        <g transform="translate(25, 45)">
-            <rect x="0" y="0" width="30" height="20" fill="none" stroke="#E2E8F0" stroke-width="1.5"/>
-            <polyline points="0,0 15,10 30,0" fill="none" stroke="#E2E8F0" stroke-width="1.5"/>
-            <text x="15" y="32" fill="#E2E8F0" font-size="8" font-family="sans-serif" text-anchor="middle">Gmail</text>
-        </g>
-        
-        <g transform="translate(100, 45)">
-            <rect x="0" y="0" width="30" height="20" rx="3" fill="none" stroke="#38BDF8" stroke-width="1.5"/>
-            <line x1="0" y1="6" x2="30" y2="6" stroke="#38BDF8" stroke-width="1.5"/>
-            <text x="15" y="32" fill="#38BDF8" font-size="8" font-family="sans-serif" text-anchor="middle">Calendar</text>
-        </g>
+    <g transform="translate(620, 140)" filter="url(#shadowHeavy)">
+        <rect width="160" height="60" rx="6" fill="#020617" stroke="#991B1B" stroke-width="1.5" opacity="0.9"/>
+        <text x="145" y="25" fill="#F87171" font-family="monospace" font-size="12" font-weight="900" letter-spacing="2" text-anchor="end">GMAIL :: DRIVE</text>
+        <text x="145" y="45" fill="#FECACA" font-family="monospace" font-size="9" letter-spacing="1" text-anchor="end">REST API EXECUTION</text>
     </g>
 
-    <!-- Block 4: System Action Executed -->
-    <g transform="translate(600, 160)">
-        <rect x="0" y="0" width="160" height="100" rx="6" fill="#000" stroke="#1E293B" stroke-width="1.5"/>
-        <rect x="0" y="0" width="160" height="100" rx="6" fill="url(#teal-fade)"/>
-        
-        <text x="12" y="20" fill="#14B8A6" font-family="monospace" font-size="10" font-weight="bold">TASK_EXEC</text>
-        <line x1="0" y1="28" x2="160" y2="28" stroke="#1E293B" stroke-width="1.5"/>
-        
-        <g transform="translate(80, 55)">
-            <circle cx="0" cy="0" r="16" fill="none" stroke="#14B8A6" stroke-width="2" filter="url(#glow-teal)"/>
-            <polyline points="-6,0 -2,4 6,-4" fill="none" stroke="#E2E8F0" stroke-width="2.5"/>
-            
-            <circle cx="0" cy="0" r="24" fill="none" stroke="#14B8A6" stroke-width="1" opacity="0.3"/>
-            <text x="0" y="28" fill="#14B8A6" font-size="9" font-family="monospace" text-anchor="middle" font-weight="bold">SUCCESS</text>
-        </g>
+    <g transform="translate(620, 290)" filter="url(#shadowHeavy)">
+        <rect width="160" height="60" rx="6" fill="#020617" stroke="#075985" stroke-width="1.5" opacity="0.9"/>
+        <text x="145" y="25" fill="#38BDF8" font-family="monospace" font-size="12" font-weight="900" letter-spacing="2" text-anchor="end">CAL :: TASKS</text>
+        <text x="145" y="45" fill="#E0F2FE" font-family="monospace" font-size="8" letter-spacing="1" text-anchor="end">JSON PAYLOAD OVER HTTP</text>
     </g>
 
-    <!-- Telemetry Bar -->
-    <text x="30" y="310" fill="#475569" font-size="10" font-family="monospace" letter-spacing="1">STATUS :: 🟢 SYS.RDY</text>
-    <text x="590" y="310" fill="#475569" font-size="10" font-family="monospace" letter-spacing="1">TOKENS: OK | AUTH: VALID</text>
+    <g transform="translate(350, 370)">
+        <text x="50" y="0" fill="#A7F3D0" font-family="monospace" font-size="10" font-weight="900" letter-spacing="2" text-anchor="middle">LLM NEURAL ROUTER</text>
+        <path d="M 0 -12 L 50 -5 L 100 -12" fill="none" stroke="#10B981" stroke-width="1.5"/>
+    </g>
+
+    <g stroke="#10B981" stroke-width="2" fill="none">
+        <path d="M 30 50 L 30 30 L 50 30"/>
+        <path d="M 770 50 L 770 30 L 750 30"/>
+        <path d="M 30 350 L 30 370 L 50 370"/>
+        <path d="M 770 350 L 770 370 L 750 370"/>
+    </g>
 </svg>

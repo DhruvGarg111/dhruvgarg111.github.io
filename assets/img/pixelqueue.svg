@@ -1,167 +1,208 @@
-<svg viewBox="0 0 800 320" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+<svg viewBox="0 0 800 400" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
     <defs>
-        <filter id="glow-purple" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur stdDeviation="8" result="blur" />
+        <!-- Deep Space Background -->
+        <radialGradient id="spaceGradient" cx="50%" cy="50%" r="75%">
+            <stop offset="0%" stop-color="#0a051a"/>
+            <stop offset="50%" stop-color="#05030d"/>
+            <stop offset="100%" stop-color="#000000"/>
+        </radialGradient>
+
+        <!-- Premium Core Glows -->
+        <radialGradient id="cyanCore" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#06B6D4" stop-opacity="0.5"/>
+            <stop offset="60%" stop-color="#0891B2" stop-opacity="0.1"/>
+            <stop offset="100%" stop-color="#020617" stop-opacity="0"/>
+        </radialGradient>
+        <radialGradient id="purpleCore" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#8B5CF6" stop-opacity="0.5"/>
+            <stop offset="60%" stop-color="#6D28D9" stop-opacity="0.1"/>
+            <stop offset="100%" stop-color="#020617" stop-opacity="0"/>
+        </radialGradient>
+
+        <!-- Glassmorphism Panel Gradient -->
+        <linearGradient id="glassLinear" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#ffffff" stop-opacity="0.15"/>
+            <stop offset="100%" stop-color="#ffffff" stop-opacity="0.03"/>
+        </linearGradient>
+
+        <!-- Dynamic Data Streams -->
+        <linearGradient id="streamCyan" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#000000" stop-opacity="0"/>
+            <stop offset="50%" stop-color="#06B6D4" stop-opacity="1"/>
+            <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+        </linearGradient>
+        <linearGradient id="streamPurple" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#000000" stop-opacity="0"/>
+            <stop offset="50%" stop-color="#8B5CF6" stop-opacity="1"/>
+            <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+        </linearGradient>
+
+        <!-- Advanced Filters -->
+        <filter id="glassBlur" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="10" result="blur"/>
+            <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+        </filter>
+        <filter id="neonGlowCyan" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="5" result="blur1"/>
+            <feGaussianBlur stdDeviation="12" result="blur2"/>
             <feMerge>
-                <feMergeNode in="blur" />
-                <feMergeNode in="SourceGraphic" />
+                <feMergeNode in="blur2"/>
+                <feMergeNode in="blur1"/>
+                <feMergeNode in="SourceGraphic"/>
             </feMerge>
         </filter>
-        <filter id="glow-cyan" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur stdDeviation="8" result="blur" />
+        <filter id="neonGlowPurple" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="5" result="blur1"/>
+            <feGaussianBlur stdDeviation="12" result="blur2"/>
             <feMerge>
-                <feMergeNode in="blur" />
-                <feMergeNode in="SourceGraphic" />
+                <feMergeNode in="blur2"/>
+                <feMergeNode in="blur1"/>
+                <feMergeNode in="SourceGraphic"/>
             </feMerge>
         </filter>
-        <linearGradient id="purple-fade" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stop-color="#8B5CF6" stop-opacity="0.3"/>
-            <stop offset="100%" stop-color="#1E1B4B" stop-opacity="0.1"/>
-        </linearGradient>
-        <linearGradient id="cyan-fade" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stop-color="#06B6D4" stop-opacity="0.3"/>
-            <stop offset="100%" stop-color="#083344" stop-opacity="0.1"/>
-        </linearGradient>
-        <pattern id="hex-bg" width="40" height="69.28" patternUnits="userSpaceOnUse" patternTransform="scale(0.5)">
-            <path d="M20 0 L40 11.55 L40 34.64 L20 46.19 L0 34.64 L0 11.55 Z" fill="none" stroke="#1E293B" stroke-width="1.5" opacity="0.4"/>
-            <path d="M20 69.28 L40 57.74 L40 34.64 L20 46.19 L0 34.64 L0 57.74 Z" fill="none" stroke="#1E293B" stroke-width="1.5" opacity="0.4"/>
+        <filter id="deepShadow" x="-30%" y="-30%" width="160%" height="160%">
+            <feDropShadow dx="0" dy="15" stdDeviation="25" flood-color="#000000" flood-opacity="0.9"/>
+            <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#000000" flood-opacity="0.7"/>
+        </filter>
+
+        <!-- Isometric Grid Pattern -->
+        <pattern id="isoGrid" width="60" height="34.641" patternUnits="userSpaceOnUse">
+            <path d="M 0 17.32 L 30 0 L 60 17.32 L 30 34.64 Z" fill="none" stroke="#ffffff" stroke-width="1" stroke-opacity="0.05"/>
         </pattern>
-        <linearGradient id="bg-grad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#020617"/>
-            <stop offset="100%" stop-color="#0F172A"/>
-        </linearGradient>
+        
+        <!-- Animated Particles Path -->
+        <path id="flowPath1" d="M -50 250 C 200 400, 600 -50, 850 150" fill="none" />
+        <path id="flowPath2" d="M -50 150 C 200 -50, 600 400, 850 250" fill="none" />
     </defs>
 
-    <!-- Background -->
-    <rect width="100%" height="100%" fill="url(#bg-grad)"/>
-    <rect width="100%" height="100%" fill="url(#hex-bg)"/>
+    <!-- Base Environment -->
+    <rect width="100%" height="100%" fill="url(#spaceGradient)"/>
+    
+    <!-- Ambient Core Illuminations (Scaled up) -->
+    <circle cx="200" cy="220" r="400" fill="url(#cyanCore)"/>
+    <circle cx="600" cy="220" r="400" fill="url(#purpleCore)"/>
+    
+    <!-- Isometric Floor Grid -->
+    <g transform="translate(0, 150) scale(1, 0.45) rotate(45, 400, 200)">
+        <rect x="-600" y="-600" width="2000" height="2000" fill="url(#isoGrid)"/>
+        <!-- Sweeping scanner light -->
+        <line x1="-600" y1="-600" x2="1400" y2="1400" stroke="#06B6D4" stroke-width="3" opacity="0.4" filter="url(#neonGlowCyan)">
+            <animate attributeName="x1" values="-600;1400;-600" dur="10s" repeatCount="indefinite" />
+            <animate attributeName="y1" values="-600;1400;-600" dur="10s" repeatCount="indefinite" />
+            <animate attributeName="x2" values="0;2000;0" dur="10s" repeatCount="indefinite" />
+            <animate attributeName="y2" values="0;2000;0" dur="10s" repeatCount="indefinite" />
+        </line>
+    </g>
 
-    <!-- Left Box: UI Canvas -->
-    <g transform="translate(60, 40)">
-        <rect x="0" y="0" width="240" height="180" rx="8" fill="#000" stroke="#1E293B" stroke-width="2"/>
-        <rect x="0" y="0" width="240" height="180" rx="8" fill="url(#cyan-fade)"/>
+    <!-- Dynamic Energy Streams (Thicker, more aggressive curves) -->
+    <g opacity="0.9">
+        <path d="M -50 250 C 200 400, 600 -50, 850 150" fill="none" stroke="url(#streamCyan)" stroke-width="12" filter="url(#neonGlowCyan)" opacity="0.4"/>
+        <path d="M -50 150 C 200 -50, 600 400, 850 250" fill="none" stroke="url(#streamPurple)" stroke-width="12" filter="url(#neonGlowPurple)" opacity="0.4"/>
         
-        <!-- Toolbar -->
-        <rect x="0" y="0" width="240" height="32" rx="8" fill="#0F172A"/>
-        <rect x="0" y="24" width="240" height="8" fill="#0F172A"/>
-        <circle cx="20" cy="16" r="4" fill="#334155"/>
-        <circle cx="36" cy="16" r="4" fill="#334155"/>
-        <circle cx="52" cy="16" r="4" fill="#334155"/>
-        <text x="76" y="20" fill="#64748B" font-size="12" font-family="monospace">PixelQueue UI</text>
+        <path d="M -50 250 C 200 400, 600 -50, 850 150" fill="none" stroke="#fff" stroke-width="2" stroke-dasharray="15 30" opacity="0.8">
+            <animate attributeName="stroke-dashoffset" values="45;0" dur="1.2s" repeatCount="indefinite" />
+        </path>
+        <path d="M -50 150 C 200 -50, 600 400, 850 250" fill="none" stroke="#fff" stroke-width="2" stroke-dasharray="15 30" opacity="0.8">
+            <animate attributeName="stroke-dashoffset" values="45;0" dur="1.2s" repeatCount="indefinite" />
+        </path>
+    </g>
 
-        <!-- Canvas inner -->
-        <rect x="20" y="52" width="140" height="110" rx="4" fill="#020617" stroke="#1E293B" stroke-width="1.5"/>
+    <g>
+        <circle r="6" fill="#FFF" filter="url(#neonGlowCyan)">
+            <animateMotion dur="4s" repeatCount="indefinite" rotate="auto"><mpath href="#flowPath1"/></animateMotion>
+        </circle>
+        <circle r="4" fill="#FFF" filter="url(#neonGlowCyan)">
+            <animateMotion dur="5.5s" repeatCount="indefinite" rotate="auto" begin="1s"><mpath href="#flowPath1"/></animateMotion>
+        </circle>
+        <circle r="6" fill="#FFF" filter="url(#neonGlowPurple)">
+            <animateMotion dur="4.5s" repeatCount="indefinite" rotate="auto" begin="0.5s"><mpath href="#flowPath2"/></animateMotion>
+        </circle>
+        <circle r="7" fill="#FFF" filter="url(#neonGlowPurple)">
+            <animateMotion dur="6s" repeatCount="indefinite" rotate="auto" begin="2s"><mpath href="#flowPath2"/></animateMotion>
+        </circle>
+    </g>
+
+    <!-- ABSTRACT CENTRAL PROCESSING CORES (Scaled Up 1.5x) -->
+    <!-- Node 1: Ingestion -->
+    <g transform="translate(180, 220) scale(1.3)" filter="url(#deepShadow)">
+        <circle cx="0" cy="0" r="60" fill="none" stroke="#06B6D4" stroke-width="1.5" stroke-dasharray="10 15" opacity="0.6">
+            <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="20s" repeatCount="indefinite"/>
+        </circle>
+        <circle cx="0" cy="0" r="45" fill="none" stroke="#0891B2" stroke-width="3" opacity="0.7"/>
         
-        <!-- Sidebar items -->
-        <rect x="172" y="52" width="50" height="14" rx="2" fill="#1E293B"/>
-        <rect x="172" y="74" width="50" height="6" rx="2" fill="#334155"/>
-        <rect x="172" y="86" width="34" height="6" rx="2" fill="#334155"/>
+        <!-- Glass Core -->
+        <polygon points="0,-35 35,0 0,35 -35,0" fill="url(#glassLinear)" stroke="#06B6D4" stroke-width="2" filter="url(#glassBlur)"/>
+        <!-- Inner glowing diamond -->
+        <polygon points="0,-15 15,0 0,15 -15,0" fill="#06B6D4" filter="url(#neonGlowCyan)">
+            <animate attributeName="opacity" values="0.6;1;0.6" dur="2s" repeatCount="indefinite"/>
+        </polygon>
+    </g>
+
+    <g transform="translate(180, 145)">
+        <rect x="-60" y="-15" width="120" height="30" rx="4" fill="#020617" stroke="#1E293B" stroke-width="1.5" opacity="0.9"/>
+        <text x="0" y="3" fill="#06B6D4" font-family="monospace" font-size="12" font-weight="900" text-anchor="middle">INGRESS_QUEUE</text>
+    </g>
+
+    <!-- Node 2: Deep Learning Inference -->
+    <g transform="translate(620, 220) scale(1.3)" filter="url(#deepShadow)">
+        <circle cx="0" cy="0" r="70" fill="none" stroke="#8B5CF6" stroke-width="1.5" stroke-dasharray="6 18" opacity="0.6">
+            <animateTransform attributeName="transform" type="rotate" from="360" to="0" dur="25s" repeatCount="indefinite"/>
+        </circle>
+        <circle cx="0" cy="0" r="50" fill="none" stroke="#6D28D9" stroke-width="3" opacity="0.7"/>
         
-        <!-- Action Buttons -->
-        <rect x="172" y="112" width="50" height="20" rx="4" fill="#06B6D4" opacity="0.8"/>
-        <text x="197" y="126" fill="#020617" font-size="10" font-family="sans-serif" text-anchor="middle" font-weight="900">APPROVE</text>
+        <polygon points="0,-40 40,0 0,40 -40,0" fill="url(#glassLinear)" stroke="#8B5CF6" stroke-width="2" filter="url(#glassBlur)"/>
+        
+        <polygon points="0,-20 20,0 0,20 -20,0" fill="#8B5CF6" filter="url(#neonGlowPurple)">
+            <animate attributeName="opacity" values="0.7;1;0.7" dur="1.5s" repeatCount="indefinite"/>
+        </polygon>
+        <circle cx="0" cy="0" r="6" fill="#FFF" filter="url(#neonGlowPurple)"/>
+    </g>
 
-        <rect x="172" y="142" width="50" height="20" rx="4" fill="none" stroke="#EF4444" stroke-width="1.5"/>
-        <text x="197" y="156" fill="#EF4444" font-size="10" font-family="sans-serif" text-anchor="middle" font-weight="900">REJECT</text>
+    <g transform="translate(620, 340)">
+        <rect x="-60" y="-15" width="120" height="30" rx="4" fill="#020617" stroke="#312E81" stroke-width="1.5" opacity="0.9"/>
+        <text x="0" y="4" fill="#A78BFA" font-family="monospace" font-size="14" font-weight="900" text-anchor="middle">YOLO // SAM</text>
+    </g>
 
-        <!-- Bounding Box -->
-        <g transform="translate(45, 75)">
-            <rect x="0" y="0" width="60" height="48" fill="none" stroke="#06B6D4" stroke-width="2" stroke-dasharray="4 4"/>
-            <rect x="-4" y="-4" width="8" height="8" fill="#06B6D4"/>
-            <rect x="56" y="-4" width="8" height="8" fill="#06B6D4"/>
-            <rect x="-4" y="44" width="8" height="8" fill="#06B6D4"/>
-            <rect x="56" y="44" width="8" height="8" fill="#06B6D4"/>
-            
-            <polygon points="15,20 15,30 25,25" fill="#06B6D4" opacity="0.6"/>
-            
-            <!-- Glow around box -->
-            <rect x="-2" y="-2" width="64" height="52" fill="none" stroke="#06B6D4" stroke-width="2" filter="url(#glow-cyan)" opacity="0.5"/>
+    <!-- Central Control Interface (Scaled Up) -->
+    <g transform="translate(200, 30)" filter="url(#deepShadow)">
+        <rect width="400" height="100" rx="12" fill="url(#glassLinear)" stroke="#ffffff" stroke-width="1.5" stroke-opacity="0.2" filter="url(#glassBlur)"/>
+        <path d="M 0 12 C 0 5.3 5.3 0 12 0 L 388 0 C 394.6 0 400 5.3 400 12" fill="none" stroke="url(#streamCyan)" stroke-width="3"/>
+        
+        <text x="200" y="38" fill="#FFFFFF" font-family="system-ui, sans-serif" font-size="24" font-weight="900" letter-spacing="5" text-anchor="middle">PIXEL :: QUEUE</text>
+        <text x="200" y="58" fill="#94A3B8" font-family="monospace" font-size="11" font-weight="600" letter-spacing="2" text-anchor="middle">VISION INTELLIGENCE INFRASTRUCTURE</text>
+        
+        <!-- Bigger Status Badges -->
+        <g transform="translate(130, 74)">
+            <rect x="0" y="0" width="65" height="18" rx="9" fill="#06B6D4" fill-opacity="0.1" stroke="#06B6D4" stroke-opacity="0.4"/>
+            <circle cx="12" cy="9" r="4" fill="#06B6D4" filter="url(#neonGlowCyan)"/>
+            <text x="35" y="13" fill="#06B6D4" font-family="monospace" font-size="10" font-weight="bold" text-anchor="middle">SYS.RDY</text>
+        </g>
+        <g transform="translate(205, 74)">
+            <rect x="0" y="0" width="70" height="18" rx="9" fill="#8B5CF6" fill-opacity="0.1" stroke="#8B5CF6" stroke-opacity="0.4"/>
+            <circle cx="12" cy="9" r="4" fill="#8B5CF6" filter="url(#neonGlowPurple)"/>
+            <text x="38" y="13" fill="#8B5CF6" font-family="monospace" font-size="10" font-weight="bold" text-anchor="middle">ASYNC_ML</text>
         </g>
     </g>
 
-    <!-- Center Bridge (Lines & Flow) -->
-    <!-- Line 1: HitL to Broker -->
-    <path d="M 300 130 L 370 130 C 390 130, 410 80, 430 80 L 480 80" fill="none" stroke="#1E293B" stroke-width="3"/>
-    <path d="M 300 130 L 370 130 C 390 130, 410 80, 430 80 L 480 80" fill="none" stroke="#06B6D4" stroke-width="3" stroke-dasharray="6 12" stroke-dashoffset="0">
-        <animate attributeName="stroke-dashoffset" values="36;0" dur="1.5s" repeatCount="indefinite"/>
-    </path>
-    <!-- Label 1 -->
-    <rect x="360" y="65" width="60" height="24" rx="12" fill="#020617" stroke="#06B6D4" stroke-width="1.5"/>
-    <text x="390" y="81" fill="#06B6D4" font-size="10" font-family="sans-serif" text-anchor="middle" font-weight="bold">HTTP/WSS</text>
-
-    <!-- Line 2: Broker to Worker -->
-    <path d="M 300 160 L 350 160 C 380 160, 400 230, 430 230 L 480 230" fill="none" stroke="#1E293B" stroke-width="3"/>
-    <path d="M 300 160 L 350 160 C 380 160, 400 230, 430 230 L 480 230" fill="none" stroke="#8B5CF6" stroke-width="3" stroke-dasharray="6 12" stroke-dashoffset="0">
-        <animate attributeName="stroke-dashoffset" values="0;36" dur="1.5s" repeatCount="indefinite"/>
-    </path>
-    <!-- Label 2 -->
-    <rect x="350" y="218" width="60" height="24" rx="12" fill="#020617" stroke="#8B5CF6" stroke-width="1.5"/>
-    <text x="380" y="234" fill="#8B5CF6" font-size="10" font-family="sans-serif" text-anchor="middle" font-weight="bold">REDIS</text>
-
-    <!-- Right Box 1: API / Core Gateway -->
-    <g transform="translate(480, 30)">
-        <rect x="0" y="0" width="240" height="110" rx="8" fill="#000" stroke="#1E293B" stroke-width="2"/>
-        <rect x="0" y="0" width="240" height="110" rx="8" fill="url(#cyan-fade)"/>
-        
-        <!-- Header -->
-        <rect x="0" y="0" width="240" height="28" rx="8" fill="#0F172A"/>
-        <rect x="0" y="20" width="240" height="8" fill="#0F172A"/>
-        <text x="16" y="18" fill="#06B6D4" font-size="12" font-family="monospace" font-weight="bold">CORE :: API</text>
-        <line x1="0" y1="28" x2="240" y2="28" stroke="#1E293B" stroke-width="1.5"/>
-        <text x="180" y="18" fill="#64748B" font-size="12" font-family="monospace">FASTAPI</text>
-        
-        <!-- Content -->
-        <rect x="16" y="44" width="208" height="32" rx="4" fill="#0F172A" stroke="#1E293B" stroke-width="1.5"/>
-        <text x="28" y="64" fill="#94A3B8" font-size="12" font-family="monospace">POST /api/predict</text>
-        <circle cx="204" cy="60" r="4" fill="#10B981" filter="url(#glow-cyan)"/>
-        
-        <rect x="16" y="86" width="208" height="12" rx="2" fill="#0F172A" stroke="#1E293B" stroke-width="1"/>
-        <rect x="24" y="88" width="40" height="8" rx="2" fill="#06B6D4" opacity="0.4"/>
-        <rect x="68" y="88" width="60" height="8" rx="2" fill="#3B82F6" opacity="0.4"/>
-        <rect x="132" y="88" width="86" height="8" rx="2" fill="#8B5CF6" opacity="0.4"/>
+    <!-- Technical Background Spec Boxes (Filling negative space) -->
+    <g transform="translate(30, 310)" filter="url(#deepShadow)">
+        <rect width="210" height="60" rx="6" fill="#020617" stroke="#1E293B" stroke-width="1.5" opacity="0.8"/>
+        <text x="15" y="25" fill="#06B6D4" font-family="monospace" font-size="12" font-weight="bold" letter-spacing="1">REACT / VITE CANVAS</text>
+        <text x="15" y="45" fill="#94A3B8" font-family="monospace" font-size="11" letter-spacing="1">ZERO LATENCY RENDERING</text>
+    </g>
+    
+    <g transform="translate(560, 40)" filter="url(#deepShadow)">
+        <rect width="210" height="60" rx="6" fill="#020617" stroke="#312E81" stroke-width="1.5" opacity="0.8"/>
+        <text x="195" y="25" fill="#8B5CF6" font-family="monospace" font-size="12" font-weight="bold" letter-spacing="1" text-anchor="end">CELERY TASK BROKERS</text>
+        <text x="195" y="45" fill="#94A3B8" font-family="monospace" font-size="11" letter-spacing="1" text-anchor="end">DECOUPLED GPU WORKERS</text>
     </g>
 
-    <!-- Right Box 2: Celery Worker Nodes -->
-    <g transform="translate(480, 160)">
-        <rect x="0" y="0" width="240" height="130" rx="8" fill="#000" stroke="#1E293B" stroke-width="2"/>
-        <rect x="0" y="0" width="240" height="130" rx="8" fill="url(#purple-fade)"/>
-        
-        <!-- Header -->
-        <rect x="0" y="0" width="240" height="28" rx="8" fill="#0F172A"/>
-        <rect x="0" y="20" width="240" height="8" fill="#0F172A"/>
-        <text x="16" y="18" fill="#8B5CF6" font-size="12" font-family="monospace" font-weight="bold">WORKER :: ASYNC</text>
-        <line x1="0" y1="28" x2="240" y2="28" stroke="#1E293B" stroke-width="1.5"/>
-        
-        <!-- Nodes -->
-        <g transform="translate(16, 44)">
-            <rect x="0" y="0" width="100" height="40" rx="4" fill="#0F172A" stroke="#8B5CF6" stroke-width="1.5"/>
-            <text x="12" y="16" fill="#C084FC" font-size="10" font-family="monospace">YOLOv8 NODE</text>
-            <rect x="12" y="26" width="76" height="4" rx="2" fill="#334155"/>
-            <rect x="12" y="26" width="56" height="4" rx="2" fill="#8B5CF6" filter="url(#glow-purple)"/>
-        </g>
-        
-        <g transform="translate(124, 44)">
-            <rect x="0" y="0" width="100" height="40" rx="4" fill="#0F172A" stroke="#1E293B" stroke-width="1.5"/>
-            <text x="12" y="16" fill="#64748B" font-size="10" font-family="monospace">SAM NODE</text>
-            <rect x="12" y="26" width="76" height="4" rx="2" fill="#334155"/>
-            <rect x="12" y="26" width="24" height="4" rx="2" fill="#64748B"/>
-        </g>
-        
-        <!-- Export / Format Compiler -->
-        <g transform="translate(16, 96)">
-            <rect x="0" y="0" width="208" height="20" rx="4" fill="#020617" stroke="#334155" stroke-width="1"/>
-            <text x="12" y="14" fill="#94A3B8" font-size="10" font-family="monospace">EXPORT_ENGINE</text>
-            
-            <circle cx="106" cy="10" r="2.5" fill="#3B82F6"/>
-            <circle cx="118" cy="10" r="2.5" fill="#3B82F6"/>
-            <circle cx="130" cy="10" r="2.5" fill="#3B82F6"/>
-            
-            <rect x="160" y="4" width="36" height="12" rx="2" fill="#1E293B"/>
-            <text x="178" y="12" fill="#94A3B8" font-size="8" font-family="monospace" text-anchor="middle">.JSON</text>
-        </g>
+    <!-- Abstract HUD Frame -->
+    <g stroke="#334155" stroke-width="2" fill="none">
+        <path d="M 30 50 L 30 30 L 50 30"/>
+        <path d="M 770 50 L 770 30 L 750 30"/>
+        <path d="M 30 350 L 30 370 L 50 370"/>
+        <path d="M 770 350 L 770 370 L 750 370"/>
     </g>
 
-    <!-- Floating UI Decorative Elements -->
-    <text x="30" y="310" fill="#475569" font-size="10" font-family="monospace" letter-spacing="1">STATUS :: 🟢 ACTIVE_CLUSTER</text>
-    <text x="560" y="310" fill="#475569" font-size="10" font-family="monospace" letter-spacing="1">ORCHESTRATION :: DOCKER_COMPOSE</text>
 </svg>

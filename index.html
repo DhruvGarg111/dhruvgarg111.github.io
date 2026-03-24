@@ -1,1155 +1,1232 @@
-<!DOCTYPE html>
-
-<html class="scroll-smooth" lang="en">
-
+﻿<!DOCTYPE html>
+<html lang="en">
 <head>
-    <meta charset="utf-8" />
-    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>Dhruv Garg</title>
-    <meta name="description"
-        content="Portfolio of Dhruv Garg, an AI/ML Engineer in Training specializing in Computer Vision and Generative AI.">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dhruv Garg — AI/ML Engineer</title>
+    <meta name="description" content="Portfolio of Dhruv Garg, an AI/ML Engineer specializing in Computer Vision and Generative AI.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
-        rel="stylesheet" />
-    <link
-        href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&amp;family=Space+Grotesk:wght@300;400;500;600;700&amp;display=swap"
-        rel="stylesheet" />
-    <link
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
-        rel="stylesheet" />
-    <link href="./assets/css/style.css?v=20260318b" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700;1,900&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap">
     <style>
-        html {
-            scroll-behavior: smooth;
+        /* ═══════════════════════════════════════════════
+           THE ALGORITHMIC ATELIER — Design System
+           No Tailwind. Pure hand-crafted CSS.
+           ═══════════════════════════════════════════════ */
+
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --void: #000000;
+            --surface: #0a0a0a;
+            --surface-low: #111111;
+            --surface-mid: #1a1a1a;
+            --surface-high: #242424;
+            --surface-highest: #2e2e2e;
+            --amber: #FFBF00;
+            --amber-dim: #cc9900;
+            --amber-soft: #ffe2ab;
+            --amber-ghost: rgba(255, 191, 0, 0.06);
+            --bone: #e2e2e2;
+            --mist: #8a8a96;
+            --ash: #555;
+            --ghost: rgba(80, 69, 50, 0.15);
+            --font-display: 'Playfair Display', serif;
+            --font-body: 'Space Grotesk', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
         }
 
-        section[id] {
-            scroll-margin-top: 140px !important;
-            /* Increase gap to clear the sticky header prominently */
+        html { scroll-behavior: smooth; scroll-padding-top: 80px; }
+        body {
+            font-family: var(--font-body);
+            background: var(--void);
+            color: var(--bone);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+        ::selection { background: var(--amber); color: var(--void); }
+
+        /* ── NOISE GRAIN ── */
+        body::after {
+            content: "";
+            position: fixed; inset: 0; z-index: 9999;
+            pointer-events: none; opacity: 0.03;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+        }
+
+        /* ── SCROLLBAR ── */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: var(--void); }
+        ::-webkit-scrollbar-thumb { background: var(--surface-high); }
+        ::-webkit-scrollbar-thumb:hover { background: var(--amber); }
+
+
+        /* ═══════════════════════════════════════════════
+           SECTION 0 — FIXED SIDE NAV
+           ═══════════════════════════════════════════════ */
+        .side-nav {
+            position: fixed; left: 0; top: 0; bottom: 0; width: 60px;
+            display: flex; flex-direction: column; align-items: center;
+            justify-content: space-between; padding: 32px 0; z-index: 100;
+            background: rgba(10, 10, 10, 0.6);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-right: 1px solid var(--ghost);
+        }
+        .side-nav .logo {
+            writing-mode: vertical-lr; text-orientation: mixed;
+            font: 500 11px/1 var(--font-mono); letter-spacing: 0.15em;
+            color: var(--amber); text-transform: uppercase;
+            text-decoration: none;
+        }
+        .side-nav .nav-links {
+            display: flex; flex-direction: column; gap: 28px; align-items: center;
+        }
+        .side-nav .nav-links a {
+            writing-mode: vertical-lr; text-orientation: mixed;
+            font: 400 10px/1 var(--font-mono); letter-spacing: 0.2em;
+            color: var(--mist); text-transform: uppercase;
+            text-decoration: none; transition: color 0.3s;
+            position: relative;
+        }
+        .side-nav .nav-links a:hover { color: var(--amber); }
+        .side-nav .nav-links a.active {
+            color: var(--amber);
+        }
+        .side-nav .nav-links a.active::after {
+            content: ''; position: absolute;
+            left: 50%; bottom: -8px;
+            width: 3px; height: 3px;
+            background: var(--amber);
+            transform: translateX(-50%);
+        }
+        .side-nav .dot {
+            width: 6px; height: 6px; background: var(--amber);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        /* ── TOP NAV (mobile) ── */
+        .top-nav {
+            display: none; position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+            padding: 16px 24px;
+            background: rgba(10, 10, 10, 0.85);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--ghost);
+        }
+        .top-nav-inner { display: flex; justify-content: space-between; align-items: center; }
+        .top-nav .brand {
+            font: 600 14px/1 var(--font-mono);
+            color: var(--amber); text-transform: uppercase;
+            letter-spacing: 0.15em; text-decoration: none;
+        }
+        .top-nav .menu-btn {
+            background: none; border: none; color: var(--mist); cursor: pointer;
+        }
+
+        /* ── MOBILE MENU ── */
+        .mobile-overlay {
+            position: fixed; inset: 0; z-index: 200;
+            background: rgba(0,0,0,0.97);
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center; gap: 32px;
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.4s ease;
+        }
+        .mobile-overlay.open { opacity: 1; pointer-events: all; }
+        .mobile-overlay a {
+            font: 700 36px/1.2 var(--font-display);
+            color: var(--bone); text-decoration: none;
+            font-style: italic;
+            transition: color 0.3s;
+        }
+        .mobile-overlay a:hover { color: var(--amber); }
+        .mobile-overlay .close-btn {
+            position: absolute; top: 20px; right: 24px;
+            background: none; border: none; color: var(--mist); cursor: pointer;
+        }
+
+        .main-content { margin-left: 60px; }
+
+
+        /* ═══════════════════════════════════════════════
+           SECTION 1 — FULL-BLEED HERO
+           Bleeding typography, asymmetric, oversized
+           ═══════════════════════════════════════════════ */
+        .hero {
+            min-height: 100vh; position: relative;
+            display: flex; align-items: flex-end;
+            padding: 0 0 80px 80px;
+            overflow: hidden;
+        }
+        /* Ambient gold orb */
+        .hero::before {
+            content: ""; position: absolute;
+            top: 15%; right: 10%;
+            width: 500px; height: 500px;
+            background: radial-gradient(circle, rgba(255,191,0,0.08) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .hero-content { position: relative; z-index: 2; max-width: 800px; }
+        .hero-label {
+            font: 400 11px/1 var(--font-mono);
+            color: var(--amber); letter-spacing: 0.3em;
+            text-transform: uppercase; margin-bottom: 40px;
+            display: flex; align-items: center; gap: 12px;
+            opacity: 0; animation: fadeUp 1s 0.2s forwards;
+        }
+        .hero-label::before { content: ""; width: 40px; height: 1px; background: var(--amber); }
+
+        .hero-title {
+            font: 900 clamp(5rem, 12vw, 14rem)/0.85 var(--font-display);
+            color: var(--bone); letter-spacing: -0.04em;
+            margin-bottom: 48px;
+            /* This is the BLEEDING text — it overflows right */
+            margin-right: -15vw;
+            opacity: 0; animation: fadeUp 1s 0.4s forwards;
+        }
+        .hero-title em {
+            color: var(--amber); font-style: italic;
+        }
+
+        .hero-subtitle {
+            font: 300 18px/1.7 var(--font-body);
+            color: var(--mist); max-width: 520px;
+            margin-bottom: 48px;
+            opacity: 0; animation: fadeUp 1s 0.6s forwards;
+        }
+
+        .hero-ctas {
+            display: flex; gap: 16px; flex-wrap: wrap;
+            opacity: 0; animation: fadeUp 1s 0.8s forwards;
+        }
+        .btn-primary {
+            display: inline-flex; align-items: center; gap: 10px;
+            padding: 16px 32px;
+            background: var(--amber); color: var(--void);
+            font: 500 12px/1 var(--font-mono);
+            letter-spacing: 0.15em; text-transform: uppercase;
+            text-decoration: none; border: none; cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-primary:hover {
+            background: var(--amber-dim);
+            box-shadow: 0 0 24px rgba(255, 191, 0, 0.2);
+        }
+        .btn-ghost {
+            display: inline-flex; align-items: center; gap: 10px;
+            padding: 16px 32px;
+            background: transparent; color: var(--mist);
+            font: 500 12px/1 var(--font-mono);
+            letter-spacing: 0.15em; text-transform: uppercase;
+            text-decoration: none; border: 1px solid var(--ghost);
+            transition: all 0.3s; cursor: pointer;
+        }
+        .btn-ghost:hover {
+            color: var(--amber); border-color: var(--amber);
+            box-shadow: 0 0 16px rgba(255, 191, 0, 0.08);
+        }
+
+        /* Floating portrait — overlaps from the right */
+        .hero-portrait {
+            position: absolute; right: 0; bottom: 0;
+            width: 45%; max-width: 600px; height: 85vh;
+            z-index: 1; overflow: hidden;
+            opacity: 0; animation: fadeIn 1.5s 0.5s forwards;
+        }
+        .hero-portrait img {
+            width: 100%; height: 100%; object-fit: contain;
+            object-position: center bottom;
+            filter: contrast(1.1);
+            transition: transform 2s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .hero-portrait:hover img { transform: scale(1.03); }
+        .hero-portrait .gradient-mask {
+            position: absolute; inset: 0;
+            background: linear-gradient(to top, var(--void) 0%, transparent 50%),
+                        linear-gradient(to right, var(--void) 0%, transparent 35%),
+                        linear-gradient(to left, rgba(255,191,0,0.02) 0%, transparent 50%);
+        }
+
+
+        /* ═══════════════════════════════════════════════
+           SECTION 2 — PROJECTS (FEATURED + GRID)
+           ═══════════════════════════════════════════════ */
+        .projects-section { background: var(--surface); padding: 120px 0 0 0; }
+        .projects-header {
+            padding: 0 80px 80px;
+            display: flex; justify-content: space-between; align-items: flex-end;
+        }
+        .projects-header h2 {
+            font: 900 clamp(3rem, 5vw, 5.5rem)/1 var(--font-display);
+            font-style: italic; letter-spacing: -0.03em;
+        }
+        .projects-header p {
+            font: 300 15px/1.6 var(--font-body);
+            color: var(--mist); max-width: 380px; text-align: right;
+        }
+
+        .projects-container {
+            padding: 0 80px 80px;
+            display: flex;
+            flex-direction: column;
+            gap: 48px;
+        }
+
+        /* ── FEATURED PROJECT ── */
+        .featured-project {
+            display: flex;
+            background: var(--surface-low);
+            border: 1px solid var(--ghost);
+            overflow: hidden;
+            transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .featured-project.proj-out { animation: fadeOut 0.25s forwards; }
+        .featured-project.proj-in { animation: fadeIn 0.3s forwards; }
+
+        .featured-img {
+            width: 50%;
+            background: var(--void);
+            position: relative;
+            padding: 40px;
+            display: flex; justify-content: center; align-items: center;
+            border-right: 1px solid var(--ghost);
+        }
+        .featured-img img {
+            width: 100%; height: 100%; object-fit: contain;
+            opacity: 0.9;
+            transition: all 0.6s ease;
+        }
+        .featured-project:hover .featured-img img {
+            opacity: 1; transform: scale(1.05);
+        }
+        .featured-img::after {
+            content: ""; position: absolute; inset: 0;
+            background: linear-gradient(135deg, rgba(255,191,0,0.05) 0%, transparent 60%);
+            pointer-events: none;
+        }
+
+        .featured-body {
+            width: 50%;
+            padding: 64px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .featured-body .section-label {
+            font: 400 10px/1 var(--font-mono);
+            color: var(--amber); letter-spacing: 0.3em;
+            text-transform: uppercase; margin-bottom: 24px;
+        }
+        .featured-body h3 {
+            font: 700 48px/1.1 var(--font-display);
+            font-style: italic;
+            margin-bottom: 24px;
+            transition: color 0.3s;
+        }
+        .featured-project:hover .featured-body h3 { color: var(--amber); }
+
+        .featured-body p {
+            font: 300 15px/1.7 var(--font-body);
+            color: var(--mist);
+            margin-bottom: 32px;
+        }
+
+        /* ── PROJECTS GRID ── */
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 32px;
+        }
+        .projects-grid.proj-out { animation: fadeOut 0.25s forwards; }
+        .projects-grid.proj-in { animation: fadeIn 0.3s forwards; }
+
+        .project-card {
+            background: var(--surface-low);
+            border: 1px solid var(--ghost);
+            display: flex; flex-direction: column;
+            cursor: pointer;
+            transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+            position: relative; overflow: hidden;
+        }
+        .project-card:hover { transform: translateY(-8px); }
+
+        .project-card .card-img {
+            height: 240px;
+            background: var(--void);
+            padding: 16px;
+            position: relative;
+            display: flex; justify-content: center; align-items: center;
+            border-bottom: 1px solid var(--ghost);
+            overflow: hidden;
+        }
+        .project-card .card-img img {
+            width: 100%; height: 100%; object-fit: contain;
+            opacity: 0.85;
+            transition: all 0.6s ease;
+        }
+        .project-card:hover .card-img img {
+            opacity: 1; transform: scale(1.05);
+        }
+        .project-card .card-img::after {
+            content: ""; position: absolute; inset: 0;
+            background: linear-gradient(135deg, rgba(255,191,0,0.05) 0%, transparent 60%);
+            pointer-events: none;
+        }
+
+        .project-card .card-body {
+            padding: 32px;
+            display: flex; flex-direction: column; flex-grow: 1;
+        }
+        .project-card .card-body h3 {
+            font: 700 24px/1.2 var(--font-display);
+            font-style: italic; margin-bottom: 12px;
+            transition: color 0.3s;
+        }
+        .project-card:hover .card-body h3 { color: var(--amber); }
+
+        .project-card .card-body p {
+            font: 300 13px/1.7 var(--font-body);
+            color: var(--mist); margin-bottom: 24px;
+            flex-grow: 1;
+        }
+
+        .badge {
+            position: absolute; top: 20px; left: 20px; z-index: 2;
+            font: 500 10px/1 var(--font-mono);
+            letter-spacing: 0.15em; text-transform: uppercase;
+            padding: 6px 12px;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(10px);
+        }
+        .badge-active { color: var(--amber); border: 1px solid rgba(255,191,0,0.3); }
+        .badge-beta { color: #8ab4f8; border: 1px solid rgba(138,180,248,0.3); }
+        .badge-base { color: var(--bone); border: 1px solid rgba(255,255,255,0.2); }
+        .badge-infra { color: #c4a0ff; border: 1px solid rgba(196,160,255,0.3); }
+        .badge-tool { color: #81c995; border: 1px solid rgba(129,201,149,0.3); }
+
+        .tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; }
+        .tags span {
+            font: 400 10px/1 var(--font-mono);
+            letter-spacing: 0.1em; text-transform: uppercase;
+            padding: 6px 12px;
+            background: var(--surface-mid);
+            color: var(--mist);
+        }
+
+        .monolith-link {
+            display: inline-flex; align-items: center; gap: 8px;
+            font: 500 11px/1 var(--font-mono);
+            color: var(--amber); text-decoration: none;
+            letter-spacing: 0.1em; text-transform: uppercase;
+            transition: gap 0.3s; margin-top: auto;
+            width: fit-content;
+        }
+        .project-card:hover .monolith-link,
+        .featured-project:hover .monolith-link { gap: 14px; }
+
+        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+
+
+        /* ═══════════════════════════════════════════════
+           SECTION 3 — JOURNEY (SPLIT-SCREEN)
+           Left side fixed title, right side scrolls
+           ═══════════════════════════════════════════════ */
+        .journey-section {
+            display: flex; min-height: 100vh;
+            background: var(--void);
+        }
+        .journey-fixed {
+            position: sticky; top: 0; left: 0;
+            width: 40%; height: 100vh;
+            display: flex; flex-direction: column;
+            justify-content: center; padding: 80px;
+            background: var(--void);
+        }
+        .journey-fixed .section-label {
+            font: 400 11px/1 var(--font-mono);
+            color: var(--amber); letter-spacing: 0.3em;
+            text-transform: uppercase; margin-bottom: 32px;
+        }
+        .journey-fixed h2 {
+            font: 900 clamp(2.5rem, 4vw, 4.5rem)/1.05 var(--font-display);
+            font-style: italic; margin-bottom: 24px;
+        }
+        .journey-fixed p {
+            font: 300 15px/1.7 var(--font-body);
+            color: var(--mist); max-width: 340px;
+        }
+
+        .journey-scroll {
+            width: 60%; padding: 120px 80px 120px 60px;
+            border-left: 1px solid var(--ghost);
+        }
+        .journey-phase {
+            padding: 48px 0;
+            border-bottom: 1px solid var(--ghost);
+            opacity: 0; transform: translateY(20px);
+            transition: all 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+            cursor: default;
+        }
+        .journey-phase.revealed { opacity: 1; transform: translateY(0); }
+        .journey-phase:hover h3 { color: var(--amber-soft); transition: color 0.3s; }
+        .journey-phase:hover .phase-code { opacity: 0.9; }
+        .journey-phase:last-child { border-bottom: none; }
+        .journey-phase .phase-code {
+            font: 400 10px/1 var(--font-mono);
+            color: var(--amber); opacity: 0.6;
+            letter-spacing: 0.2em; text-transform: uppercase;
+            margin-bottom: 16px;
+        }
+        .journey-phase h3 {
+            font: 700 32px/1.2 var(--font-display);
+            font-style: italic; margin-bottom: 12px;
+        }
+        .journey-phase p {
+            font: 300 14px/1.7 var(--font-body);
+            color: var(--mist); max-width: 480px;
+        }
+        .journey-phase .phase-tag {
+            font: 400 9px/1 var(--font-mono);
+            color: var(--surface-highest);
+            letter-spacing: 0.2em; text-transform: uppercase;
+            margin-top: 16px;
+        }
+        .journey-phase.active h3 { color: var(--amber); }
+        .journey-phase.active .phase-code { opacity: 1; }
+        .journey-phase.active .phase-tag { color: var(--amber); }
+
+
+        /* ═══════════════════════════════════════════════
+           SECTION 4 — BENTO GRID SKILLS
+           Asymmetric tiles, no borders, tonal shifts
+           ═══════════════════════════════════════════════ */
+        .bento-section {
+            background: var(--surface);
+            padding: 120px 80px;
+        }
+        .bento-header {
+            margin-bottom: 64px;
+        }
+        .bento-header .section-label {
+            font: 400 11px/1 var(--font-mono);
+            color: var(--amber); letter-spacing: 0.3em;
+            text-transform: uppercase; margin-bottom: 24px;
+        }
+        .bento-header h2 {
+            font: 900 clamp(3rem, 5vw, 5.5rem)/1 var(--font-display);
+            font-style: italic; letter-spacing: -0.03em;
+        }
+
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            grid-template-rows: auto;
+            gap: 4px;
+        }
+
+        .bento-tile {
+            background: var(--surface-low);
+            padding: 40px;
+            position: relative; overflow: hidden;
+            transition: background 0.4s;
+        }
+        .bento-tile:hover { background: var(--surface-mid); }
+
+        /* Ghost border — bottom and right only */
+        .bento-tile::after {
+            content: ""; position: absolute;
+            bottom: 0; right: 0;
+            width: 100%; height: 100%;
+            border-right: 0.5px solid var(--ghost);
+            border-bottom: 0.5px solid var(--ghost);
+            pointer-events: none;
+        }
+
+        .bento-tile .tile-label {
+            font: 400 10px/1 var(--font-mono);
+            color: var(--amber); opacity: 0.8;
+            letter-spacing: 0.2em; text-transform: uppercase;
+            margin-bottom: 16px;
+        }
+        .bento-tile h3 {
+            font: 700 22px/1.2 var(--font-display);
+            font-style: italic; margin-bottom: 12px;
+        }
+        .bento-tile .tile-desc {
+            font: 300 12px/1.6 var(--font-body);
+            color: var(--mist);
+        }
+        .bento-tile .tile-items {
+            list-style: none; margin-top: 20px;
+        }
+        .bento-tile .tile-items li {
+            padding: 8px 0;
+            border-bottom: 1px solid var(--ghost);
+            font: 400 12px/1.5 var(--font-mono);
+            color: var(--bone);
+            display: flex; justify-content: space-between;
+            align-items: center;
+        }
+        .bento-tile .tile-items li:last-child { border-bottom: none; }
+        .bento-tile .tile-items .item-tag {
+            font-size: 9px; color: var(--mist);
+            letter-spacing: 0.15em; text-transform: uppercase;
+        }
+
+        /* Bento sizes */
+        .bento-lg { grid-column: span 8; }
+        .bento-sm { grid-column: span 4; }
+        .bento-md { grid-column: span 6; }
+        .bento-full { grid-column: span 12; }
+
+        /* Tech bar inside bento */
+        .tech-bar {
+            height: 2px; background: var(--surface-high);
+            margin-top: 8px; position: relative;
+        }
+        .tech-bar .fill {
+            position: absolute; top: -1px; left: 0;
+            height: 4px; background: var(--amber);
+            transition: width 1s cubic-bezier(0.22, 1, 0.36, 1);
+            box-shadow: 0 0 8px rgba(255, 191, 0, 0.3);
+        }
+        .tech-bar .fill.muted {
+            background: var(--ash);
+            box-shadow: none;
+        }
+        .tech-bar .fill.muted:hover {
+            background: var(--amber);
+        }
+
+        /* Language pills in bento */
+        .lang-pills { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+        .lang-pills span {
+            padding: 8px 16px;
+            font: 500 11px/1 var(--font-mono);
+            letter-spacing: 0.1em; text-transform: uppercase;
+            background: var(--surface-mid);
+            color: var(--mist);
+            transition: all 0.3s;
+        }
+        .lang-pills span:first-child {
+            background: var(--amber-ghost);
+            color: var(--amber);
+            border: 1px solid rgba(255,191,0,0.15);
+        }
+        .lang-pills span:hover { color: var(--amber); }
+
+
+        /* ═══════════════════════════════════════════════
+           SECTION 5 — CONTACT (CINEMATIC CLOSE)
+           ═══════════════════════════════════════════════ */
+        .contact-section {
+            min-height: 90vh;
+            display: flex; align-items: center; justify-content: center;
+            text-align: center; padding: 140px 80px;
+            background: var(--void);
+            position: relative; overflow: hidden;
+        }
+        .contact-section::before {
+            content: "CONNECT";
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            font: 900 18vw/1 var(--font-display);
+            color: var(--surface-low); pointer-events: none;
+            white-space: nowrap; z-index: 0;
+        }
+        .contact-inner {
+            position: relative; z-index: 1;
+            max-width: 640px;
+        }
+        .contact-inner .section-label {
+            font: 400 11px/1 var(--font-mono);
+            color: var(--amber); letter-spacing: 0.3em;
+            text-transform: uppercase; margin-bottom: 32px;
+        }
+        .contact-inner h2 {
+            font: 700 clamp(2rem, 4vw, 3.5rem)/1.15 var(--font-display);
+            font-style: italic; margin-bottom: 24px;
+        }
+        .contact-inner p {
+            font: 300 14px/1.7 var(--font-body);
+            color: var(--mist); margin-bottom: 40px;
+        }
+        .contact-ctas {
+            display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;
+        }
+
+
+        /* ═══════════════════════════════════════════════
+           FOOTER
+           ═══════════════════════════════════════════════ */
+        .site-footer {
+            padding: 32px 80px;
+            display: flex; justify-content: space-between; align-items: center;
+            border-top: 1px solid var(--ghost);
+        }
+        .site-footer .footer-left {
+            display: flex; align-items: center; gap: 10px;
+        }
+        .site-footer .footer-dot {
+            width: 5px; height: 5px; background: var(--amber);
+            animation: pulse 2s infinite;
+        }
+        .site-footer p {
+            font: 400 10px/1 var(--font-mono);
+            color: var(--mist); letter-spacing: 0.15em;
+            text-transform: uppercase;
+        }
+        .site-footer .footer-links { display: flex; gap: 16px; }
+        .site-footer .footer-links a {
+            color: var(--mist); text-decoration: none;
+            transition: all 0.3s;
+        }
+        .site-footer .footer-links a:hover {
+            color: var(--amber); transform: translateY(-2px);
+        }
+
+
+        /* ═══════════════════════════════════════════════
+           ANIMATIONS
+           ═══════════════════════════════════════════════ */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to   { opacity: 1; }
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 0.4; }
+            50%      { opacity: 1; }
+        }
+
+        .reveal-on-scroll {
+            opacity: 0; transform: translateY(24px);
+            transition: all 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .reveal-on-scroll.revealed {
+            opacity: 1; transform: translateY(0);
+        }
+
+        /* Staggered delays for bento tiles */
+        .bento-grid .bento-tile:nth-child(1) { transition-delay: 0s; }
+        .bento-grid .bento-tile:nth-child(2) { transition-delay: 0.1s; }
+        .bento-grid .bento-tile:nth-child(3) { transition-delay: 0.2s; }
+        .bento-grid .bento-tile:nth-child(4) { transition-delay: 0.3s; }
+        .bento-grid .bento-tile:nth-child(5) { transition-delay: 0.4s; }
+
+
+        /* ═══════════════════════════════════════════════
+           RESPONSIVE — MOBILE
+           ═══════════════════════════════════════════════ */
+        @media (max-width: 1024px) {
+            .side-nav { display: none; }
+            .top-nav { display: block; }
+            .main-content { margin-left: 0; }
+
+            .hero {
+                padding: 120px 24px 60px;
+                align-items: center;
+            }
+            .hero-title { margin-right: 0; font-size: clamp(3rem, 14vw, 6rem); }
+            .hero-portrait {
+                position: relative; width: 100%; height: 50vh;
+                margin-top: 40px;
+            }
+            .hero-content { max-width: 100%; }
+            .hero { flex-direction: column; align-items: flex-start; }
+            .hero-ctas { flex-direction: column; width: 100%; }
+            .hero-ctas .btn-primary,
+            .hero-ctas .btn-ghost { width: 100%; justify-content: center; }
+
+            .projects-section { padding-top: 80px; }
+            .projects-header { padding: 0 24px 48px; flex-direction: column; gap: 16px; align-items: flex-start; }
+            .projects-header p { text-align: left; }
+            .projects-container { padding: 0 24px 48px; }
+            
+            .featured-project { flex-direction: column; }
+            .featured-img { width: 100%; height: 280px; padding: 24px; border-right: none; border-bottom: 1px solid var(--ghost); }
+            .featured-body { width: 100%; padding: 32px; }
+            .featured-body h3 { font-size: 36px; }
+            
+            .projects-grid { grid-template-columns: 1fr; gap: 24px; }
+
+            .journey-section { flex-direction: column; }
+            .journey-fixed {
+                position: relative; width: 100%; height: auto;
+                padding: 80px 24px 40px;
+            }
+            .journey-scroll {
+                width: 100%; padding: 24px 24px 80px;
+                border-left: none; border-top: 1px solid var(--ghost);
+            }
+            .journey-phase { padding: 36px 0; }
+            .journey-phase h3 { font-size: 26px; }
+
+            .bento-section { padding: 80px 24px; }
+            .bento-grid { grid-template-columns: 1fr; gap: 2px; }
+            .bento-lg, .bento-sm, .bento-md, .bento-full { grid-column: span 1; }
+            .bento-tile { padding: 28px; }
+
+            .contact-section { padding: 80px 24px; min-height: 70vh; }
+            .contact-section::before { font-size: 28vw; }
+            .contact-ctas { flex-direction: column; width: 100%; }
+            .contact-ctas .btn-primary,
+            .contact-ctas .btn-ghost { width: 100%; justify-content: center; }
+
+            .site-footer { padding: 24px; flex-direction: column; gap: 16px; }
         }
     </style>
 </head>
 
-<body id="top"
-    class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display min-h-screen relative overflow-x-hidden selection:bg-primary selection:text-white">
-    <!-- Background Grid -->
-    <div
-        class="fixed inset-0 pointer-events-none z-0 bg-[size:40px_40px] bg-grid-pattern-light dark:bg-grid-pattern-dark opacity-40">
-    </div>
-    <!-- Abstract Glow -->
-    <div
-        class="fixed top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-amber-300/10 dark:bg-primary/10 blur-[120px] pointer-events-none z-0">
-    </div>
-    <div
-        class="fixed bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-orange-200/10 dark:bg-primary/5 blur-[120px] pointer-events-none z-0">
-    </div>
-    <!-- Dark mode: paper noise texture -->
-    <div class="fixed inset-0 pointer-events-none z-[1] paper-texture"></div>
-    <!-- Dark mode: vignette -->
-    <div class="fixed inset-0 pointer-events-none z-[1] dark-vignette"></div>
-    <!-- Dark mode: floating particles -->
-    <div class="floating-particle particle-sm drift-1"
-        style="left:8%;bottom:-10px;animation-duration:18s;animation-delay:0s"></div>
-    <div class="floating-particle particle-md drift-2"
-        style="left:22%;bottom:-10px;animation-duration:22s;animation-delay:3s"></div>
-    <div class="floating-particle particle-sm drift-3"
-        style="left:35%;bottom:-10px;animation-duration:16s;animation-delay:7s"></div>
-    <div class="floating-particle particle-lg drift-1"
-        style="left:48%;bottom:-10px;animation-duration:25s;animation-delay:1s"></div>
-    <div class="floating-particle particle-ring drift-pulse"
-        style="left:55%;bottom:-10px;animation-duration:20s;animation-delay:5s"></div>
-    <div class="floating-particle particle-sm drift-2"
-        style="left:65%;bottom:-10px;animation-duration:19s;animation-delay:9s"></div>
-    <div class="floating-particle particle-diamond drift-3"
-        style="left:75%;bottom:-10px;animation-duration:23s;animation-delay:2s"></div>
-    <div class="floating-particle particle-md drift-1"
-        style="left:85%;bottom:-10px;animation-duration:17s;animation-delay:6s"></div>
-    <div class="floating-particle particle-sm drift-pulse"
-        style="left:15%;bottom:-10px;animation-duration:21s;animation-delay:11s"></div>
-    <div class="floating-particle particle-ring drift-2"
-        style="left:42%;bottom:-10px;animation-duration:26s;animation-delay:4s"></div>
-    <div class="floating-particle particle-lg drift-3"
-        style="left:92%;bottom:-10px;animation-duration:20s;animation-delay:8s"></div>
-    <div class="floating-particle particle-diamond drift-1"
-        style="left:5%;bottom:-10px;animation-duration:24s;animation-delay:13s"></div>
-    <div class="relative z-10 flex h-auto min-h-screen w-full flex-col group/design-root">
-        <div class="layout-container flex h-full grow flex-col w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <!-- Top Navigation -->
-            <header
-                class="flex items-center justify-between whitespace-nowrap border-b border-solid border-border-light dark:border-border-dark py-6 mt-4 glass-panel rounded-2xl px-6 mb-12 sticky top-4 z-50">
-                <a href="#top" class="flex items-center gap-4 text-slate-900 dark:text-slate-100 group transition-all">
-                    <div class="size-6 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
-                        <span class="material-symbols-outlined text-2xl leading-none">memory</span>
-                    </div>
-                    <h2
-                        class="text-slate-900 dark:text-slate-100 text-xl font-bold leading-tight tracking-tight uppercase tracking-widest group-hover:text-primary transition-colors">
-                        Dhruv Garg</h2>
-                </a>
-                <div class="hidden md:flex flex-1 justify-end gap-8">
-                    <div class="flex items-center gap-9">
-                        <a class="text-slate-700 dark:text-slate-300 hover:text-primary transition-colors text-sm font-medium leading-normal uppercase tracking-wider"
-                            href="#journey">Journey</a>
-                        <a class="text-slate-700 dark:text-slate-300 hover:text-primary transition-colors text-sm font-medium leading-normal uppercase tracking-wider"
-                            href="#projects">Projects</a>
-                        <a class="text-slate-700 dark:text-slate-300 hover:text-primary transition-colors text-sm font-medium leading-normal uppercase tracking-wider"
-                            href="#skills">Skills</a>
-                    </div>
-                    <div class="flex items-center gap-4">
+<body>
+    <!-- ═══ SIDE NAV (Desktop) ═══ -->
+    <nav class="side-nav" aria-label="Main Navigation">
+        <a href="#top" class="logo">DG</a>
+        <div class="nav-links">
+            <a href="#projects">Projects</a>
+            <a href="#journey">Journey</a>
+            <a href="#skills">System</a>
+            <a href="#contact">Contact</a>
+        </div>
+        <div class="dot"></div>
+    </nav>
 
-                        <button id="theme-toggle"
-                            class="mr-4 text-slate-900 dark:text-slate-300 hover:text-primary dark:hover:text-primary transition-colors flex items-center justify-center pointer"
-                            aria-label="Toggle Theme">
-                            <span class="material-symbols-outlined text-2xl leading-none" id="theme-icon">dark_mode</span>
-                        </button>
-                        <a href="#contact"
-                            class="flex min-w-[100px] cursor-pointer items-center justify-center overflow-hidden rounded h-10 px-5 bg-primary/10 text-primary border border-primary/30 hover:bg-primary/20 transition-all text-sm font-bold uppercase tracking-wider">
-                            <span class="truncate">Contact</span>
-                        </a>
-                    </div>
-                </div>
-                <div class="md:hidden flex items-center">
-                    <button class="text-slate-700 dark:text-slate-300 hover:text-primary" aria-label="Menu">
-                        <span class="material-symbols-outlined text-2xl">menu</span>
-                    </button>
-                </div>
-            </header>
-            <!-- Hero Section -->
-            <main class="flex-1 w-full">
-                <div class="@container mb-24 mt-12">
-                    <div class="flex flex-col gap-12 @[864px]:flex-row items-center">
-                        <!-- Left Content: 60% -->
-                        <div class="flex flex-col gap-6 w-full @[864px]:w-3/5 @[864px]:pr-12">
-                            <div class="flex flex-col gap-4 text-left">
-                                <div
-                                    class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-primary/30 bg-primary/10 text-primary text-xs font-mono uppercase tracking-widest w-fit">
-                                    <span class="inline-block w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
-                                    System Initialized v2.0
-                                </div>
-                                <h1
-                                    class="text-5xl sm:text-6xl md:text-7xl font-black leading-[0.95] tracking-tighter uppercase mt-2">
-                                    <span class="text-slate-900 dark:text-slate-100 block">Dhruv</span>
-                                    <span class="text-primary block neon-text">Garg</span>
-                                </h1>
-                                <h2
-                                    class="text-primary/80 dark:text-primary/90 text-base sm:text-lg md:text-xl font-mono leading-relaxed mt-3">
-                                    &gt; AI/ML Engineer in Training<br />
-                                    &gt; Computer Vision + Generative AI
-                                </h2>
-                                <p
-                                    class="text-slate-600 dark:text-slate-400 text-base md:text-lg max-w-xl leading-relaxed mt-2 font-light border-l-2 border-primary/30 pl-4">
-                                    I build model-first prototypes in Python and PyTorch, then harden them into
-                                    full-stack AI applications with React frontends, FastAPI services, and cloud
-                                    deployment workflows.
-                                </p>
-                            </div>
-                            <!-- CTA Buttons -->
-                            <div class="flex-wrap gap-4 flex mt-2">
-                                <a href="#projects"
-                                    class="flex min-w-[140px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-6 bg-primary text-slate-900 text-sm font-bold uppercase tracking-widest hover:bg-sky-300 transition-all shadow-[0_0_15px_rgba(56,189,248,0.35)] hover:shadow-[0_0_25px_rgba(56,189,248,0.55)] group">
-                                    <span class="truncate">Explore Projects</span>
-                                    <span
-                                        class="material-symbols-outlined ml-2 text-base group-hover:translate-x-1 transition-transform">arrow_forward</span>
-                                </a>
-                                <a href="https://github.com/DhruvGarg111"
-                                    class="flex min-w-[140px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-6 bg-transparent border border-primary/50 text-primary text-sm font-bold uppercase tracking-widest hover:bg-primary/10 transition-all group"
-                                    target="_blank">
-                                    <span
-                                        class="material-symbols-outlined mr-2 text-lg group-hover:animate-pulse">terminal</span>
-                                    <span class="truncate">GitHub</span>
-                                </a>
-                            </div>
-                            <!-- Tech Stack Pills -->
-                            <div class="flex items-center gap-3 mt-2 flex-wrap">
-                                <span
-                                    class="text-xs font-mono uppercase tracking-wider text-slate-500 dark:text-slate-500">Core
-                                    Stack:</span>
-                                <div class="flex items-center gap-2 flex-wrap">
-                                    <span
-                                        class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-surface-light dark:bg-surface-darker border border-border-light dark:border-border-dark text-xs font-mono text-slate-600 dark:text-slate-400 hover:border-primary/40 transition-colors">
-                                        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/pytorch/pytorch-original.svg"
-                                            alt="PyTorch" class="w-3.5 h-3.5" />
-                                        PyTorch
-                                    </span>
-                                    <span
-                                        class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-surface-light dark:bg-surface-darker border border-border-light dark:border-border-dark text-xs font-mono text-slate-600 dark:text-slate-400 hover:border-primary/40 transition-colors">
-                                        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/fastapi/fastapi-original.svg"
-                                            alt="FastAPI" class="w-3.5 h-3.5" />
-                                        FastAPI
-                                    </span>
-                                    <span
-                                        class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-surface-light dark:bg-surface-darker border border-border-light dark:border-border-dark text-xs font-mono text-slate-600 dark:text-slate-400 hover:border-primary/40 transition-colors">
-                                        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg"
-                                            alt="React" class="w-3.5 h-3.5" />
-                                        React
-                                    </span>
-                                    <span
-                                        class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-surface-light dark:bg-surface-darker border border-border-light dark:border-border-dark text-xs font-mono text-slate-600 dark:text-slate-400 hover:border-primary/40 transition-colors">
-                                        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg"
-                                            alt="Python" class="w-3.5 h-3.5" />
-                                        Python
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Right Visual: Code Editor Window -->
-                        <div class="hero-portrait-shell w-full @[864px]:w-2/5 relative group">
-                            <div class="hero-portrait-stage w-full max-w-[82%] mx-auto">
-                                <img src="./assets/img/dhruv_logo_light_cutout.webp?v=20260318b"
-                                    alt="Sketch portrait of Dhruv Garg working at a desk"
-                                    class="hero-portrait hero-portrait-light dark:hidden" />
-                                <img src="./assets/img/dhruv_logo_dark_cutout.webp?v=20260318b"
-                                    alt="Sketch portrait of Dhruv Garg working at a desk"
-                                    class="hero-portrait hero-portrait-dark hidden dark:block" />
-                            </div>
-                            <!-- Ambient glow behind the code window -->
-                            <div
-                                class="absolute -inset-4 bg-gradient-to-br from-primary/10 via-transparent to-primary/5 rounded-3xl blur-2xl -z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- Journey Section -->
-                <section class="mb-32 scroll-mt-[100px]" id="journey">
-                    <!-- Section Header -->
-                    <div class="flex flex-col gap-2 mb-4">
-                        <p class="text-primary font-mono text-sm uppercase tracking-widest flex items-center gap-2">
-                            <span class="inline-block w-6 h-px bg-primary"></span> Evolution Journey
-                        </p>
-                        <h2
-                            class="text-slate-900 dark:text-slate-100 text-4xl md:text-5xl font-black leading-tight tracking-tighter">
-                            How I am evolving</h2>
-                    </div>
-                    <p class="text-slate-600 dark:text-slate-400 text-base leading-relaxed mb-16 max-w-2xl">
-                        A journey from foundations to full-stack AI/ML engineering.
-                    </p>
-
-                    <!-- Desktop: Horizontal Staggered Layout -->
-                    <div class="hidden md:block relative">
-                        <!-- SVG Connecting Path -->
-                        <svg class="absolute inset-0 w-full h-full pointer-events-none z-0" preserveAspectRatio="none">
-                            <path
-                                d="M 10%,50% C 15%,15% 25%,15% 30%,50% S 45%,85% 50%,50% S 65%,15% 70%,50% S 85%,85% 90%,50%"
-                                fill="none" class="stroke-border-light dark:stroke-border-dark" stroke-width="1.5"
-                                stroke-dasharray="6 6" opacity="0.5" />
-                        </svg>
-
-                        <div class="grid grid-cols-5 gap-6 relative z-10">
-                            <!-- Step 01 — Foundation (top position) -->
-                            <div class="flex flex-col items-center pt-0 pb-16">
-                                <div
-                                    class="journey-card glass-panel p-5 rounded-2xl glow-border transition-all duration-300 hover:scale-[1.03] w-full">
-                                    <div class="flex items-center gap-3 mb-3">
-                                        <div
-                                            class="size-8 rounded-full bg-primary/15 border border-primary/40 flex items-center justify-center shadow-[0_0_12px_rgba(56,189,248,0.25)]">
-                                            <span class="text-primary font-mono text-xs font-bold">01</span>
-                                        </div>
-                                        <h3
-                                            class="text-slate-900 dark:text-slate-100 text-base font-bold uppercase tracking-wider">
-                                            Foundation</h3>
-                                    </div>
-                                    <p class="text-primary font-mono text-xs mb-3 opacity-80">predictive_ml.init()</p>
-                                    <p class="text-slate-600 dark:text-slate-400 text-xs leading-relaxed">
-                                        Built confidence with predictive ML — house price prediction, training loops,
-                                        and disciplined evaluation.
-                                    </p>
-                                </div>
-                                <!-- Connector dot -->
-                                <div class="mt-4 flex flex-col items-center">
-                                    <div class="w-px h-8 bg-gradient-to-b from-primary/40 to-transparent"></div>
-                                    <div class="size-3 rounded-full bg-primary shadow-[0_0_8px_rgba(56,189,248,0.5)]">
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Step 02 — Vision Shift (bottom position) -->
-                            <div class="flex flex-col items-center pt-24">
-                                <!-- Connector dot -->
-                                <div class="mb-4 flex flex-col items-center">
-                                    <div
-                                        class="size-3 rounded-full bg-primary/80 shadow-[0_0_6px_rgba(56,189,248,0.3)]">
-                                    </div>
-                                    <div class="w-px h-8 bg-gradient-to-b from-transparent to-primary/30"></div>
-                                </div>
-                                <div
-                                    class="journey-card glass-panel p-5 rounded-2xl glow-border transition-all duration-300 hover:scale-[1.03] w-full">
-                                    <div class="flex items-center gap-3 mb-3">
-                                        <div
-                                            class="size-8 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center shadow-[0_0_8px_rgba(56,189,248,0.15)]">
-                                            <span class="text-primary/80 font-mono text-xs font-bold">02</span>
-                                        </div>
-                                        <h3
-                                            class="text-slate-800 dark:text-slate-200 text-base font-bold uppercase tracking-wider">
-                                            Vision Shift</h3>
-                                    </div>
-                                    <p class="text-primary/70 font-mono text-xs mb-3">import cv2; import torch</p>
-                                    <p class="text-slate-600 dark:text-slate-400 text-xs leading-relaxed">
-                                        Moved into deeper computer vision — depth estimation, architecture decisions,
-                                        and representation-focused work.
-                                    </p>
-                                </div>
-                            </div>
-
-                            <!-- Step 03 — Creative Modeling (top position) -->
-                            <div class="flex flex-col items-center pt-0 pb-16">
-                                <div
-                                    class="journey-card glass-panel p-5 rounded-2xl glow-border transition-all duration-300 hover:scale-[1.03] w-full opacity-90 hover:opacity-100">
-                                    <div class="flex items-center gap-3 mb-3">
-                                        <div
-                                            class="size-8 rounded-full bg-primary/10 border border-primary/25 flex items-center justify-center">
-                                            <span class="text-primary/70 font-mono text-xs font-bold">03</span>
-                                        </div>
-                                        <h3
-                                            class="text-slate-700 dark:text-slate-300 text-base font-bold uppercase tracking-wider">
-                                            Creative Modeling</h3>
-                                    </div>
-                                    <p class="text-primary/60 font-mono text-xs mb-3">generator.forward(z)</p>
-                                    <p class="text-slate-500 dark:text-slate-400 text-xs leading-relaxed">
-                                        Explored GAN-based image generation — training dynamics, instability, and the
-                                        balance between quality and controllability.
-                                    </p>
-                                </div>
-                                <div class="mt-4 flex flex-col items-center">
-                                    <div class="w-px h-8 bg-gradient-to-b from-primary/25 to-transparent"></div>
-                                    <div
-                                        class="size-3 rounded-full bg-primary/60 shadow-[0_0_5px_rgba(56,189,248,0.2)]">
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Step 04 — Product Mindset (bottom position) -->
-                            <div class="flex flex-col items-center pt-24">
-                                <div class="mb-4 flex flex-col items-center">
-                                    <div
-                                        class="size-3 rounded-full bg-primary/50 shadow-[0_0_4px_rgba(56,189,248,0.15)]">
-                                    </div>
-                                    <div class="w-px h-8 bg-gradient-to-b from-transparent to-primary/20"></div>
-                                </div>
-                                <div
-                                    class="journey-card glass-panel p-5 rounded-2xl border border-border-light dark:border-border-dark hover:border-primary/30 transition-all duration-300 hover:scale-[1.03] w-full opacity-85 hover:opacity-100">
-                                    <div class="flex items-center gap-3 mb-3">
-                                        <div
-                                            class="size-8 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center">
-                                            <span class="text-primary/60 font-mono text-xs font-bold">04</span>
-                                        </div>
-                                        <h3
-                                            class="text-slate-700 dark:text-slate-300 text-base font-bold uppercase tracking-wider">
-                                            Product Mindset</h3>
-                                    </div>
-                                    <p class="text-primary/50 font-mono text-xs mb-3">app.deploy(model)</p>
-                                    <p class="text-slate-500 dark:text-slate-500 text-xs leading-relaxed">
-                                        Built and deployed Neural Canvas — fast style transfer in PyTorch, shipped to
-                                        Hugging Face as a real-time creative tool.
-                                    </p>
-                                </div>
-                            </div>
-
-                            <!-- Step 05 — Systems Growth (top position) -->
-                            <div class="flex flex-col items-center pt-0 pb-16">
-                                <div
-                                    class="journey-card glass-panel p-5 rounded-2xl border border-border-light dark:border-border-dark hover:border-primary/30 transition-all duration-300 hover:scale-[1.03] w-full opacity-75 hover:opacity-100">
-                                    <div class="flex items-center gap-3 mb-3">
-                                        <div
-                                            class="size-8 rounded-full bg-primary/5 border border-primary/15 flex items-center justify-center">
-                                            <span class="text-primary/40 font-mono text-xs font-bold">05</span>
-                                        </div>
-                                        <h3
-                                            class="text-slate-700 dark:text-slate-300 text-base font-bold uppercase tracking-wider">
-                                            Systems Growth</h3>
-                                    </div>
-                                    <p class="text-primary/40 font-mono text-xs mb-3">docker build .</p>
-                                    <p class="text-slate-500 dark:text-slate-500 text-xs leading-relaxed">
-                                        Now investing in full-stack development, cloud deployment, and DevOps workflows
-                                        to build complete AI systems.
-                                    </p>
-                                </div>
-                                <div class="mt-4 flex flex-col items-center">
-                                    <div class="w-px h-8 bg-gradient-to-b from-primary/15 to-transparent"></div>
-                                    <div class="size-3 rounded-full bg-primary/30"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Mobile: Clean Stacked Layout -->
-                    <div class="md:hidden flex flex-col gap-6">
-                        <!-- Mobile Step 01 -->
-                        <div class="flex gap-4">
-                            <div class="flex flex-col items-center">
-                                <div
-                                    class="size-10 rounded-full bg-primary/15 border-2 border-primary flex items-center justify-center shadow-[0_0_12px_rgba(56,189,248,0.3)]">
-                                    <span class="text-primary font-mono text-xs font-bold">01</span>
-                                </div>
-                                <div class="w-px flex-1 bg-gradient-to-b from-primary/40 to-primary/10 mt-2"></div>
-                            </div>
-                            <div class="glass-panel p-5 rounded-xl glow-border flex-1 mb-2">
-                                <h3
-                                    class="text-slate-900 dark:text-slate-100 text-lg font-bold uppercase tracking-wider mb-1">
-                                    Foundation</h3>
-                                <p class="text-primary font-mono text-xs mb-3">predictive_ml.init()</p>
-                                <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
-                                    Built confidence with predictive ML — house price prediction, training loops, and
-                                    disciplined evaluation.
-                                </p>
-                            </div>
-                        </div>
-                        <!-- Mobile Step 02 -->
-                        <div class="flex gap-4">
-                            <div class="flex flex-col items-center">
-                                <div
-                                    class="size-10 rounded-full bg-primary/10 border-2 border-primary/70 flex items-center justify-center shadow-[0_0_8px_rgba(56,189,248,0.2)]">
-                                    <span class="text-primary/80 font-mono text-xs font-bold">02</span>
-                                </div>
-                                <div class="w-px flex-1 bg-gradient-to-b from-primary/30 to-primary/10 mt-2"></div>
-                            </div>
-                            <div class="glass-panel p-5 rounded-xl glow-border flex-1 mb-2">
-                                <h3
-                                    class="text-slate-800 dark:text-slate-200 text-lg font-bold uppercase tracking-wider mb-1">
-                                    Vision Shift</h3>
-                                <p class="text-primary/70 font-mono text-xs mb-3">import cv2; import torch</p>
-                                <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
-                                    Moved into deeper computer vision — depth estimation, architecture decisions, and
-                                    representation-focused work.
-                                </p>
-                            </div>
-                        </div>
-                        <!-- Mobile Step 03 -->
-                        <div class="flex gap-4">
-                            <div class="flex flex-col items-center">
-                                <div
-                                    class="size-10 rounded-full bg-primary/10 border-2 border-primary/50 flex items-center justify-center">
-                                    <span class="text-primary/60 font-mono text-xs font-bold">03</span>
-                                </div>
-                                <div class="w-px flex-1 bg-gradient-to-b from-primary/20 to-primary/5 mt-2"></div>
-                            </div>
-                            <div
-                                class="glass-panel p-5 rounded-xl border border-border-light dark:border-border-dark hover:border-primary/30 transition-all flex-1 mb-2 opacity-90">
-                                <h3
-                                    class="text-slate-700 dark:text-slate-300 text-lg font-bold uppercase tracking-wider mb-1">
-                                    Creative Modeling</h3>
-                                <p class="text-primary/60 font-mono text-xs mb-3">generator.forward(z)</p>
-                                <p class="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">
-                                    Explored GAN-based image generation — training dynamics, instability, and
-                                    controllability.
-                                </p>
-                            </div>
-                        </div>
-                        <!-- Mobile Step 04 -->
-                        <div class="flex gap-4">
-                            <div class="flex flex-col items-center">
-                                <div
-                                    class="size-10 rounded-full bg-primary/5 border-2 border-primary/35 flex items-center justify-center">
-                                    <span class="text-primary/50 font-mono text-xs font-bold">04</span>
-                                </div>
-                                <div class="w-px flex-1 bg-gradient-to-b from-primary/15 to-transparent mt-2"></div>
-                            </div>
-                            <div
-                                class="glass-panel p-5 rounded-xl border border-border-light dark:border-border-dark hover:border-primary/30 transition-all flex-1 mb-2 opacity-80">
-                                <h3
-                                    class="text-slate-700 dark:text-slate-300 text-lg font-bold uppercase tracking-wider mb-1">
-                                    Product Mindset</h3>
-                                <p class="text-primary/50 font-mono text-xs mb-3">app.deploy(model)</p>
-                                <p class="text-slate-500 dark:text-slate-500 text-sm leading-relaxed">
-                                    Built and deployed Neural Canvas — fast style transfer in PyTorch, shipped to
-                                    Hugging
-                                    Face.
-                                </p>
-                            </div>
-                        </div>
-                        <!-- Mobile Step 05 -->
-                        <div class="flex gap-4">
-                            <div class="flex flex-col items-center">
-                                <div
-                                    class="size-10 rounded-full bg-primary/5 border-2 border-primary/20 flex items-center justify-center">
-                                    <span class="text-primary/30 font-mono text-xs font-bold">05</span>
-                                </div>
-                            </div>
-                            <div
-                                class="glass-panel p-5 rounded-xl border border-border-light dark:border-border-dark hover:border-primary/30 transition-all flex-1 opacity-70">
-                                <h3
-                                    class="text-slate-700 dark:text-slate-300 text-lg font-bold uppercase tracking-wider mb-1">
-                                    Systems Growth</h3>
-                                <p class="text-primary/40 font-mono text-xs mb-3">docker build .</p>
-                                <p class="text-slate-500 dark:text-slate-500 text-sm leading-relaxed">
-                                    Now investing in full-stack development, cloud deployment, and DevOps workflows.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-                <!-- Projects Section -->
-                <section class="mb-32 scroll-mt-[100px]" id="projects">
-                    <!-- Section Header -->
-                    <div class="flex flex-col gap-2 mb-4">
-                        <p class="text-primary font-mono text-sm uppercase tracking-widest flex items-center gap-2">
-                            <span class="inline-block w-6 h-px bg-primary"></span> Selected Works
-                        </p>
-                        <h2
-                            class="text-slate-900 dark:text-slate-100 text-4xl md:text-5xl font-black leading-tight tracking-tighter">
-                            Projects</h2>
-                    </div>
-                    <p class="text-slate-600 dark:text-slate-400 text-base leading-relaxed mb-12 max-w-2xl">
-                        From model-first prototypes to full-stack AI applications — here's what I've built.
-                    </p>
-
-                    <!-- Featured Project Container -->
-                    <div id="featured-project" class="mb-8"></div>
-
-                    <!-- Projects Grid Container -->
-                    <div id="projects-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
-                </section>
-
-                <script>
-                    // Projects data store
-                    const projectsData = [
-                        {
-                            id: 'neural-canvas',
-                            title: 'Neural Canvas',
-                            description: 'Fast feed-forward style transfer pipeline trained with perceptual loss in PyTorch and optimized for interactive inference. Deployed on Hugging Face as a real-time creative tool.',
-                            img: './assets/img/neural_canvas.svg',
-                            alt: 'Neural Canvas Architecture',
-                            badge: 'Active',
-                            badgeClasses: 'bg-primary/20 text-primary border-primary/30',
-                            gradientClass: 'from-primary/10',
-                            gradientDir: 'bg-gradient-to-br',
-                            tags: ['PyTorch', 'Gradio', 'VGG-16', 'Perceptual Loss'],
-                            link: 'https://github.com/DhruvGarg111/Neural-Style-Transfer',
-                            linkText: 'View Repository'
-                        },
-                        {
-                            id: 'searchlight',
-                            title: 'Searchlight Protocol',
-                            description: 'A full-stack aerial intelligence console that runs a coarse-to-fine Searchlight pipeline through a React frontend and FastAPI backend.',
-                            img: './assets/img/searchlight.svg',
-                            alt: 'Searchlight Protocol Architecture',
-                            badge: 'Beta',
-                            badgeClasses: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
-                            gradientClass: 'from-blue-500/10',
-                            gradientDir: 'bg-gradient-to-bl',
-                            tags: ['React', 'FastAPI', 'PyTorch'],
-                            link: 'https://the-searchlight-protocol.vercel.app',
-                            linkText: 'View Details'
-                        },
-                        {
-                            id: 'pixelqueue',
-                            title: 'PixelQueue',
-                            description: 'A high-performance control panel for human-in-the-loop AI annotation, powered by decoupled ML microservices and robust task queues.',
-                            img: './assets/img/pixelqueue.svg',
-                            alt: 'PixelQueue Architecture',
-                            badge: 'Vision Infra',
-                            badgeClasses: 'bg-purple-500/20 text-purple-400 border-purple-500/30',
-                            gradientClass: 'from-purple-500/10',
-                            gradientDir: 'bg-gradient-to-tr',
-                            tags: ['FastAPI', 'Celery', 'React'],
-                            link: 'https://github.com/DhruvGarg111/PixelQueue',
-                            linkText: 'View Repository'
-                        },
-                        {
-                            id: 'pygog',
-                            title: 'pygog CLI',
-                            description: 'CLI and agentic interface for Google Workspace automation with composable commands and natural-language task orchestration.',
-                            img: './assets/img/pygog.svg',
-                            alt: 'pygog CLI Architecture',
-                            badge: 'Dev Tool',
-                            badgeClasses: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',
-                            gradientClass: 'from-emerald-500/10',
-                            gradientDir: 'bg-gradient-to-tl',
-                            tags: ['Python', 'Typer', 'LLMs'],
-                            link: 'https://github.com/DhruvGarg111/py-goog-cli',
-                            linkText: 'View Repository'
-                        }
-                    ];
-
-                    let featuredIndex = 2;
-
-                    function renderFeaturedCard(project) {
-                        return `
-                        <div class="group glass-panel rounded-2xl overflow-hidden glow-border transition-all duration-300 border border-primary/10 hover:border-primary/30">
-                            <div class="flex flex-col md:flex-row">
-                                <div class="w-full md:w-1/2 h-64 md:h-auto relative bg-[#0b1120] overflow-hidden flex items-center justify-center">
-                                    <div class="absolute inset-0 ${project.gradientDir} ${project.gradientClass} to-transparent z-0"></div>
-                                    <img src="${project.img}" alt="${project.alt}"
-                                        class="relative z-10 w-full h-full object-contain p-4 opacity-90 scale-105 transition-all duration-500 group-hover:opacity-100 group-hover:scale-110" />
-                                    <div class="absolute top-4 left-4 ${project.badgeClasses} px-3 py-1 rounded-full text-xs font-mono border backdrop-blur-sm z-20 uppercase tracking-wider">
-                                        ${project.badge}
-                                    </div>
-                                </div>
-                                <div class="w-full md:w-1/2 p-8 md:p-10 flex flex-col justify-center">
-                                    <div class="flex items-center gap-3 mb-1">
-                                        <span class="text-primary/50 font-mono text-xs uppercase tracking-widest">Featured Project</span>
-                                    </div>
-                                    <h3 class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-slate-100 mb-3 uppercase tracking-wide">
-                                        ${project.title}
-                                    </h3>
-                                    <p class="text-slate-600 dark:text-slate-400 text-sm md:text-base mb-6 leading-relaxed">
-                                        ${project.description}
-                                    </p>
-                                    <div class="flex flex-wrap gap-2 mb-6">
-                                        ${project.tags.map(tag => `<span class="px-3 py-1.5 bg-[#0d1424] dark:bg-surface-darker rounded-lg border border-[#1e2d4a] dark:border-border-dark text-xs font-mono text-slate-300">${tag}</span>`).join('')}
-                                    </div>
-                                    <a class="inline-flex items-center text-primary text-sm font-bold uppercase tracking-wider hover:text-sky-300 group-hover:translate-x-2 transition-transform w-fit"
-                                        href="${project.link}" target="_blank" onclick="event.stopPropagation()">
-                                        ${project.linkText} <span class="material-symbols-outlined ml-2 text-sm">arrow_forward</span>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>`;
-                    }
-
-                    function renderGridCard(project, dataIndex) {
-                        return `
-                        <div class="group flex flex-col glass-panel rounded-2xl overflow-hidden glow-border transition-all duration-300 h-full cursor-pointer hover:scale-[1.02]"
-                             onclick="swapProject(${dataIndex})" title="Click to feature this project">
-                            <div class="h-48 w-full relative bg-[#0b1120] overflow-hidden flex items-center justify-center">
-                                <div class="absolute inset-0 ${project.gradientDir} ${project.gradientClass} to-transparent z-0"></div>
-                                <img src="${project.img}" alt="${project.alt}"
-                                    class="relative z-10 w-full h-full object-contain p-3 opacity-90 scale-105 transition-all duration-300 group-hover:opacity-100 group-hover:scale-110" />
-                                <div class="absolute top-3 right-3 ${project.badgeClasses} px-2.5 py-1 rounded-full text-xs font-mono border backdrop-blur-sm z-20 uppercase tracking-wider">
-                                    ${project.badge}
-                                </div>
-                            </div>
-                            <div class="p-6 flex flex-col flex-grow">
-                                <h3 class="text-xl font-bold text-slate-900 dark:text-slate-100 mb-2 uppercase tracking-wide">
-                                    ${project.title}
-                                </h3>
-                                <p class="text-slate-600 dark:text-slate-400 text-sm mb-5 leading-relaxed flex-grow">
-                                    ${project.description}
-                                </p>
-                                <div class="flex flex-wrap gap-1.5 mb-5">
-                                    ${project.tags.map(tag => `<span class="px-2.5 py-1 bg-[#0d1424] dark:bg-surface-darker rounded-lg border border-[#1e2d4a] dark:border-border-dark text-xs font-mono text-slate-300">${tag}</span>`).join('')}
-                                </div>
-                                <a class="inline-flex items-center text-primary text-sm font-bold uppercase tracking-wider hover:text-sky-300 group-hover:translate-x-1 transition-transform w-fit"
-                                    href="${project.link}" target="_blank" onclick="event.stopPropagation()">
-                                    ${project.linkText} <span class="material-symbols-outlined ml-2 text-sm">arrow_forward</span>
-                                </a>
-                            </div>
-                        </div>`;
-                    }
-
-                    function renderProjects() {
-                        const featuredContainer = document.getElementById('featured-project');
-                        const gridContainer = document.getElementById('projects-grid');
-                        featuredContainer.innerHTML = renderFeaturedCard(projectsData[featuredIndex]);
-                        const gridCards = projectsData
-                            .map((p, i) => (i !== featuredIndex ? renderGridCard(p, i) : ''))
-                            .join('');
-                        gridContainer.innerHTML = gridCards;
-                    }
-
-                    let isSwapping = false;
-
-                    // Inject transition styles
-                    const projStyle = document.createElement('style');
-                    projStyle.textContent = `
-                        @keyframes projOut { from { opacity:1 } to { opacity:0 } }
-                        @keyframes projIn  { from { opacity:0 } to { opacity:1 } }
-                        .proj-out { animation: projOut .2s ease-out forwards }
-                        .proj-in  { animation: projIn .25s ease-in forwards }
-                    `;
-                    document.head.appendChild(projStyle);
-
-                    function swapProject(clickedIndex) {
-                        if (clickedIndex === featuredIndex || isSwapping) return;
-                        isSwapping = true;
-
-                        const fc = document.getElementById('featured-project');
-                        const gc = document.getElementById('projects-grid');
-
-                        // Fade out both
-                        fc.classList.add('proj-out');
-                        gc.classList.add('proj-out');
-
-                        fc.addEventListener('animationend', function onOut() {
-                            fc.removeEventListener('animationend', onOut);
-
-                            // Swap content while invisible
-                            featuredIndex = clickedIndex;
-                            renderProjects();
-
-                            // Clean up fade-out, start fade-in
-                            fc.classList.remove('proj-out');
-                            gc.classList.remove('proj-out');
-                            fc.classList.add('proj-in');
-                            gc.classList.add('proj-in');
-
-                            fc.addEventListener('animationend', function onIn() {
-                                fc.removeEventListener('animationend', onIn);
-                                fc.classList.remove('proj-in');
-                                gc.classList.remove('proj-in');
-                                isSwapping = false;
-                            });
-                        });
-                    }
-
-                    // Initial render
-                    renderProjects();
-                </script>
-                <!-- Skills Section -->
-                <section class="mb-24 scroll-mt-[100px]" id="skills">
-                    <div class="flex flex-col gap-2 mb-2">
-                        <p class="text-primary font-mono text-sm uppercase tracking-widest flex items-center gap-2">
-                            <span class="inline-block w-6 h-px bg-primary"></span> Core
-                        </p>
-                        <h2
-                            class="text-slate-900 dark:text-slate-100 text-4xl md:text-5xl font-black leading-tight tracking-tighter">
-                            Capabilities</h2>
-                    </div>
-                    <p class="text-slate-600 dark:text-slate-400 text-base leading-relaxed mb-12 max-w-2xl">
-                        Applied strengths across model development, reproducibility, and deployment-aware engineering.
-                    </p>
-
-                    <!-- Capabilities — 3-column card grid with rich item descriptions -->
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <!-- Card 1: Model Building Discipline -->
-                        <div class="glass-panel rounded-2xl glow-border overflow-hidden">
-                            <div class="h-1 bg-gradient-to-r from-primary to-orange-400 dark:to-teal-400"></div>
-                            <div class="p-8">
-                                <div class="flex items-center gap-3 mb-5">
-                                    <div
-                                        class="size-10 rounded-lg bg-primary/10 flex items-center justify-center border border-primary/20">
-                                        <span
-                                            class="material-symbols-outlined text-primary text-xl">model_training</span>
-                                    </div>
-                                    <h3 class="text-xs font-bold text-primary uppercase tracking-[0.2em] font-mono">
-                                        Model Building Discipline
-                                    </h3>
-                                </div>
-                                <p
-                                    class="text-slate-500 dark:text-slate-500 text-sm leading-relaxed mb-6 border-l-2 border-primary/20 pl-3 italic">
-                                    Iterating on architectures with clear hypotheses and measurable outcomes.
-                                </p>
-                                <div class="space-y-4">
-                                    <div class="flex items-start gap-3">
-                                        <span class="text-primary mt-1 text-xs">◇</span>
-                                        <div>
-                                            <p class="text-slate-800 dark:text-slate-200 text-sm font-semibold">PyTorch
-                                            </p>
-                                            <p class="text-slate-500 dark:text-slate-500 text-xs mt-0.5">Deep learning
-                                                framework for robust model training</p>
-                                        </div>
-                                    </div>
-                                    <div class="flex items-start gap-3">
-                                        <span class="text-primary mt-1 text-xs">⚙</span>
-                                        <div>
-                                            <p class="text-slate-800 dark:text-slate-200 text-sm font-semibold">CNN /
-                                                Transformer</p>
-                                            <p class="text-slate-500 dark:text-slate-500 text-xs mt-0.5">Convolutional
-                                                and attention-based architectures</p>
-                                        </div>
-                                    </div>
-                                    <div class="flex items-start gap-3">
-                                        <span class="text-primary mt-1 text-xs">⚙</span>
-                                        <div>
-                                            <p class="text-slate-800 dark:text-slate-200 text-sm font-semibold">Depth
-                                                Estimation</p>
-                                            <p class="text-slate-500 dark:text-slate-500 text-xs mt-0.5">Multi-modal
-                                                modeling and representation learning</p>
-                                        </div>
-                                    </div>
-                                    <div class="flex items-start gap-3">
-                                        <span class="text-primary mt-1 text-xs">↗</span>
-                                        <div>
-                                            <p class="text-slate-800 dark:text-slate-200 text-sm font-semibold">Loss
-                                                Debugging</p>
-                                            <p class="text-slate-500 dark:text-slate-500 text-xs mt-0.5">Diagnosing
-                                                training dynamics and convergence</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Card 2: Creative + Applied AI -->
-                        <div class="glass-panel rounded-2xl glow-border overflow-hidden">
-                            <div class="h-1 bg-gradient-to-r from-amber-500 dark:from-teal-400 to-primary"></div>
-                            <div class="p-8">
-                                <div class="flex items-center gap-3 mb-5">
-                                    <div
-                                        class="size-10 rounded-lg bg-primary/10 flex items-center justify-center border border-primary/20">
-                                        <span class="material-symbols-outlined text-primary text-xl">auto_awesome</span>
-                                    </div>
-                                    <h3 class="text-xs font-bold text-primary uppercase tracking-[0.2em] font-mono">
-                                        Creative + Applied AI
-                                    </h3>
-                                </div>
-                                <p
-                                    class="text-slate-500 dark:text-slate-500 text-sm leading-relaxed mb-6 border-l-2 border-primary/20 pl-3 italic">
-                                    Projects where engineering rigor and creative output meet.
-                                </p>
-                                <div class="space-y-4">
-                                    <div class="flex items-start gap-3">
-                                        <span class="text-primary mt-1 text-xs">⚙</span>
-                                        <div>
-                                            <p class="text-slate-800 dark:text-slate-200 text-sm font-semibold">Style
-                                                Transfer</p>
-                                            <p class="text-slate-500 dark:text-slate-500 text-xs mt-0.5">Real-time
-                                                neural style transfer pipelines</p>
-                                        </div>
-                                    </div>
-                                    <div class="flex items-start gap-3">
-                                        <span class="text-primary mt-1 text-xs">⚙</span>
-                                        <div>
-                                            <p class="text-slate-800 dark:text-slate-200 text-sm font-semibold">GAN
-                                                Experimentation</p>
-                                            <p class="text-slate-500 dark:text-slate-500 text-xs mt-0.5">Training
-                                                dynamics, instability, and controllability</p>
-                                        </div>
-                                    </div>
-                                    <div class="flex items-start gap-3">
-                                        <span class="text-primary mt-1 text-xs">↗</span>
-                                        <div>
-                                            <p class="text-slate-800 dark:text-slate-200 text-sm font-semibold">
-                                                Perceptual Loss</p>
-                                            <p class="text-slate-500 dark:text-slate-500 text-xs mt-0.5">Feature-level
-                                                loss functions for visual quality</p>
-                                        </div>
-                                    </div>
-                                    <div class="flex items-start gap-3">
-                                        <span class="text-primary mt-1 text-xs">◆</span>
-                                        <div>
-                                            <p class="text-slate-800 dark:text-slate-200 text-sm font-semibold">Demo
-                                                Deployment</p>
-                                            <p class="text-slate-500 dark:text-slate-500 text-xs mt-0.5">Interactive
-                                                inference via Gradio and Hugging Face</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Card 3: Systems & Deployment -->
-                        <div class="glass-panel rounded-2xl glow-border overflow-hidden">
-                            <div class="h-1 bg-gradient-to-r from-primary to-amber-600 dark:to-teal-400"></div>
-                            <div class="p-8">
-                                <div class="flex items-center gap-3 mb-5">
-                                    <div
-                                        class="size-10 rounded-lg bg-primary/10 flex items-center justify-center border border-primary/20">
-                                        <span
-                                            class="material-symbols-outlined text-primary text-xl">deployed_code</span>
-                                    </div>
-                                    <h3 class="text-xs font-bold text-primary uppercase tracking-[0.2em] font-mono">
-                                        Systems Expansion
-                                    </h3>
-                                </div>
-                                <p
-                                    class="text-slate-500 dark:text-slate-500 text-sm leading-relaxed mb-6 border-l-2 border-primary/20 pl-3 italic">
-                                    Moving from model-first work to complete product delivery.
-                                </p>
-                                <div class="space-y-4">
-                                    <div class="flex items-start gap-3">
-                                        <span class="text-primary mt-1 text-xs">◇</span>
-                                        <div>
-                                            <p class="text-slate-800 dark:text-slate-200 text-sm font-semibold">Modular
-                                                Python</p>
-                                            <p class="text-slate-500 dark:text-slate-500 text-xs mt-0.5">Clean package
-                                                design and reusable components</p>
-                                        </div>
-                                    </div>
-                                    <div class="flex items-start gap-3">
-                                        <span class="text-primary mt-1 text-xs">◇</span>
-                                        <div>
-                                            <p class="text-slate-800 dark:text-slate-200 text-sm font-semibold">API /
-                                                CLI Design</p>
-                                            <p class="text-slate-500 dark:text-slate-500 text-xs mt-0.5">RESTful
-                                                endpoints and command-line interfaces</p>
-                                        </div>
-                                    </div>
-                                    <div class="flex items-start gap-3">
-                                        <span class="text-primary mt-1 text-xs">◇</span>
-                                        <div>
-                                            <p class="text-slate-800 dark:text-slate-200 text-sm font-semibold">
-                                                Containerization</p>
-                                            <p class="text-slate-500 dark:text-slate-500 text-xs mt-0.5">Docker-based
-                                                development and deployment</p>
-                                        </div>
-                                    </div>
-                                    <div class="flex items-start gap-3">
-                                        <span class="text-primary mt-1 text-xs">◆</span>
-                                        <div>
-                                            <p class="text-slate-800 dark:text-slate-200 text-sm font-semibold">Cloud &
-                                                DevOps</p>
-                                            <p class="text-slate-500 dark:text-slate-500 text-xs mt-0.5">Learning cloud
-                                                workflows and CI/CD fundamentals</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Technology Stack -->
-                    <div class="mt-24">
-                        <div class="flex flex-col gap-2 mb-10">
-                            <h3 class="text-slate-900 dark:text-slate-100 text-2xl font-bold tracking-tight">
-                                Technology Stack
-                            </h3>
-                            <p class="text-slate-500 dark:text-slate-500 text-sm font-mono">Tools and technologies I
-                                work with daily</p>
-                        </div>
-
-                        <!-- AI / ML & Data Science -->
-                        <div class="mb-6">
-                            <p
-                                class="text-xs font-mono uppercase tracking-widest text-slate-400 dark:text-slate-600 mb-3 flex items-center gap-2">
-                                <span class="inline-block w-4 h-px bg-slate-300 dark:bg-slate-700"></span> AI / ML &
-                                Data Science
-                            </p>
-                            <div class="skills-grid" id="skills-grid">
-                                <div class="skill-card">
-                                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg"
-                                        alt="Python" />
-                                    <span>Python</span>
-                                </div>
-                                <div class="skill-card">
-                                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/pytorch/pytorch-original.svg"
-                                        alt="PyTorch" />
-                                    <span>PyTorch</span>
-                                </div>
-                                <div class="skill-card">
-                                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/tensorflow/tensorflow-original.svg"
-                                        alt="TensorFlow" />
-                                    <span>TensorFlow</span>
-                                </div>
-                                <div class="skill-card">
-                                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/numpy/numpy-original.svg"
-                                        alt="NumPy" />
-                                    <span>NumPy</span>
-                                </div>
-                                <div class="skill-card">
-                                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/pandas/pandas-original.svg"
-                                        alt="Pandas" />
-                                    <span>Pandas</span>
-                                </div>
-                                <div class="skill-card">
-                                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/scikitlearn/scikitlearn-original.svg"
-                                        alt="Scikit-learn" />
-                                    <span>Scikit-Learn</span>
-                                </div>
-                                <div class="skill-card">
-                                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/matplotlib/matplotlib-original.svg"
-                                        alt="Matplotlib" />
-                                    <span>Matplotlib</span>
-                                </div>
-                                <div class="skill-card">
-                                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/opencv/opencv-original.svg"
-                                        alt="OpenCV" />
-                                    <span>OpenCV</span>
-                                </div>
-                                <div class="skill-card">
-                                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/jupyter/jupyter-original.svg"
-                                        alt="Jupyter" />
-                                    <span>Jupyter</span>
-                                </div>
-                                <div class="skill-card">
-                                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"
-                                            fill="#F9AB00" opacity="0.85" />
-                                        <path d="M16 12c0 2.21-1.79 4-4 4s-4-1.79-4-4 1.79-4 4-4 4 1.79 4 4z"
-                                            fill="#E8710A" />
-                                        <path d="M12 6v2c2.21 0 4 1.79 4 4h2c0-3.31-2.69-6-6-6z"
-                                            class="fill-slate-600 dark:fill-white" opacity="0.5" />
-                                    </svg>
-                                    <span>Google Colab</span>
-                                </div>
-                                <div class="skill-card">
-                                    <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
-                                        <circle cx="60" cy="60" r="56" fill="#FFD21E" />
-                                        <ellipse cx="42" cy="52" rx="7" ry="9" fill="#1B1B1B" />
-                                        <ellipse cx="78" cy="52" rx="7" ry="9" fill="#1B1B1B" />
-                                        <ellipse cx="44" cy="49" rx="2.5" ry="3"
-                                            class="fill-slate-600 dark:fill-white" />
-                                        <ellipse cx="80" cy="49" rx="2.5" ry="3"
-                                            class="fill-slate-600 dark:fill-white" />
-                                        <path d="M38 74 C48 88, 72 88, 82 74" stroke="#1B1B1B" stroke-width="4"
-                                            fill="none" stroke-linecap="round" />
-                                        <ellipse cx="28" cy="62" rx="8" ry="5" fill="#FF9D00" opacity="0.5" />
-                                        <ellipse cx="92" cy="62" rx="8" ry="5" fill="#FF9D00" opacity="0.5" />
-                                    </svg>
-                                    <span>Hugging Face</span>
-                                </div>
-                                <div class="skill-card">
-                                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M13 2L4 14h7l-2 8 9-12h-7l2-8z" fill="#792EE5" stroke="#792EE5"
-                                            stroke-width="0.5" stroke-linejoin="round" />
-                                    </svg>
-                                    <span>Lightning</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Infrastructure & DevOps -->
-                        <div class="mb-6">
-                            <p
-                                class="text-xs font-mono uppercase tracking-widest text-slate-400 dark:text-slate-600 mb-3 flex items-center gap-2">
-                                <span class="inline-block w-4 h-px bg-slate-300 dark:bg-slate-700"></span>
-                                Infrastructure & DevOps
-                            </p>
-                            <div class="skills-grid" id="skills-grid-2">
-                                <div class="skill-card">
-                                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/fastapi/fastapi-original.svg"
-                                        alt="FastAPI" />
-                                    <span>FastAPI</span>
-                                </div>
-                                <div class="skill-card">
-                                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/docker/docker-plain.svg"
-                                        alt="Docker" />
-                                    <span>Docker</span>
-                                </div>
-                                <div class="skill-card">
-                                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/git/git-original.svg"
-                                        alt="Git" />
-                                    <span>Git</span>
-                                </div>
-                                <div class="skill-card">
-                                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg"
-                                        alt="GitHub" class="dark:invert" />
-                                    <span>GitHub</span>
-                                </div>
-                                <div class="skill-card">
-                                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/vscode/vscode-original.svg"
-                                        alt="VS Code" />
-                                    <span>VS Code</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Languages & Web -->
-                        <div>
-                            <p
-                                class="text-xs font-mono uppercase tracking-widest text-slate-400 dark:text-slate-600 mb-3 flex items-center gap-2">
-                                <span class="inline-block w-4 h-px bg-slate-300 dark:bg-slate-700"></span> Languages &
-                                Web
-                            </p>
-                            <div class="skills-grid" id="skills-grid-3">
-                                <div class="skill-card">
-                                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/javascript/javascript-original.svg"
-                                        alt="JavaScript" />
-                                    <span>JavaScript</span>
-                                </div>
-                                <div class="skill-card">
-                                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg"
-                                        alt="React" />
-                                    <span>React</span>
-                                </div>
-                                <div class="skill-card">
-                                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/html5/html5-original.svg"
-                                        alt="HTML5" />
-                                    <span>HTML5</span>
-                                </div>
-                                <div class="skill-card">
-                                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/css3/css3-original.svg"
-                                        alt="CSS3" />
-                                    <span>CSS3</span>
-                                </div>
-                                <div class="skill-card">
-                                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/java/java-original.svg"
-                                        alt="Java" />
-                                    <span>Java</span>
-                                </div>
-                                <div class="skill-card">
-                                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/c/c-original.svg"
-                                        alt="C" />
-                                    <span>C</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <script>
-                        // Intersection Observer for staggered fade-in animation
-                        const observerCallback = (entries, obs) => {
-                            entries.forEach(entry => {
-                                if (entry.isIntersecting) {
-                                    const cards = entry.target.querySelectorAll('.skill-card');
-                                    cards.forEach((card, i) => {
-                                        card.style.animationDelay = `${i * 0.05}s`;
-                                        card.classList.add('animate-fade-in-up');
-                                    });
-                                    obs.unobserve(entry.target);
-                                }
-                            });
-                        };
-                        const observer = new IntersectionObserver(observerCallback, { threshold: 0.15 });
-                        document.querySelectorAll('.skills-grid').forEach(grid => observer.observe(grid));
-                    </script>
-                </section>
-
-                <!-- Contact Section -->
-                <section
-                    class="mb-32 glass-panel rounded-2xl p-12 relative overflow-hidden text-center glow-border scroll-mt-[100px]"
-                    id="contact">
-                    <div class="absolute inset-0 bg-gradient-to-t from-primary/10 to-transparent z-0"></div>
-                    <div class="relative z-10 flex flex-col items-center">
-                        <p class="text-primary font-mono text-sm mb-4 uppercase tracking-widest">&gt; Collaborate</p>
-                        <h2
-                            class="text-slate-900 dark:text-slate-100 text-3xl md:text-5xl font-black leading-tight tracking-tight uppercase max-w-2xl mb-6">
-                            Looking for meaningful AI internships and research work.
-                        </h2>
-                        <p class="text-slate-600 dark:text-slate-400 text-lg max-w-xl leading-relaxed mb-10 font-light">
-                            If your team values consistency, curiosity, and practical ML execution, I would love to
-                            contribute. Let's build something intelligent.
-                        </p>
-                        <div class="flex flex-wrap gap-4 justify-center">
-                            <a href="mailto:dhruvgarg.garg123@gmail.com"
-                                class="flex min-w-[140px] cursor-pointer items-center justify-center overflow-hidden rounded h-14 px-8 bg-primary text-slate-900 text-sm font-bold uppercase tracking-widest hover:bg-sky-300 transition-colors shadow-[0_0_20px_rgba(56,189,248,0.4)] group">
-                                <span class="material-symbols-outlined mr-2">mail</span>
-                                <span>Send Email</span>
-                            </a>
-                            <a href="https://github.com/DhruvGarg111"
-                                class="flex min-w-[140px] cursor-pointer items-center justify-center overflow-hidden rounded h-14 px-8 bg-surface-light dark:bg-surface-darker border border-primary text-primary text-sm font-bold uppercase tracking-widest hover:bg-primary/10 transition-colors group"
-                                target="_blank">
-                                <span class="material-symbols-outlined mr-2">code</span>
-                                <span>GitHub</span>
-                            </a>
-                        </div>
-                    </div>
-                </section>
-
-            </main>
-            <!-- Footer -->
-            <footer
-                class="border-t border-border-light dark:border-border-dark py-8 mt-auto flex flex-col md:flex-row justify-between items-center gap-4">
-                <p class="text-slate-500 dark:text-slate-500 text-sm font-mono uppercase">©
-                    <script>document.write(new Date().getFullYear())</script> Dhruv Garg. System Terminated.
-                </p>
-                <div class="flex gap-4">
-                    <a class="text-slate-500 dark:text-slate-500 hover:text-primary transition-colors"
-                        href="https://github.com/DhruvGarg111" target="_blank" aria-label="GitHub Profile"><span
-                            class="material-symbols-outlined">code</span></a>
-                    <a class="text-slate-500 dark:text-slate-500 hover:text-primary transition-colors"
-                        href="mailto:dhruvgarg.garg123@gmail.com" aria-label="Email Me"><span
-                            class="material-symbols-outlined">mail</span></a>
-                </div>
-            </footer>
+    <!-- ═══ TOP NAV (Mobile) ═══ -->
+    <div class="top-nav">
+        <div class="top-nav-inner">
+            <a href="#top" class="brand">DG</a>
+            <button class="menu-btn" id="menuBtn" aria-label="Open menu">
+                <span class="material-symbols-outlined" style="font-size:28px">menu</span>
+            </button>
         </div>
     </div>
 
-    <script>
-        const themeToggleBtn = document.getElementById('theme-toggle');
-        const themeIcon = document.getElementById('theme-icon');
-        const htmlEl = document.documentElement;
+    <!-- ═══ MOBILE OVERLAY ═══ -->
+    <div class="mobile-overlay" id="mobileOverlay">
+        <button class="close-btn" id="closeBtn" aria-label="Close menu">
+            <span class="material-symbols-outlined" style="font-size:32px">close</span>
+        </button>
+        <a href="#top" class="mob-link">Home</a>
+        <a href="#projects" class="mob-link">Projects</a>
+        <a href="#journey" class="mob-link">Journey</a>
+        <a href="#skills" class="mob-link">System</a>
+        <a href="#contact" class="mob-link">Contact</a>
+    </div>
 
-        // Check saved theme
-        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            htmlEl.classList.add('dark');
-            themeIcon.textContent = 'light_mode';
-        } else {
-            htmlEl.classList.remove('dark');
-            themeIcon.textContent = 'dark_mode';
-        }
+    <div class="main-content">
 
-        themeToggleBtn.addEventListener('click', () => {
-            htmlEl.classList.toggle('dark');
-            if (htmlEl.classList.contains('dark')) {
-                localStorage.theme = 'dark';
-                themeIcon.textContent = 'light_mode';
-            } else {
-                localStorage.theme = 'light';
-                themeIcon.textContent = 'dark_mode';
+        <!-- ═══════════════════════════════════════════
+             1. FULL-BLEED HERO
+             ═══════════════════════════════════════════ -->
+        <section class="hero" id="top">
+            <div class="hero-content">
+                <div class="hero-label">AI/ML Engineer in Training</div>
+                <h1 class="hero-title">
+                    DHRUV<br><em>GARG.</em>
+                </h1>
+                <p class="hero-subtitle">
+                    I build model-first prototypes in Python and PyTorch, then harden them into full-stack AI applications with React frontends, FastAPI services, and cloud deployment workflows.
+                </p>
+                <div class="hero-ctas">
+                    <a href="#projects" class="btn-primary">
+                        Explore Projects
+                        <span class="material-symbols-outlined" style="font-size:16px">arrow_forward</span>
+                    </a>
+                    <a href="https://github.com/DhruvGarg111" target="_blank" class="btn-ghost">
+                        <span class="material-symbols-outlined" style="font-size:16px">terminal</span>
+                        GitHub
+                    </a>
+                </div>
+            </div>
+            <div class="hero-portrait">
+                <img src="assets/img/dhruv_logo_dark_cutout.webp" alt="Dhruv Garg">
+                <div class="gradient-mask"></div>
+            </div>
+        </section>
+
+
+        <!-- ═══════════════════════════════════════════
+             2. PROJECTS (FEATURED + GRID)
+             ═══════════════════════════════════════════ -->
+        <section class="projects-section" id="projects">
+            <div class="projects-header reveal-on-scroll">
+                <h2>Selected<br>Works.</h2>
+                <p>From model-first prototypes to full-stack AI applications — here's what I've built.</p>
+            </div>
+            
+            <div class="projects-container reveal-on-scroll">
+                <div id="featured-project-v2"></div>
+                <div id="projects-grid-v2" class="projects-grid"></div>
+            </div>
+        </section>
+
+        <!-- Dynamic Projects Script -->
+        <script>
+            const projectsDataV2 = [
+                {
+                    id: 'neural-canvas',
+                    title: 'Neural Canvas',
+                    description: 'Fast feed-forward style transfer pipeline trained with perceptual loss in PyTorch and optimized for interactive inference. Deployed on Hugging Face as a real-time creative tool.',
+                    img: 'assets/img/neural_canvas.svg',
+                    badge: 'Active',
+                    badgeClass: 'badge-active',
+                    tags: ['PyTorch', 'Gradio', 'VGG-16', 'Perceptual Loss'],
+                    link: 'https://github.com/DhruvGarg111/Neural-Style-Transfer',
+                    linkText: 'View Repository'
+                },
+                {
+                    id: 'searchlight',
+                    title: 'Searchlight Protocol',
+                    description: 'A full-stack aerial intelligence console that runs a coarse-to-fine Searchlight pipeline through a React frontend and FastAPI backend.',
+                    img: 'assets/img/searchlight.svg',
+                    badge: 'Beta',
+                    badgeClass: 'badge-beta',
+                    tags: ['React', 'FastAPI', 'PyTorch'],
+                    link: 'https://the-searchlight-protocol.vercel.app',
+                    linkText: 'View Details'
+                },
+                {
+                    id: 'pixelqueue',
+                    title: 'PixelQueue',
+                    description: 'A high-performance control panel for human-in-the-loop AI annotation, powered by decoupled ML microservices and robust task queues.',
+                    img: 'assets/img/pixelqueue.svg',
+                    badge: 'Vision Infra',
+                    badgeClass: 'badge-infra',
+                    tags: ['FastAPI', 'Celery', 'React'],
+                    link: 'https://github.com/DhruvGarg111/PixelQueue',
+                    linkText: 'View Repository'
+                },
+                {
+                    id: 'pygog',
+                    title: 'pygog CLI',
+                    description: 'CLI and agentic interface for Google Workspace automation with composable commands and natural-language task orchestration.',
+                    img: 'assets/img/pygog.svg',
+                    badge: 'Dev Tool',
+                    badgeClass: 'badge-tool',
+                    tags: ['Python', 'Typer', 'LLMs'],
+                    link: 'https://github.com/DhruvGarg111/py-goog-cli',
+                    linkText: 'View Repository'
+                }
+            ];
+
+            let v2FeaturedIndex = 0;
+
+            function renderFeaturedV2(project) {
+                return `
+                <div class="featured-project" onclick="event.stopPropagation()">
+                    <div class="featured-img">
+                        <span class="badge ${project.badgeClass}">${project.badge}</span>
+                        <img src="${project.img}" alt="${project.title}">
+                    </div>
+                    <div class="featured-body">
+                        <div class="section-label">01 // Featured Project</div>
+                        <h3>${project.title}</h3>
+                        <p>${project.description}</p>
+                        <div class="tags">
+                            ${project.tags.map(tag => `<span>${tag}</span>`).join('')}
+                        </div>
+                        <a href="${project.link}" target="_blank" class="monolith-link">
+                            ${project.linkText} <span class="material-symbols-outlined" style="font-size:14px">arrow_forward</span>
+                        </a>
+                    </div>
+                </div>`;
             }
+
+            function renderGridCardV2(project, index) {
+                return `
+                <div class="project-card" onclick="swapProjectV2(${index})" title="Click to feature this project">
+                    <div class="card-img">
+                        <span class="badge ${project.badgeClass}">${project.badge}</span>
+                        <img src="${project.img}" alt="${project.title}">
+                    </div>
+                    <div class="card-body">
+                        <h3>${project.title}</h3>
+                        <p>${project.description}</p>
+                        <div class="tags">
+                            ${project.tags.map(tag => `<span>${tag}</span>`).join('')}
+                        </div>
+                        <div class="monolith-link">
+                            Feature Project <span class="material-symbols-outlined" style="font-size:14px">call_made</span>
+                        </div>
+                    </div>
+                </div>`;
+            }
+
+            function renderProjectsV2() {
+                const fc = document.getElementById('featured-project-v2');
+                const gc = document.getElementById('projects-grid-v2');
+                
+                fc.innerHTML = renderFeaturedV2(projectsDataV2[v2FeaturedIndex]);
+                gc.innerHTML = projectsDataV2
+                    .map((p, i) => (i !== v2FeaturedIndex ? renderGridCardV2(p, i) : ''))
+                    .join('');
+            }
+
+            let isSwappingV2 = false;
+
+            function swapProjectV2(clickedIndex) {
+                if (clickedIndex === v2FeaturedIndex || isSwappingV2) return;
+                isSwappingV2 = true;
+
+                const fcContainer = document.getElementById('featured-project-v2');
+                const gcContainer = document.getElementById('projects-grid-v2');
+                const fc = fcContainer.firstElementChild;
+                
+                fc.classList.add('proj-out');
+                gcContainer.classList.add('proj-out');
+
+                setTimeout(() => {
+                    v2FeaturedIndex = clickedIndex;
+                    renderProjectsV2();
+                    
+                    const newFc = fcContainer.firstElementChild;
+                    newFc.classList.add('proj-in');
+                    gcContainer.classList.remove('proj-out');
+                    gcContainer.classList.add('proj-in');
+                    
+                    setTimeout(() => {
+                        newFc.classList.remove('proj-in');
+                        gcContainer.classList.remove('proj-in');
+                        isSwappingV2 = false;
+                    }, 300);
+                }, 250);
+            }
+
+            // Initial render
+            renderProjectsV2();
+        </script>
+
+
+        <!-- ═══════════════════════════════════════════
+             3. JOURNEY — SPLIT SCREEN
+             Fixed left, scrolling right
+             ═══════════════════════════════════════════ -->
+        <section class="journey-section" id="journey">
+            <div class="journey-fixed">
+                <div class="section-label">01 — Evolution</div>
+                <h2>How I am<br>evolving.</h2>
+                <p>Each phase sharpened a different edge of the craft—from classical ML to shipped AI products.</p>
+            </div>
+            <div class="journey-scroll">
+                <div class="journey-phase" data-reveal>
+                    <div class="phase-code">// predictive_ml.init()</div>
+                    <h3>Foundation</h3>
+                    <p>Built confidence with predictive ML — house price prediction, training loops, and disciplined evaluation. Understanding the core of computational graphs.</p>
+                    <div class="phase-tag">[Phase_01_Complete]</div>
+                </div>
+                <div class="journey-phase" data-reveal>
+                    <div class="phase-code">// import cv2; import torch</div>
+                    <h3>Vision Shift</h3>
+                    <p>Moved into deeper computer vision — depth estimation, architecture decisions, and representation-focused work bridging the pixel-to-tensor gap.</p>
+                    <div class="phase-tag">[Phase_02_Complete]</div>
+                </div>
+                <div class="journey-phase" data-reveal>
+                    <div class="phase-code">// generator.forward(z)</div>
+                    <h3>Creative Modeling</h3>
+                    <p>Explored GAN-based image generation — training dynamics, instability, and the balance between quality and controllability.</p>
+                    <div class="phase-tag">[Phase_03_Complete]</div>
+                </div>
+                <div class="journey-phase active" data-reveal>
+                    <div class="phase-code">// app.deploy(model)</div>
+                    <h3>Product Mindset</h3>
+                    <p>Built and deployed Neural Canvas — fast style transfer in PyTorch, shipped to Hugging Face as a real-time creative tool.</p>
+                    <div class="phase-tag">[Phase_04_Active]</div>
+                </div>
+                <div class="journey-phase" data-reveal>
+                    <div class="phase-code">// docker build .</div>
+                    <h3>Systems Growth</h3>
+                    <p>Now investing in full-stack development, cloud deployment, and DevOps workflows to build complete AI systems.</p>
+                    <div class="phase-tag">[Phase_05_Progressing]</div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ═══════════════════════════════════════════
+             4. BENTO GRID — SKILLS & TECH
+             ═══════════════════════════════════════════ -->
+        <section class="bento-section" id="skills">
+            <div class="bento-header reveal-on-scroll">
+                <div class="section-label">02 — System Architecture</div>
+                <h2>Technical<br>Loadout.</h2>
+            </div>
+
+            <div class="bento-grid">
+                <!-- TILE: AI/ML Core (Large) -->
+                <div class="bento-tile bento-lg reveal-on-scroll">
+                    <div class="tile-label">[Module 01] AI / ML Operations</div>
+                    <h3>Core Engine</h3>
+                    <div class="tile-desc">Neural networking, computer vision, data pipelines, & deep learning modeling frameworks.</div>
+                    <ul class="tile-items">
+                        <li>PyTorch <span class="item-tag">v2.x // SYS.CORE</span></li>
+                        <li>TensorFlow <span class="item-tag">v2.x // NODE</span></li>
+                        <li>Scikit-Learn <span class="item-tag">v1.x // NODE</span></li>
+                        <li>Hugging Face <span class="item-tag">v4.x // TRANSFORMERS</span></li>
+                        <li>Pandas / NumPy <span class="item-tag">DATA_PROC</span></li>
+                        <li>OpenCV <span class="item-tag">VISION_SYS</span></li>
+                    </ul>
+                </div>
+
+                <!-- TILE: Model Building (Small) -->
+                <div class="bento-tile bento-sm reveal-on-scroll">
+                    <div class="tile-label">[Discipline]</div>
+                    <h3>Model Building</h3>
+                    <div class="tile-desc">Iterating on architectures with clear hypotheses and measurable outcomes.</div>
+                    <ul class="tile-items">
+                        <li>CNN / Transformer</li>
+                        <li>Depth Estimation</li>
+                        <li>Loss Debugging</li>
+                        <li>Training Dynamics</li>
+                    </ul>
+                </div>
+
+                <!-- TILE: Creative AI (Small) -->
+                <div class="bento-tile bento-sm reveal-on-scroll">
+                    <div class="tile-label">[Applied AI]</div>
+                    <h3>Generative Work</h3>
+                    <div class="tile-desc">Projects where engineering rigor and creative output meet.</div>
+                    <ul class="tile-items">
+                        <li>Style Transfer <span class="item-tag">Real-time</span></li>
+                        <li>GAN Generation <span class="item-tag">DCGAN</span></li>
+                        <li>Perceptual Loss <span class="item-tag">VGG-16</span></li>
+                        <li>Interactive Demos <span class="item-tag">Gradio</span></li>
+                    </ul>
+                </div>
+
+                <!-- TILE: Full-Stack & DevOps (Large) -->
+                <div class="bento-tile bento-lg reveal-on-scroll">
+                    <div class="tile-label">[Module 02] Full-Stack & DevOps</div>
+                    <h3>Systems Engineering</h3>
+                    <div class="tile-desc">Bridging the gap between isolated model weights and production-ready intelligent applications.</div>
+                    <ul class="tile-items">
+                        <li>React & Modern UI <span class="item-tag">FRONTEND</span></li>
+                        <li>FastAPI & REST <span class="item-tag">BACKEND</span></li>
+                        <li>Celery & Task Queues <span class="item-tag">ASYNC</span></li>
+                        <li>Docker & Containers <span class="item-tag">DEPLOY</span></li>
+                        <li>Git & CI/CD Pipelines <span class="item-tag">AUTOMATION</span></li>
+                        <li>Linux Env & Bash <span class="item-tag">SYSTEMS</span></li>
+                    </ul>
+                </div>
+
+                <!-- TILE: Languages (Full-width) -->
+                <div class="bento-tile bento-full reveal-on-scroll">
+                    <div class="tile-label">[Module 03] Languages & Syntax</div>
+                    <div class="lang-pills">
+                        <span>Python</span>
+                        <span>JavaScript</span>
+                        <span>C</span>
+                        <span>Java</span>
+                        <span>HTML5</span>
+                        <span>CSS3</span>
+                        <span>React</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ═══════════════════════════════════════════
+             5. CONTACT — CINEMATIC CLOSE
+             ═══════════════════════════════════════════ -->
+        <section class="contact-section" id="contact">
+            <div class="contact-inner reveal-on-scroll">
+                <div class="section-label">03 — Handshake</div>
+                <h2>Looking for meaningful AI internships and research work.</h2>
+                <p>If your team values consistency, curiosity, and practical ML execution, I would love to contribute. Let's build something intelligent.</p>
+                <div class="contact-ctas">
+                    <a href="mailto:dhruvgarg.garg123@gmail.com" class="btn-primary">
+                        <span class="material-symbols-outlined" style="font-size:16px">mail</span>
+                        Send Email
+                    </a>
+                    <a href="https://github.com/DhruvGarg111" target="_blank" class="btn-ghost">
+                        <span class="material-symbols-outlined" style="font-size:16px">code</span>
+                        GitHub
+                    </a>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ═══ FOOTER ═══ -->
+        <footer class="site-footer">
+            <div class="footer-left">
+                <div class="footer-dot"></div>
+                <p>© <script>document.write(new Date().getFullYear())</script> Dhruv Garg. // System Terminated.</p>
+            </div>
+            <div class="footer-links">
+                <a href="https://github.com/DhruvGarg111" target="_blank" aria-label="GitHub">
+                    <span class="material-symbols-outlined" style="font-size:18px">code</span>
+                </a>
+                <a href="mailto:dhruvgarg.garg123@gmail.com" aria-label="Email">
+                    <span class="material-symbols-outlined" style="font-size:18px">mail</span>
+                </a>
+            </div>
+        </footer>
+
+    </div><!-- /main-content -->
+
+
+    <!-- ═══════════════════════════════════════════
+         SCRIPTS
+         ═══════════════════════════════════════════ -->
+    <script>
+        // ── Scroll Reveal ──
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(e => {
+                if (e.isIntersecting) e.target.classList.add('revealed');
+            });
+        }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+        document.querySelectorAll('.reveal-on-scroll, [data-reveal]').forEach(el => revealObserver.observe(el));
+
+
+        // ── Active Nav Link Tracking ──
+        const sections = document.querySelectorAll('section[id]');
+        const navLinks = document.querySelectorAll('.side-nav .nav-links a');
+        const sectionObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const id = entry.target.getAttribute('id');
+                    navLinks.forEach(link => {
+                        link.classList.toggle('active', link.getAttribute('href') === '#' + id);
+                    });
+                }
+            });
+        }, { threshold: 0.3 });
+        sections.forEach(s => sectionObserver.observe(s));
+
+
+
+        // ── Mobile Menu ──
+        const overlay = document.getElementById('mobileOverlay');
+        document.getElementById('menuBtn').addEventListener('click', () => {
+            overlay.classList.add('open');
+            document.body.style.overflow = 'hidden';
         });
+        function closeMenu() {
+            overlay.classList.remove('open');
+            document.body.style.overflow = '';
+        }
+        document.getElementById('closeBtn').addEventListener('click', closeMenu);
+        document.querySelectorAll('.mob-link').forEach(l => l.addEventListener('click', closeMenu));
+
+
+        // ── Smooth nav background on scroll ──
+        const topNav = document.querySelector('.top-nav');
+        const sideNav = document.querySelector('.side-nav');
+        window.addEventListener('scroll', () => {
+            const y = window.scrollY;
+            if (topNav) {
+                topNav.style.borderBottomColor = y > 60 ? 'rgba(80,69,50,0.3)' : 'rgba(80,69,50,0.15)';
+            }
+            if (sideNav) {
+                sideNav.style.borderRightColor = y > 60 ? 'rgba(80,69,50,0.3)' : 'rgba(80,69,50,0.15)';
+            }
+        }, { passive: true });
     </script>
 </body>
-
 </html>
+
