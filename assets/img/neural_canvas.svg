@@ -145,13 +145,13 @@
     </g>
 
     <!-- Side Labels / Tech Specs Behind Block Backgrounds -->
-    <g transform="translate(40, 270)" filter="url(#shadowHeavy)">
+    <g transform="translate(40, 290)" filter="url(#shadowHeavy)">
         <rect width="210" height="65" rx="6" fill="#050510" stroke="#78350F" stroke-width="2" opacity="0.9"/>
         <text x="15" y="25" fill="#F59E0B" font-family="monospace" font-size="12" font-weight="900" letter-spacing="2">INPUT_WGT</text>
         <text x="15" y="45" fill="#D1D5DB" font-family="monospace" font-size="10" letter-spacing="1">CONTENT VECTOR :: TENSOR</text>
     </g>
     
-    <g transform="translate(550, 270)" filter="url(#shadowHeavy)">
+    <g transform="translate(550, 290)" filter="url(#shadowHeavy)">
         <rect width="210" height="65" rx="6" fill="#050510" stroke="#F59E0B" stroke-width="2" opacity="0.9"/>
         <text x="195" y="25" fill="#FCD34D" font-family="monospace" font-size="12" font-weight="900" letter-spacing="2" text-anchor="end">OUTPUT_OBJ</text>
         <text x="195" y="45" fill="#D1D5DB" font-family="monospace" font-size="10" letter-spacing="1" text-anchor="end">STYLIZED FRAME :: 40 FPS</text>
@@ -159,7 +159,7 @@
 
     <!-- Line pointing to core -->
     <g transform="translate(320, 360)">
-        <text x="80" y="12" fill="#9CA3AF" font-family="monospace" font-size="9" font-weight="900" letter-spacing="2" text-anchor="middle">5x RESIDUAL_BLOCKS (INSTANCE_NORM)</text>
+        <text x="80" y="0" fill="#9CA3AF" font-family="monospace" font-size="9" font-weight="900" letter-spacing="2" text-anchor="middle">5x RESIDUAL_BLOCKS (INSTANCE_NORM)</text>
         <path d="M 0 -10 L 80 -3 L 160 -10" fill="none" stroke="#6B7280" stroke-width="1.5"/>
     </g>
 

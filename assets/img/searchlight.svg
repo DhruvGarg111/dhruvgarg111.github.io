@@ -112,9 +112,9 @@
     </g>
 
     <!-- Foreground Dense Telemetry Lines -->
-    <path d="M 0 360 L 120 360 L 150 390 L 800 390" fill="none" stroke="#0284C7" stroke-width="1" opacity="0.4"/>
-    <path d="M 0 340 L 60 340 L 80 360" fill="none" stroke="#0284C7" stroke-width="1" opacity="0.2"/>
-    <text x="160" y="385" fill="#0284C7" font-family="monospace" font-size="9" letter-spacing="2">PIPELINE TRACE: GUIDE -> SLICE -> DETECT</text>
+    <path d="M 0 350 L 120 350 L 150 380 L 800 380" fill="none" stroke="#0284C7" stroke-width="1" opacity="0.4"/>
+    <path d="M 0 330 L 60 330 L 80 350" fill="none" stroke="#0284C7" stroke-width="1" opacity="0.2"/>
+    <text x="160" y="375" fill="#0284C7" font-family="monospace" font-size="9" letter-spacing="2">PIPELINE TRACE: GUIDE -> SLICE -> DETECT</text>
 
     <!-- ISOMETRIC COARSE-TO-FINE PIPELINE -->
     <!-- Increased scale from (1.2, 0.6) to (1.6, 0.8) to fill the screen better -->
@@ -144,7 +144,7 @@
         <g transform="translate(0, 0)">
             <rect x="-80" y="-80" width="160" height="160" fill="url(#glassLinear)" stroke="#EF4444" stroke-width="2" filter="url(#shadowHeavy)"/>
             
-            <rect x="-15" y="-75" width="90" height="70" fill="url(#hotspot)"/>
+            <rect x="-45" y="-65" width="90" height="70" fill="url(#hotspot)"/>
             <circle cx="30" cy="-40" r="5" fill="#FFF" filter="url(#glowRed)"/>
             
             <rect x="-35" y="-35" width="70" height="70" fill="url(#hotspot)"/>
@@ -179,31 +179,31 @@
     <!-- Technical Specs & Descriptions Background Boxes -->
     <!-- Left -->
     <g transform="translate(40, 260)" filter="url(#shadowHeavy)">
-        <rect width="210" height="60" rx="6" fill="#020812" stroke="#0284C7" stroke-width="1" opacity="0.8"/>
+        <rect width="180" height="60" rx="6" fill="#020812" stroke="#0284C7" stroke-width="1" opacity="0.8"/>
         <text x="15" y="25" fill="#0284C7" font-family="monospace" font-size="12" font-weight="900" letter-spacing="2">STAGE 01</text>
         <text x="15" y="42" fill="#7DD3FC" font-family="monospace" font-size="9" letter-spacing="1">RAW 4K UAV FEED</text>
     </g>
 
     <!-- Middle -->
-    <g transform="translate(290, 310)" filter="url(#shadowHeavy)">
-        <rect width="220" height="60" rx="6" fill="#020812" stroke="#EF4444" stroke-width="1" opacity="0.8"/>
-        <text x="110" y="25" fill="#EF4444" font-family="monospace" font-size="12" font-weight="900" letter-spacing="2" text-anchor="middle">STAGE 02 / GUIDE</text>
-        <text x="110" y="42" fill="#FCA5A5" font-family="monospace" font-size="9" letter-spacing="1" text-anchor="middle">ResNet + LayerCAM</text>
+    <g transform="translate(310, 310)" filter="url(#shadowHeavy)">
+        <rect width="180" height="60" rx="6" fill="#020812" stroke="#EF4444" stroke-width="1" opacity="0.8"/>
+        <text x="90" y="25" fill="#EF4444" font-family="monospace" font-size="12" font-weight="900" letter-spacing="2" text-anchor="middle">STAGE 02 / GUIDE</text>
+        <text x="90" y="42" fill="#FCA5A5" font-family="monospace" font-size="9" letter-spacing="1" text-anchor="middle">ResNet + LayerCAM</text>
     </g>
 
     <!-- Right -->
-    <g transform="translate(550, 260)" filter="url(#shadowHeavy)">
-        <rect width="210" height="60" rx="6" fill="#020812" stroke="#38BDF8" stroke-width="1" opacity="0.8"/>
-        <text x="195" y="25" fill="#38BDF8" font-family="monospace" font-size="12" font-weight="900" letter-spacing="2" text-anchor="end">STAGE 03 / SLICER</text>
-        <text x="195" y="42" fill="#BAE6FD" font-family="monospace" font-size="9" letter-spacing="1" text-anchor="end">YOLOv8 GLOBAL FUSION</text>
+    <g transform="translate(580, 260)" filter="url(#shadowHeavy)">
+        <rect width="180" height="60" rx="6" fill="#020812" stroke="#38BDF8" stroke-width="1" opacity="0.8"/>
+        <text x="165" y="25" fill="#38BDF8" font-family="monospace" font-size="12" font-weight="900" letter-spacing="2" text-anchor="end">STAGE 03 / SLICER</text>
+        <text x="165" y="42" fill="#BAE6FD" font-family="monospace" font-size="9" letter-spacing="1" text-anchor="end">YOLOv8 GLOBAL FUSION</text>
     </g>
 
     <!-- Bottom Left Decor -->
     <g stroke="#38BDF8" stroke-width="1.5" fill="none" opacity="0.7">
-        <path d="M 30 370 L 30 385 L 45 385"/>
+        <path d="M 30 385 L 30 370 L 45 370"/>
     </g>
     <g stroke="#38BDF8" stroke-width="1.5" fill="none" opacity="0.7">
-        <path d="M 770 370 L 770 385 L 755 385"/>
+        <path d="M 770 385 L 770 370 L 755 370"/>
     </g>
 
 </svg>

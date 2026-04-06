@@ -2,4 +2,4 @@
 
 Personal portfolio website.
 
-Live site: `https://dhruvgarg111.github.io/`
+Live site: `https://dhruvgarg111.github.io/` , `www.dhruvgarg.tech`
