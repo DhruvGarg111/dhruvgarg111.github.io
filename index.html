@@ -602,8 +602,8 @@
         }
         .constellation-container {
             position: relative; width: 100%;
-            max-width: 1200px; margin: 0 auto;
-            min-height: 780px;
+            max-width: 1240px; margin: 0 auto;
+            min-height: 790px;
         }
         .constellation-svg {
             position: absolute; inset: 0;
@@ -898,16 +898,18 @@
             transition: opacity 1.2s 0.1s cubic-bezier(0.22, 1, 0.36, 1),
                         transform 1.2s 0.1s cubic-bezier(0.22, 1, 0.36, 1);
         }
-        .constellation-container.revealed .constellation-svg path:nth-child(1) { transition-delay: 0.4s; }
-        .constellation-container.revealed .constellation-svg path:nth-child(2) { transition-delay: 0.6s; }
-        .constellation-container.revealed .constellation-svg path:nth-child(3) { transition-delay: 0.8s; }
-        .constellation-container.revealed .constellation-svg path:nth-child(4) { transition-delay: 1.0s; }
-        .constellation-container.revealed .constellation-svg path:nth-child(5) { transition-delay: 1.2s; }
+        .constellation-svg path[id^="path-"] { transition-delay: 0s, 0s, 0s; }
+        .constellation-container.revealed .constellation-svg path#path-0 { transition-delay: 0.4s, 0s, 0s; }
+        .constellation-container.revealed .constellation-svg path#path-1 { transition-delay: 0.6s, 0s, 0s; }
+        .constellation-container.revealed .constellation-svg path#path-2 { transition-delay: 0.8s, 0s, 0s; }
+        .constellation-container.revealed .constellation-svg path#path-3 { transition-delay: 1.0s, 0s, 0s; }
+        .constellation-container.revealed .constellation-svg path#path-4 { transition-delay: 1.2s, 0s, 0s; }
 
         /* Cluster group hover highlights connected SVG path */
         .constellation-svg path.path-active {
             stroke: rgba(255, 191, 0, 0.5) !important;
             stroke-width: 1.5 !important;
+            transition-delay: 0s !important;
             filter: drop-shadow(0 0 8px rgba(255,191,0,0.25));
         }
         .constellation-svg path.path-dim {
@@ -1702,7 +1704,7 @@
                     <div class="hub-title">Full-Stack<br>AI</div>
                     <div class="hub-subtitle">Model-first prototypes to production-ready systems.</div>
                 </div>
-                <div class="cluster-group" data-cluster="cv" data-arc-start="-50" data-arc-end="35" data-radius="180" style="left: 78%; top: 42%;">
+                <div class="cluster-group" data-cluster="cv" data-arc-start="-50" data-arc-end="35" data-radius="180" style="left: 81%; top: 42.5%;">
                     <div class="cluster-node"><div class="cluster-id">01.A</div><div class="cluster-title">Computer<br>Vision</div><div class="cluster-tags">IMAGE PROCESSING</div></div>
                     <div class="leaf-nodes">
                         <div class="leaf-node"><span class="leaf-dot"></span><span class="leaf-name">Object Detection</span></div>
@@ -1712,7 +1714,7 @@
                         <div class="leaf-node"><span class="leaf-dot"></span><span class="leaf-name">OpenCV</span></div>
                     </div>
                 </div>
-                <div class="cluster-group" data-cluster="ml" data-arc-start="-80" data-arc-end="-20" data-radius="150" style="left: 65%; top: 17%;">
+                <div class="cluster-group" data-cluster="ml" data-arc-start="-80" data-arc-end="-20" data-radius="150" style="left: 68%; top: 18%;">
                     <div class="cluster-node"><div class="cluster-id">01.B</div><div class="cluster-title">Machine<br>Learning</div><div class="cluster-tags">DEEP LEARNING</div></div>
                     <div class="leaf-nodes">
                         <div class="leaf-node"><span class="leaf-dot"></span><span class="leaf-name">PyTorch</span></div>
@@ -1720,7 +1722,7 @@
                         <div class="leaf-node"><span class="leaf-dot"></span><span class="leaf-name">Custom CNN Archs</span></div>
                     </div>
                 </div>
-                <div class="cluster-group" data-cluster="genai" data-arc-start="10" data-arc-end="85" data-radius="180" style="left: 71%; top: 73%;">
+                <div class="cluster-group" data-cluster="genai" data-arc-start="10" data-arc-end="85" data-radius="180" style="left: 74%; top: 72.5%;">
                     <div class="cluster-node"><div class="cluster-id">01.C</div><div class="cluster-title">Generative<br>Agents</div><div class="cluster-tags">LLM WORKFLOWS</div></div>
                     <div class="leaf-nodes">
                         <div class="leaf-node"><span class="leaf-dot"></span><span class="leaf-name">RAG Systems</span></div>
@@ -1731,7 +1733,7 @@
                     </div>
                 </div>
                 <!-- Highlighted Focus Areas -->
-                <div class="cluster-group focus-cluster" data-cluster="backend" data-arc-start="100" data-arc-end="170" data-radius="170" style="left: 24%; top: 74%;">
+                <div class="cluster-group focus-cluster" data-cluster="backend" data-arc-start="100" data-arc-end="170" data-radius="170" style="left: 22.5%; top: 72.5%;">
                     <div class="cluster-node"><div class="cluster-id">02.A</div><div class="cluster-title" style="color: var(--amber); text-shadow: 0 0 20px rgba(255,191,0,0.15);">Backend<br>Engineering</div><div class="cluster-tags">API DEVELOPMENT</div></div>
                     <div class="leaf-nodes">
                         <div class="leaf-node"><span class="leaf-dot"></span><span class="leaf-name">FastAPI</span></div>
@@ -1740,7 +1742,7 @@
                         <div class="leaf-node"><span class="leaf-dot"></span><span class="leaf-name">Profiling</span></div>
                     </div>
                 </div>
-                <div class="cluster-group focus-cluster" data-cluster="frontend" data-arc-start="125" data-arc-end="195" data-radius="175" style="left: 16%; top: 42%;">
+                <div class="cluster-group focus-cluster" data-cluster="frontend" data-arc-start="125" data-arc-end="195" data-radius="175" style="left: 15.5%; top: 42.5%;">
                     <div class="cluster-node"><div class="cluster-id">02.B</div><div class="cluster-title" style="color: var(--amber); text-shadow: 0 0 20px rgba(255,191,0,0.15);">Frontend &amp;<br>UI Engineering</div><div class="cluster-tags">CLIENT-SIDE</div></div>
                     <div class="leaf-nodes">
                         <div class="leaf-node"><span class="leaf-dot"></span><span class="leaf-name">React</span></div>
@@ -1750,7 +1752,7 @@
                         <div class="leaf-node"><span class="leaf-dot"></span><span class="leaf-name">CSS3</span></div>
                     </div>
                 </div>
-                <div class="cluster-group focus-cluster" data-cluster="devops" data-arc-start="35" data-arc-end="140" data-radius="155" style="left: 50%; top: 78%;">
+                <div class="cluster-group focus-cluster" data-cluster="devops" data-arc-start="35" data-arc-end="140" data-radius="155" style="left: 50%; top: 79%;">
                     <div class="cluster-node"><div class="cluster-id">02.C</div><div class="cluster-title" style="color: var(--amber); text-shadow: 0 0 20px rgba(255,191,0,0.15);">DevOps &amp;<br>Infra</div><div class="cluster-tags">CI/CD & AUTOMATION</div></div>
                     <div class="leaf-nodes">
                         <div class="leaf-node"><span class="leaf-dot"></span><span class="leaf-name">Docker</span></div>
@@ -1759,7 +1761,7 @@
                     </div>
                 </div>
                 <!-- Programming Langs -->
-                <div class="cluster-group" data-cluster="lang" data-arc-start="190" data-arc-end="260" data-radius="160" style="left: 24%; top: 17%;">
+                <div class="cluster-group" data-cluster="lang" data-arc-start="190" data-arc-end="260" data-radius="160" style="left: 22.5%; top: 18%;">
                     <div class="cluster-node"><div class="cluster-id">03.A</div><div class="cluster-title">Programming<br>Languages</div><div class="cluster-tags">SYNTAX & CORE</div></div>
                     <div class="leaf-nodes">
                         <div class="leaf-node"><span class="leaf-dot"></span><span class="leaf-name">Python</span></div>
