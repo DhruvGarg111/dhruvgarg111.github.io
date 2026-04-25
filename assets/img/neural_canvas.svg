@@ -1,240 +1,166 @@
 <svg viewBox="0 0 800 400" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
     <defs>
-        <linearGradient id="bgGrad" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stop-color="#0F0A1E"/>
-            <stop offset="40%" stop-color="#1A0A0A"/>
-            <stop offset="100%" stop-color="#1E0F05"/>
-        </linearGradient>
-        <radialGradient id="coreGlow" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stop-color="#F97316" stop-opacity="0.25"/>
-            <stop offset="100%" stop-color="#000" stop-opacity="0"/>
+        <radialGradient id="neuralAura" cx="50%" cy="50%" r="65%">
+            <stop offset="0%" stop-color="#451a03"/>
+            <stop offset="50%" stop-color="#050510"/>
+            <stop offset="100%" stop-color="#000000"/>
         </radialGradient>
-        <linearGradient id="neuronFlow" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stop-color="#8B5CF6"/>
-            <stop offset="50%" stop-color="#F97316"/>
-            <stop offset="100%" stop-color="#FBBF24"/>
+
+        <linearGradient id="warmEnergy" x1="0" y1="1" x2="1" y2="0">
+            <stop offset="0%" stop-color="#fb923c" stop-opacity="0.9"/>
+            <stop offset="100%" stop-color="#fef08a" stop-opacity="0.3"/>
         </linearGradient>
-        <linearGradient id="contentGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#6D28D9" stop-opacity="0.4"/>
-            <stop offset="100%" stop-color="#4C1D95" stop-opacity="0.15"/>
+
+        <linearGradient id="coolEnergy" x1="0" y1="1" x2="1" y2="0">
+            <stop offset="0%" stop-color="#8b5cf6" stop-opacity="0.9"/>
+            <stop offset="100%" stop-color="#ddd6fe" stop-opacity="0.3"/>
         </linearGradient>
-        <linearGradient id="styleGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#F59E0B" stop-opacity="0.4"/>
-            <stop offset="100%" stop-color="#92400E" stop-opacity="0.15"/>
+
+        <linearGradient id="glassLinear" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#ffffff" stop-opacity="0.15"/>
+            <stop offset="50%" stop-color="#ffffff" stop-opacity="0.02"/>
+            <stop offset="100%" stop-color="#ffffff" stop-opacity="0.08"/>
         </linearGradient>
-        <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur stdDeviation="6" result="b"/>
-            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+
+        <filter id="glassBlur" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="12" result="blur"/>
+            <feComposite in="SourceGraphic" in2="blur" operator="over"/>
         </filter>
-        <filter id="glowBig" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur stdDeviation="15" result="b2"/>
-            <feGaussianBlur stdDeviation="4" result="b1"/>
-            <feMerge><feMergeNode in="b2"/><feMergeNode in="b1"/><feMergeNode in="SourceGraphic"/></feMerge>
+
+        <filter id="superGlowOrange" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="20" result="blur2"/>
+            <feGaussianBlur stdDeviation="6" result="blur1"/>
+            <feMerge>
+                <feMergeNode in="blur2"/>
+                <feMergeNode in="blur1"/>
+                <feMergeNode in="SourceGraphic"/>
+            </feMerge>
         </filter>
-        <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
-            <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#000" flood-opacity="0.8"/>
+
+        <filter id="shadowHeavy" x="-30%" y="-30%" width="160%" height="160%">
+            <feDropShadow dx="0" dy="30" stdDeviation="30" flood-color="#000" flood-opacity="1"/>
+            <feDropShadow dx="0" dy="12" stdDeviation="15" flood-color="#000" flood-opacity="0.8"/>
         </filter>
-        <!-- Content image clip -->
-        <clipPath id="contentClip"><rect x="40" y="70" width="200" height="200" rx="8"/></clipPath>
-        <clipPath id="outputClip"><rect x="560" y="70" width="200" height="200" rx="8"/></clipPath>
+
+        <pattern id="connectome" width="100" height="100" patternUnits="userSpaceOnUse" patternTransform="scale(0.8)">
+            <circle cx="20" cy="20" r="1.5" fill="#f59e0b" opacity="0.4"/>
+            <circle cx="70" cy="70" r="2.5" fill="#f59e0b" opacity="0.3"/>
+            <path d="M 20 20 L 70 70" stroke="#f59e0b" stroke-width="1" opacity="0.2"/>
+            <path d="M -30 -30 L 20 20" stroke="#f59e0b" stroke-width="1" opacity="0.2"/>
+            <path d="M 70 70 L 120 120" stroke="#f59e0b" stroke-width="1" opacity="0.2"/>
+        </pattern>
     </defs>
 
-    <!-- Base -->
-    <rect width="800" height="400" fill="url(#bgGrad)"/>
-    <circle cx="400" cy="200" r="250" fill="url(#coreGlow)"/>
+    <!-- Base Canvas -->
+    <rect width="100%" height="100%" fill="url(#neuralAura)"/>
+    <rect width="100%" height="100%" fill="url(#connectome)"/>
 
-    <!-- Title bar -->
-    <rect x="0" y="0" width="800" height="26" fill="#0A0612" opacity="0.9"/>
-    <text x="400" y="17" fill="#FFF" font-family="system-ui, sans-serif" font-size="13" font-weight="900" letter-spacing="5" text-anchor="middle">NEURAL CANVAS</text>
-    <text x="400" y="17" fill="#F97316" font-family="system-ui, sans-serif" font-size="13" font-weight="900" letter-spacing="5" text-anchor="middle" opacity="0.3" filter="url(#glowBig)">NEURAL CANVAS</text>
-    <line x1="0" y1="26" x2="800" y2="26" stroke="#F97316" stroke-width="1" opacity="0.3"/>
-    <text x="15" y="17" fill="#A78BFA" font-family="monospace" font-size="8" letter-spacing="1">CONTENT</text>
-    <text x="785" y="17" fill="#FBBF24" font-family="monospace" font-size="8" letter-spacing="1" text-anchor="end">STYLIZED</text>
+    <!-- Central Floating Dashboard (Scaled Up) -->
+    <g transform="translate(200, 30)" filter="url(#shadowHeavy)">
+        <rect width="400" height="90" rx="12" fill="url(#glassLinear)" stroke="#ffffff" stroke-width="1.5" stroke-opacity="0.3" filter="url(#glassBlur)"/>
+        <path d="M 0 12 C 0 5.3 5.3 0 12 0 L 388 0 C 394.6 0 400 5.3 400 12" fill="none" stroke="#f97316" stroke-width="3" filter="url(#superGlowOrange)" opacity="0.9"/>
+        
+        <text x="200" y="42" fill="#FFFFFF" font-family="system-ui, sans-serif" font-size="28" font-weight="900" letter-spacing="6" text-anchor="middle">NEURAL CANVAS</text>
+        <text x="200" y="65" fill="#fcd34d" font-family="monospace" font-size="11" font-weight="600" letter-spacing="4" text-anchor="middle">REAL-TIME STYLE TRANSFER</text>
+        <circle cx="200" cy="80" r="3.5" fill="#f59e0b" filter="url(#superGlowOrange)">
+            <animate attributeName="opacity" values="0.4;1;0.4" dur="2s" repeatCount="indefinite"/>
+        </circle>
+    </g>
 
-    <!-- ===== LEFT: CONTENT IMAGE (Abstract Geometric) ===== -->
-    <g filter="url(#shadow)">
-        <rect x="40" y="70" width="200" height="200" rx="8" fill="url(#contentGrad)" stroke="#7C3AED" stroke-width="1.5"/>
-        <!-- Abstract geometric "photo" content -->
-        <g clip-path="url(#contentClip)" opacity="0.6">
-            <!-- Grid structure representing "content" -->
-            <rect x="60" y="90" width="60" height="60" fill="#7C3AED" opacity="0.3"/>
-            <rect x="130" y="90" width="90" height="40" fill="#6D28D9" opacity="0.25"/>
-            <rect x="60" y="160" width="40" height="80" fill="#5B21B6" opacity="0.2"/>
-            <rect x="110" y="140" width="70" height="50" fill="#7C3AED" opacity="0.15"/>
-            <rect x="110" y="200" width="110" height="50" fill="#6D28D9" opacity="0.2"/>
-            <circle cx="170" cy="120" r="20" fill="#8B5CF6" opacity="0.3"/>
-            <polygon points="80,230 120,180 160,230" fill="#A78BFA" opacity="0.2"/>
+    <!-- UI Decor elements (Larger and styled) -->
+    <g stroke="#4B5563" stroke-width="2" fill="none">
+        <path d="M 30 60 L 30 30 L 60 30"/>
+        <path d="M 770 60 L 770 30 L 740 30"/>
+        <path d="M 30 340 L 30 370 L 60 370"/>
+        <path d="M 770 340 L 770 370 L 740 370"/>
+    </g>
+
+    <!-- ISOMETRIC 3D STRUCTURE -->
+    <!-- Scaled up drastically and centered better -->
+    <!-- X moves down/right, Y moves up/right -->
+    <g transform="translate(420, 250) scale(1.6, 0.8) rotate(-45)">
+        
+        <!-- Deep network beam -->
+        <line x1="-280" y1="0" x2="280" y2="0" stroke="#f97316" stroke-width="6" filter="url(#superGlowOrange)" opacity="0.6"/>
+        <line x1="-280" y1="0" x2="280" y2="0" stroke="#fff" stroke-width="2" stroke-dasharray="25 45">
+            <animate attributeName="stroke-dashoffset" values="70;0" dur="1s" repeatCount="indefinite"/>
+        </line>
+        
+        <!-- Content Input Vector -->
+        <g transform="translate(-220, 0)">
+            <rect x="-20" y="-20" width="40" height="40" fill="url(#coolEnergy)" stroke="#a78bfa" stroke-width="2.5" filter="url(#shadowHeavy)"/>
         </g>
-        <!-- Pixel grid overlay -->
-        <g clip-path="url(#contentClip)" stroke="#A78BFA" stroke-width="0.3" opacity="0.15">
-            <line x1="40" y1="90" x2="240" y2="90"/><line x1="40" y1="110" x2="240" y2="110"/>
-            <line x1="40" y1="130" x2="240" y2="130"/><line x1="40" y1="150" x2="240" y2="150"/>
-            <line x1="40" y1="170" x2="240" y2="170"/><line x1="40" y1="190" x2="240" y2="190"/>
-            <line x1="40" y1="210" x2="240" y2="210"/><line x1="40" y1="230" x2="240" y2="230"/>
-            <line x1="40" y1="250" x2="240" y2="250"/>
-            <line x1="60" y1="70" x2="60" y2="270"/><line x1="80" y1="70" x2="80" y2="270"/>
-            <line x1="100" y1="70" x2="100" y2="270"/><line x1="120" y1="70" x2="120" y2="270"/>
-            <line x1="140" y1="70" x2="140" y2="270"/><line x1="160" y1="70" x2="160" y2="270"/>
-            <line x1="180" y1="70" x2="180" y2="270"/><line x1="200" y1="70" x2="200" y2="270"/>
-            <line x1="220" y1="70" x2="220" y2="270"/>
+        
+        <!-- Style Input Vector -->
+        <g transform="translate(-160, -90)">
+            <line x1="0" y1="0" x2="0" y2="90" stroke="#f59e0b" stroke-width="4" filter="url(#superGlowOrange)" stroke-dasharray="12 12">
+                 <animate attributeName="stroke-dashoffset" values="24;0" dur="0.8s" repeatCount="indefinite"/>
+            </line>
+            <rect x="-25" y="-25" width="50" height="50" fill="url(#warmEnergy)" stroke="#fcd34d" stroke-width="2.5" filter="url(#shadowHeavy)"/>
         </g>
-    </g>
-    <!-- Content label -->
-    <text x="140" y="290" fill="#A78BFA" font-family="monospace" font-size="10" font-weight="bold" letter-spacing="1" text-anchor="middle">CONTENT TENSOR</text>
-    <text x="140" y="304" fill="#475569" font-family="monospace" font-size="8" text-anchor="middle">256×256×3 float32</text>
 
-    <!-- ===== RIGHT: STYLIZED OUTPUT ===== -->
-    <g filter="url(#shadow)">
-        <rect x="560" y="70" width="200" height="200" rx="8" fill="url(#styleGrad)" stroke="#F59E0B" stroke-width="1.5"/>
-        <!-- Abstract "painted" result -->
-        <g clip-path="url(#outputClip)" opacity="0.7">
-            <!-- Flowing brush-stroke shapes -->
-            <ellipse cx="620" cy="120" rx="50" ry="30" fill="#F97316" opacity="0.35" transform="rotate(-15 620 120)"/>
-            <ellipse cx="700" cy="160" rx="40" ry="60" fill="#FBBF24" opacity="0.25" transform="rotate(20 700 160)"/>
-            <ellipse cx="640" cy="200" rx="60" ry="25" fill="#F59E0B" opacity="0.3" transform="rotate(-8 640 200)"/>
-            <ellipse cx="710" cy="110" rx="30" ry="45" fill="#FCD34D" opacity="0.2" transform="rotate(30 710 110)"/>
-            <path d="M 570 250 Q 620 180, 680 240 Q 720 190, 750 260" fill="#F97316" opacity="0.2"/>
-            <path d="M 580 100 Q 640 140, 600 190 Q 660 170, 740 130" fill="#FBBF24" opacity="0.15"/>
-            <!-- Swirl patterns -->
-            <circle cx="660" cy="170" r="35" fill="none" stroke="#FCD34D" stroke-width="1.5" opacity="0.15"/>
-            <circle cx="660" cy="170" r="22" fill="none" stroke="#F97316" stroke-width="1" opacity="0.2"/>
+        <!-- Downsampling Convolutions -->
+        <g transform="translate(-130, 0)">
+            <rect x="-30" y="-30" width="60" height="60" fill="url(#glassLinear)" stroke="#f59e0b" stroke-width="2.5" filter="url(#shadowHeavy)"/>
         </g>
-    </g>
-    <!-- Output label -->
-    <text x="660" y="290" fill="#FBBF24" font-family="monospace" font-size="10" font-weight="bold" letter-spacing="1" text-anchor="middle">STYLIZED OUTPUT</text>
-    <text x="660" y="304" fill="#475569" font-family="monospace" font-size="8" text-anchor="middle">40fps tanh activation</text>
+        <g transform="translate(-80, 0)">
+            <rect x="-40" y="-40" width="80" height="80" fill="url(#glassLinear)" stroke="#fbbf24" stroke-width="1.5" filter="url(#shadowHeavy)"/>
+        </g>
 
-    <!-- ===== CENTER: NEURAL TRANSFORMATION BRIDGE ===== -->
-    <!-- Main flow lines connecting content → output -->
-    <g opacity="0.7">
-        <!-- Top neuron path -->
-        <path d="M 240 120 C 320 100, 380 80, 400 130 C 420 180, 480 100, 560 120" fill="none" stroke="url(#neuronFlow)" stroke-width="2" filter="url(#glow)"/>
-        <!-- Middle neuron path -->
-        <path d="M 240 170 C 310 160, 350 200, 400 170 C 450 140, 490 200, 560 170" fill="none" stroke="url(#neuronFlow)" stroke-width="2.5" filter="url(#glow)"/>
-        <!-- Bottom neuron path -->
-        <path d="M 240 220 C 320 240, 380 260, 400 210 C 420 160, 480 240, 560 220" fill="none" stroke="url(#neuronFlow)" stroke-width="2" filter="url(#glow)"/>
+        <!-- The 5x Residual Blocks (Instance Norm Core) -->
+        <g transform="translate(-30, 0)">
+            <rect x="-50" y="-50" width="100" height="100" fill="url(#warmEnergy)" stroke="#fff" stroke-width="2.5" filter="url(#shadowHeavy)"/>
+        </g>
+        <g transform="translate(-10, 0)">
+            <rect x="-50" y="-50" width="100" height="100" fill="url(#glassLinear)" stroke="#f59e0b" stroke-width="2" filter="url(#shadowHeavy)"/>
+        </g>
+        <g transform="translate(10, 0)">
+            <rect x="-60" y="-60" width="120" height="120" fill="url(#warmEnergy)" stroke="#fff" stroke-width="3" filter="url(#shadowHeavy)"/>
+            <!-- Heartbeat Core Process -->
+            <circle cx="0" cy="0" r="30" fill="#fff" filter="url(#superGlowOrange)">
+                 <animate attributeName="r" values="25;35;25" dur="1.5s" repeatCount="indefinite"/>
+                 <animate attributeName="opacity" values="0.8;1;0.8" dur="1.5s" repeatCount="indefinite"/>
+            </circle>
+        </g>
+        <g transform="translate(30, 0)">
+            <rect x="-50" y="-50" width="100" height="100" fill="url(#glassLinear)" stroke="#f59e0b" stroke-width="2" filter="url(#shadowHeavy)"/>
+        </g>
+        <g transform="translate(50, 0)">
+            <rect x="-50" y="-50" width="100" height="100" fill="url(#warmEnergy)" stroke="#fff" stroke-width="2.5" filter="url(#shadowHeavy)"/>
+        </g>
 
-        <!-- Animated pulses along paths -->
-        <circle r="4" fill="#FFF" filter="url(#glow)">
-            <animateMotion dur="2s" repeatCount="indefinite">
-                <mpath href="#pulse1"/>
-            </animateMotion>
-        </circle>
-        <circle r="3.5" fill="#FFF" filter="url(#glow)">
-            <animateMotion dur="2.5s" repeatCount="indefinite" begin="0.5s">
-                <mpath href="#pulse2"/>
-            </animateMotion>
-        </circle>
-        <circle r="4" fill="#FFF" filter="url(#glow)">
-            <animateMotion dur="2.2s" repeatCount="indefinite" begin="1s">
-                <mpath href="#pulse3"/>
-            </animateMotion>
-        </circle>
-    </g>
-    <!-- Hidden paths for animateMotion -->
-    <path id="pulse1" d="M 240 120 C 320 100, 380 80, 400 130 C 420 180, 480 100, 560 120" fill="none"/>
-    <path id="pulse2" d="M 240 170 C 310 160, 350 200, 400 170 C 450 140, 490 200, 560 170" fill="none"/>
-    <path id="pulse3" d="M 240 220 C 320 240, 380 260, 400 210 C 420 160, 480 240, 560 220" fill="none"/>
+        <!-- Upsampling Blocks -->
+        <g transform="translate(100, 0)">
+             <rect x="-40" y="-40" width="80" height="80" fill="url(#glassLinear)" stroke="#fbbf24" stroke-width="1.5" filter="url(#shadowHeavy)"/>
+        </g>
+        <g transform="translate(150, 0)">
+             <rect x="-30" y="-30" width="60" height="60" fill="url(#glassLinear)" stroke="#f59e0b" stroke-width="2.5" filter="url(#shadowHeavy)"/>
+        </g>
 
-    <!-- TRANSFORMATION CORE (center node) -->
-    <g transform="translate(400, 170)">
-        <!-- Outer ring -->
-        <circle r="40" fill="none" stroke="#F97316" stroke-width="1" stroke-dasharray="5 8" opacity="0.4">
-            <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="12s" repeatCount="indefinite"/>
-        </circle>
-        <!-- Inner core -->
-        <circle r="28" fill="#1A0A0A" stroke="#F97316" stroke-width="2" opacity="0.9"/>
-        <!-- Prism transformation symbol -->
-        <polygon points="0,-14 13,8 -13,8" fill="none" stroke="#F97316" stroke-width="2" opacity="0.8" filter="url(#glow)"/>
-        <polygon points="0,14 -10,-5 10,-5" fill="none" stroke="#FBBF24" stroke-width="1.5" opacity="0.5"/>
-        <!-- Light beam through prism -->
-        <line x1="-18" y1="0" x2="-6" y2="0" stroke="#A78BFA" stroke-width="2" opacity="0.6"/>
-        <line x1="6" y1="-5" x2="18" y2="-10" stroke="#EF4444" stroke-width="1.5" opacity="0.5"/>
-        <line x1="6" y1="0" x2="18" y2="0" stroke="#FBBF24" stroke-width="1.5" opacity="0.5"/>
-        <line x1="6" y1="5" x2="18" y2="10" stroke="#38BDF8" stroke-width="1.5" opacity="0.5"/>
-        <!-- Pulsing glow -->
-        <circle r="20" fill="#F97316" opacity="0.15" filter="url(#glowBig)">
-            <animate attributeName="r" values="18;25;18" dur="2s" repeatCount="indefinite"/>
-        </circle>
-        <!-- Label -->
-        <text x="0" y="55" fill="#9CA3AF" font-family="monospace" font-size="7" font-weight="bold" letter-spacing="2" text-anchor="middle">INSTANCE NORM</text>
-        <text x="0" y="65" fill="#6B7280" font-family="monospace" font-size="7" letter-spacing="1" text-anchor="middle">5× RESIDUAL</text>
-    </g>
-
-    <!-- NETWORK LAYER NODES (scattered between content and output) -->
-    <!-- Encoder nodes -->
-    <g opacity="0.6">
-        <circle cx="290" cy="130" r="5" fill="#8B5CF6" filter="url(#glow)"/>
-        <circle cx="310" cy="185" r="4" fill="#7C3AED" filter="url(#glow)"/>
-        <circle cx="280" cy="220" r="3.5" fill="#A78BFA" filter="url(#glow)"/>
-        <text x="290" y="115" fill="#6B7280" font-family="monospace" font-size="6" text-anchor="middle">conv↓</text>
-    </g>
-    <!-- Decoder nodes -->
-    <g opacity="0.6">
-        <circle cx="510" cy="130" r="5" fill="#F59E0B" filter="url(#glow)"/>
-        <circle cx="490" cy="185" r="4" fill="#FBBF24" filter="url(#glow)"/>
-        <circle cx="520" cy="220" r="3.5" fill="#F97316" filter="url(#glow)"/>
-        <text x="510" y="115" fill="#6B7280" font-family="monospace" font-size="6" text-anchor="middle">conv↑</text>
-    </g>
-
-    <!-- Cross connections between nodes (thin) -->
-    <g stroke="#475569" stroke-width="0.5" opacity="0.3">
-        <line x1="290" y1="130" x2="310" y2="185"/>
-        <line x1="310" y1="185" x2="280" y2="220"/>
-        <line x1="510" y1="130" x2="490" y2="185"/>
-        <line x1="490" y1="185" x2="520" y2="220"/>
-    </g>
-
-    <!-- STYLE INPUT (dropping in from above into the core) -->
-    <g transform="translate(400, 45)">
-        <rect x="-35" y="-12" width="70" height="24" rx="4" fill="#1E0F05" stroke="#F59E0B" stroke-width="1"/>
-        <text x="0" y="4" fill="#FBBF24" font-family="monospace" font-size="9" font-weight="bold" text-anchor="middle">STYLE ↓</text>
-    </g>
-    <!-- Style injection line -->
-    <line x1="400" y1="57" x2="400" y2="130" stroke="#F59E0B" stroke-width="1.5" stroke-dasharray="6 6" opacity="0.6">
-        <animate attributeName="stroke-dashoffset" values="12;0" dur="0.8s" repeatCount="indefinite"/>
-    </line>
-
-    <!-- BOTTOM BAR: Architecture summary -->
-    <rect x="0" y="340" width="800" height="60" fill="#0A0612" opacity="0.9"/>
-    <line x1="0" y1="340" x2="800" y2="340" stroke="#4B5563" stroke-width="0.5"/>
-
-    <!-- Architecture flow diagram -->
-    <g transform="translate(400, 368)" font-family="monospace" font-size="8">
-        <!-- Boxes -->
-        <rect x="-360" y="-14" width="65" height="20" rx="3" fill="#4C1D95" fill-opacity="0.3" stroke="#8B5CF6" stroke-width="0.8"/>
-        <text x="-328" y="0" fill="#A78BFA" text-anchor="middle" font-weight="bold">INPUT</text>
-
-        <rect x="-260" y="-14" width="55" height="20" rx="3" fill="#4C1D95" fill-opacity="0.2" stroke="#7C3AED" stroke-width="0.8"/>
-        <text x="-232" y="0" fill="#A78BFA" text-anchor="middle" font-size="7">CONV↓</text>
-
-        <rect x="-170" y="-14" width="55" height="20" rx="3" fill="#4C1D95" fill-opacity="0.2" stroke="#7C3AED" stroke-width="0.8"/>
-        <text x="-142" y="0" fill="#A78BFA" text-anchor="middle" font-size="7">CONV↓</text>
-
-        <rect x="-75" y="-14" width="150" height="20" rx="3" fill="#92400E" fill-opacity="0.3" stroke="#F97316" stroke-width="1"/>
-        <text x="0" y="0" fill="#FBBF24" text-anchor="middle" font-weight="bold">5× RESIDUAL BLOCK</text>
-
-        <rect x="115" y="-14" width="55" height="20" rx="3" fill="#92400E" fill-opacity="0.2" stroke="#F59E0B" stroke-width="0.8"/>
-        <text x="142" y="0" fill="#FBBF24" text-anchor="middle" font-size="7">CONV↑</text>
-
-        <rect x="205" y="-14" width="55" height="20" rx="3" fill="#92400E" fill-opacity="0.2" stroke="#F59E0B" stroke-width="0.8"/>
-        <text x="232" y="0" fill="#FBBF24" text-anchor="middle" font-size="7">CONV↑</text>
-
-        <rect x="295" y="-14" width="65" height="20" rx="3" fill="#92400E" fill-opacity="0.3" stroke="#FBBF24" stroke-width="0.8"/>
-        <text x="328" y="0" fill="#FBBF24" text-anchor="middle" font-weight="bold">OUTPUT</text>
-
-        <!-- Arrows -->
-        <g stroke="#475569" stroke-width="1" fill="#475569">
-            <line x1="-295" y1="0" x2="-265" y2="0"/><polygon points="-265,-3 -259,0 -265,3"/>
-            <line x1="-205" y1="0" x2="-175" y2="0"/><polygon points="-175,-3 -169,0 -175,3"/>
-            <line x1="-115" y1="0" x2="-80" y2="0"/><polygon points="-80,-3 -74,0 -80,3"/>
-            <line x1="75" y1="0" x2="110" y2="0"/><polygon points="110,-3 116,0 110,3"/>
-            <line x1="170" y1="0" x2="200" y2="0"/><polygon points="200,-3 206,0 200,3"/>
-            <line x1="260" y1="0" x2="290" y2="0"/><polygon points="290,-3 296,0 290,3"/>
+        <!-- Output Styled Tensor -->
+        <g transform="translate(220, 0)">
+            <rect x="-25" y="-25" width="50" height="50" fill="url(#warmEnergy)" stroke="#fff" stroke-width="3" filter="url(#shadowHeavy)"/>
+            <path d="M -15 15 L 0 -15 L 15 15 Z" fill="#fff" opacity="0.9"/>
         </g>
     </g>
 
-    <!-- REAL-TIME label -->
-    <text x="400" y="330" fill="#6B7280" font-family="monospace" font-size="9" font-weight="600" letter-spacing="3" text-anchor="middle">REAL-TIME STYLE TRANSFER</text>
+    <!-- Side Labels / Tech Specs Behind Block Backgrounds -->
+    <g transform="translate(40, 290)" filter="url(#shadowHeavy)">
+        <rect width="210" height="65" rx="6" fill="#050510" stroke="#78350F" stroke-width="2" opacity="0.9"/>
+        <text x="15" y="25" fill="#F59E0B" font-family="monospace" font-size="12" font-weight="900" letter-spacing="2">INPUT_WGT</text>
+        <text x="15" y="45" fill="#D1D5DB" font-family="monospace" font-size="10" letter-spacing="1">CONTENT VECTOR :: TENSOR</text>
+    </g>
+    
+    <g transform="translate(550, 290)" filter="url(#shadowHeavy)">
+        <rect width="210" height="65" rx="6" fill="#050510" stroke="#F59E0B" stroke-width="2" opacity="0.9"/>
+        <text x="195" y="25" fill="#FCD34D" font-family="monospace" font-size="12" font-weight="900" letter-spacing="2" text-anchor="end">OUTPUT_OBJ</text>
+        <text x="195" y="45" fill="#D1D5DB" font-family="monospace" font-size="10" letter-spacing="1" text-anchor="end">STYLIZED FRAME :: 40 FPS</text>
+    </g>
+
+    <!-- Line pointing to core -->
+    <g transform="translate(320, 360)">
+        <text x="80" y="0" fill="#9CA3AF" font-family="monospace" font-size="9" font-weight="900" letter-spacing="2" text-anchor="middle">5x RESIDUAL_BLOCKS (INSTANCE_NORM)</text>
+        <path d="M 0 -10 L 80 -3 L 160 -10" fill="none" stroke="#6B7280" stroke-width="1.5"/>
+    </g>
 
 </svg>
