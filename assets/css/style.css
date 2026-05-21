@@ -1,0 +1,686 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ======== CSS CUSTOM PROPERTIES ======== */
+:root {
+    --color-deep-slate: #182420;
+    --color-warm-pebble: #F2EDDF;
+    --color-laser-cyan: #D4940A;
+    --color-electric-coral: #9B3422;
+    --color-blueprint-line: rgba(24, 36, 32, 0.12);
+    --color-muted-cream: #E5DFCD;
+    --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+body {
+    background-color: var(--color-warm-pebble);
+    color: var(--color-deep-slate);
+    margin: 0;
+    overflow-x: hidden;
+}
+
+/* ======== SKIP NAVIGATION ======== */
+.skip-nav {
+    position: absolute;
+    top: -100%;
+    left: 16px;
+    z-index: 10000;
+    padding: 8px 16px;
+    background: var(--color-deep-slate);
+    color: var(--color-warm-pebble);
+    font-family: 'Azeret Mono', monospace;
+    font-size: 12px;
+    text-decoration: none;
+    border-radius: 0 0 4px 4px;
+    transition: top 0.2s;
+}
+.skip-nav:focus {
+    top: 0;
+}
+
+/* --- WebGL Canvas --- */
+#webgl-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 0;
+    pointer-events: none;
+}
+
+/* Reduce 3D canvas prominence on mobile so content is readable */
+@media (max-width: 767px) {
+    #webgl-canvas {
+        opacity: 0.55;
+    }
+}
+
+/* --- Blueprint Grid Background (overlaying WebGL subtly) --- */
+.blueprint-bg {
+    background-image:
+        linear-gradient(to right, rgba(24, 36, 32, 0.12) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(24, 36, 32, 0.12) 1px, transparent 1px);
+    background-size: 48px 48px;
+    background-position: center top;
+}
+
+.intersection-node {
+    width: 4px;
+    height: 4px;
+    background-color: #182420;
+    border-radius: 50%;
+    position: absolute;
+    transform: translate(-50%, -50%);
+}
+
+/* --- Custom Cursor --- */
+.custom-cursor-dot {
+    width: 6px;
+    height: 6px;
+    background-color: #9B3422;
+    border-radius: 50%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    transition: width 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+                height 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+                background-color 0.3s ease;
+}
+
+.custom-cursor-ring {
+    width: 32px;
+    height: 32px;
+    border: 1px solid #9B3422;
+    border-radius: 50%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    z-index: 9998;
+    transform: translate(-50%, -50%);
+    transition: opacity 0.3s;
+    opacity: 0;
+}
+
+body:hover .custom-cursor-ring.active {
+    opacity: 1;
+}
+
+/* Only show custom cursor on devices with a fine pointer (mouse) */
+@media (hover: hover) and (pointer: fine) {
+    body { cursor: none; }
+}
+@media not all and (hover: hover) and (pointer: fine) {
+    .custom-cursor-ring, .custom-cursor-dot { display: none !important; }
+}
+
+/* --- Layout Structure --- */
+.scroll-proxy {
+    /* Compressed scroll range for snappier experience */
+    height: 7000px;
+    width: 100%;
+}
+
+.viewport-3d {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    perspective: 1000px;
+    z-index: 10;
+    pointer-events: none; /* Let pointer events pass to children */
+    overflow: hidden;
+}
+
+.world-3d {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    transform-style: preserve-3d;
+}
+
+.scroll-section {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    transform: translate(-50%, -50%);
+    pointer-events: auto; /* Re-enable clicking */
+}
+
+/* Mobile: add padding for fixed top nav, and constrain sections to viewport */
+@media (max-width: 767px) {
+    .scroll-section {
+        padding-top: 64px;
+        padding-bottom: 24px;
+        box-sizing: border-box;
+        max-height: 100vh;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+}
+@media (min-width: 768px) {
+    .scroll-section {
+        padding-left: 144px !important; /* Offset 80px sidebar + 64px standard margin */
+    }
+}
+
+/* The element that actually animates in Z-space */
+.z-content {
+    width: 100%;
+    transform-style: preserve-3d;
+}
+
+/* --- Specific Interactive Elements --- */
+.btn-spring {
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), background-color 0.3s, color 0.3s;
+}
+.btn-spring:hover {
+    transform: scale(1.05);
+    background-color: var(--color-electric-coral);
+    color: var(--color-warm-pebble);
+}
+
+/* ======== FOCUS VISIBLE STATES ======== */
+.btn-spring:focus-visible,
+.interactive:focus-visible {
+    outline: 2px solid var(--color-laser-cyan);
+    outline-offset: 2px;
+}
+.input-underline:focus-visible {
+    outline: 2px solid var(--color-laser-cyan);
+    outline-offset: 2px;
+    border-bottom-color: var(--color-laser-cyan);
+}
+.project-card:focus-within {
+    border-color: var(--color-laser-cyan);
+}
+.vernier-tick:focus-visible {
+    outline: 2px solid var(--color-laser-cyan);
+    outline-offset: 2px;
+}
+
+.magnetic-btn {
+    position: relative;
+    display: inline-block;
+}
+.magnetic-inner {
+    display: inline-block;
+    /* Handled by Anime.js v4 additive blending now! */
+}
+
+.input-underline {
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid rgba(24, 36, 32, 0.12);
+    border-radius: 0;
+    padding-left: 0;
+    padding-right: 0;
+    transition: border-color 0.3s ease;
+}
+.input-underline:focus {
+    border-bottom-color: var(--color-laser-cyan);
+}
+
+.odometer-shadow {
+    box-shadow: 2px 2px 0px 0px #182420;
+}
+
+/* --- Z-Axis Project Hover Assembly --- */
+.project-card {
+    border: 1px solid transparent;
+    transition: border 0.3s ease;
+}
+.project-card:hover {
+    border: 1px solid var(--color-blueprint-line);
+}
+
+/* Custom Premium Webkit Scrollbar */
+::-webkit-scrollbar {
+    width: 10px;
+}
+::-webkit-scrollbar-track {
+    background: #F2EDDF;
+    border-left: 1px solid rgba(24, 36, 32, 0.1);
+}
+::-webkit-scrollbar-thumb {
+    background: rgba(24, 36, 32, 0.25);
+    border: 3px solid #F2EDDF;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: var(--color-electric-coral);
+}
+/* Firefox scrollbar */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(24, 36, 32, 0.25) transparent;
+}
+
+/* --- Vernier Scale Scroll Progress HUD --- */
+.vernier-hud {
+    position: fixed;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 48px;
+    height: 300px;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    pointer-events: none;
+}
+/* Hide vernier HUD on mobile — too much screen real estate */
+@media (max-width: 767px) {
+    .vernier-hud {
+        display: none;
+    }
+}
+
+.vernier-scale {
+    position: relative;
+    width: 20px;
+    height: 100%;
+    border-right: 1.5px solid rgba(24, 36, 32, 0.25);
+    padding-right: 4px;
+    pointer-events: auto;
+    cursor: pointer;
+}
+
+.vernier-tick {
+    position: absolute;
+    right: 0;
+    width: 8px;
+    height: 1px;
+    background-color: rgba(24, 36, 32, 0.35);
+    transform: translateY(-50%);
+    transition: width 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
+                background-color 0.3s ease;
+}
+.vernier-tick::after {
+    content: attr(data-label);
+    position: absolute;
+    right: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: monospace;
+    font-size: 8px;
+    color: rgba(24, 36, 32, 0.45);
+    font-weight: bold;
+    transition: color 0.3s ease, font-weight 0.3s ease, right 0.3s ease;
+    white-space: nowrap;
+}
+
+.vernier-tick.major {
+    width: 14px;
+    background-color: rgba(24, 36, 32, 0.7);
+}
+
+.vernier-tick.active {
+    width: 22px;
+    background-color: #9B3422;
+    z-index: 10;
+}
+.vernier-tick.active::after {
+    color: #9B3422;
+    font-weight: 900;
+    right: 26px;
+}
+
+.vernier-tick:hover {
+    width: 20px;
+    background-color: var(--color-laser-cyan);
+}
+.vernier-tick:hover::after {
+    color: var(--color-laser-cyan);
+    right: 24px;
+}
+/* Prevent jarring color flash when hovering the active tick */
+.vernier-tick.active:hover {
+    background-color: var(--color-electric-coral);
+}
+.vernier-tick.active:hover::after {
+    color: var(--color-electric-coral);
+}
+
+.vernier-marker {
+    position: absolute;
+    right: -5.5px; /* Alignment on the scale axis */
+    top: 0%; /* Dynamically offset via JavaScript */
+    width: 9px;
+    height: 9px;
+    background-color: #9B3422;
+    transform: translateY(-50%) rotate(45deg);
+    pointer-events: none;
+    box-shadow: 0 0 6px rgba(155, 52, 34, 0.8);
+    transition: top 0.1s ease-out;
+}
+.vernier-marker::before {
+    content: '';
+    position: absolute;
+    left: -3px;
+    top: -3px;
+    right: -3px;
+    bottom: -3px;
+    border: 1px solid #9B3422;
+    opacity: 0.5;
+}
+
+/* Dead code removed: .schematic-view, .bg-muted-cream (unused) */
+
+/* --- Orbital Typographic Constellation --- */
+.orbital-viewport {
+    height: 420px;
+    perspective: 1000px; /* Intense perspective for deep space feel */
+    transform-style: preserve-3d;
+    cursor: grab;
+}
+
+.orbital-viewport:active {
+    cursor: grabbing;
+}
+
+.orbital-cluster {
+    transform-style: preserve-3d;
+    will-change: transform;
+}
+
+.orbit-node {
+    transform-style: preserve-3d;
+    will-change: transform, opacity, filter;
+    /* Pointer events none so it doesn't block the drag on the viewport */
+    pointer-events: none;
+}
+
+/* Brutalist Typography */
+.orbit-title {
+    /* Force bold, tight tracking, huge size */
+    font-weight: 900;
+    line-height: 0.9;
+    /* Subtle glow for contrast against the 3D background */
+    text-shadow: 0 10px 30px rgba(255, 255, 255, 0.6), 
+                 0 2px 10px rgba(255, 255, 255, 0.9);
+    transition: color 0.3s ease;
+}
+
+.orbit-detail {
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* Mobile adjustments */
+@media (max-width: 767px) {
+    .orbital-viewport {
+        height: 280px;
+        perspective: 600px;
+    }
+    .orbit-title {
+        font-size: 2rem;
+        text-shadow: 0 5px 15px rgba(255, 255, 255, 0.6);
+        white-space: normal;
+    }
+    .orbit-node {
+        max-width: 90vw !important;
+    }
+}
+
+/* Very small phones */
+@media (max-width: 400px) {
+    .orbital-viewport {
+        height: 240px;
+    }
+    .orbit-title {
+        font-size: 1.6rem;
+    }
+}
+
+/* --- Staggered Reveal Micro-Animations (Codrops GridRevealEffects Inspired) --- */
+.reveal-item {
+    opacity: 0;
+    transform: translateY(24px) scale(0.98);
+    transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.scroll-section.section-active .reveal-item {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+/* Stagger Delays */
+.reveal-item.delay-1 { transition-delay: 80ms; }
+.reveal-item.delay-2 { transition-delay: 160ms; }
+.reveal-item.delay-3 { transition-delay: 240ms; }
+.reveal-item.delay-4 { transition-delay: 320ms; }
+.reveal-item.delay-5 { transition-delay: 400ms; }
+
+/* Technical Reticle Corners (Draw and Lock Effect) */
+.reticle-corner {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    border-color: #9B3422; /* Oxide Annotation */
+    border-style: solid;
+    opacity: 0;
+    transition: opacity 0.8s var(--ease-out-expo), transform 0.8s var(--ease-out-expo);
+    transition-delay: 240ms;
+}
+
+.reticle-corner-tl {
+    top: 4px;
+    left: 4px;
+    border-width: 1.5px 0 0 1.5px;
+    transform: translate(-12px, -12px);
+}
+
+.reticle-corner-tr {
+    top: 4px;
+    right: 4px;
+    border-width: 1.5px 1.5px 0 0;
+    transform: translate(12px, -12px);
+}
+
+.reticle-corner-bl {
+    bottom: 4px;
+    left: 4px;
+    border-width: 0 0 1.5px 1.5px;
+    transform: translate(-12px, 12px);
+}
+
+.reticle-corner-br {
+    bottom: 4px;
+    right: 4px;
+    border-width: 0 1.5px 1.5px 0;
+    transform: translate(12px, 12px);
+}
+
+/* Active Reticle Lock-in */
+.scroll-section.section-active .reticle-corner {
+    opacity: 0.85;
+    transform: translate(0, 0);
+}
+
+/* ======== MOBILE NAVIGATION DRAWER ======== */
+.mobile-drawer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    z-index: 60;
+    pointer-events: none;
+    visibility: hidden;
+}
+.mobile-drawer-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(24, 36, 32, 0.5);
+    backdrop-filter: blur(4px);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+.mobile-drawer-panel {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 280px;
+    max-width: 80vw;
+    height: 100%;
+    background: var(--color-warm-pebble);
+    border-left: 1px solid var(--color-blueprint-line);
+    transform: translateX(100%);
+    transition: transform 0.3s var(--ease-out-expo);
+    display: flex;
+    flex-direction: column;
+    padding: 80px 24px 24px;
+    overflow-y: auto;
+}
+.mobile-drawer.open {
+    pointer-events: auto;
+    visibility: visible;
+}
+.mobile-drawer.open .mobile-drawer-backdrop {
+    opacity: 1;
+}
+.mobile-drawer.open .mobile-drawer-panel {
+    transform: translateX(0);
+}
+.mobile-drawer-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 0;
+    font-family: 'Azeret Mono', monospace;
+    font-size: 14px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--color-deep-slate);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(24, 36, 32, 0.1);
+    transition: color 0.2s;
+}
+.mobile-drawer-link:hover,
+.mobile-drawer-link:focus-visible {
+    color: var(--color-laser-cyan);
+    outline: none;
+}
+.mobile-drawer-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: none;
+    border: none;
+    color: var(--color-deep-slate);
+    cursor: pointer;
+    padding: 8px;
+    transition: color 0.2s;
+}
+.mobile-drawer-close:hover,
+.mobile-drawer-close:focus-visible {
+    color: var(--color-electric-coral);
+}
+
+/* ======== COMPREHENSIVE MOBILE OVERRIDES ======== */
+@media (max-width: 767px) {
+    /* Give z-content containers a semi-opaque background for readability */
+    .z-content {
+        background: rgba(242, 237, 223, 0.85);
+        backdrop-filter: blur(6px);
+        border-radius: 8px;
+        padding: 16px;
+    }
+
+    /* Tighter spacing on project descriptions */
+    .project-wrapper .mb-8 { margin-bottom: 1rem; }
+    .project-wrapper .mb-6 { margin-bottom: 0.75rem; }
+    .project-wrapper .p-6  { padding: 1rem; }
+
+    /* Journey grid: 2 columns on mobile instead of 1 to save vertical space */
+    .scroll-section#journey .grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+    .scroll-section#journey .grid > div {
+        padding: 12px;
+    }
+    .scroll-section#journey .grid > div:last-child {
+        grid-column: span 2;
+    }
+    .scroll-section#journey header {
+        margin-bottom: 12px;
+    }
+
+    /* Metrics: smaller gap and tighter padding */
+    .scroll-section#metrics .grid {
+        gap: 12px;
+    }
+    .scroll-section#metrics .odometer-container {
+        padding: 16px;
+    }
+    .scroll-section#metrics header {
+        margin-bottom: 12px;
+    }
+    .scroll-section#metrics .mb-8 {
+        margin-bottom: 12px;
+    }
+
+    /* Contact section: make email text smaller and prevent cutoff */
+    .scroll-section#contact .z-content {
+        font-size: 14px;
+    }
+    .scroll-section#contact .text-display-lg-mobile {
+        font-size: 28px;
+    }
+
+    /* Hide decorative Z-DEPTH labels on mobile */
+    .project-card .font-label-caps[class*="absolute"] {
+        display: none;
+    }
+
+    /* Ensure hero doesn't overflow */
+    .scroll-section#hero .z-content {
+        padding-top: 8px;
+    }
+}
+
+/* Extra small phones */
+@media (max-width: 400px) {
+    .scroll-section {
+        padding-top: 56px;
+    }
+    .z-content {
+        padding: 8px !important;
+    }
+    .scroll-section#journey .grid {
+        grid-template-columns: 1fr;
+        gap: 6px;
+    }
+    .scroll-section#journey .grid > div:last-child {
+        grid-column: span 1;
+    }
+}
+
+/* ======== REDUCED MOTION ======== */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+    .orbital-cluster { animation: none !important; }
+    .orbit-node { transition: none !important; }
+    .custom-cursor-ring, .custom-cursor-dot { display: none !important; }
+    .btn-spring:hover { transform: none; }
+}
