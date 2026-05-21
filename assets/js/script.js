@@ -22,8 +22,11 @@ try {
     ({ animate, createTimeline, onScroll, utils, stagger, scrambleText } = anime);
 } catch (e) {
     console.warn('Anime.js failed to load. Animations disabled.');
-    animate = () => ({ then: (cb) => cb && cb() });
-    createTimeline = () => ({ add: () => ({}), sync: () => ({}) });
+    animate = () => ({ cancel: () => {}, then: (cb) => cb && cb() });
+    createTimeline = () => {
+        const noopTimeline = { add: () => noopTimeline, sync: () => noopTimeline };
+        return noopTimeline;
+    };
     onScroll = () => ({});
     utils = { set: () => {} };
     stagger = () => 0;
@@ -32,10 +35,15 @@ try {
 
 // Reduced motion preference check
 const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const finePointerQuery = window.matchMedia('(hover: hover) and (pointer: fine)');
+const smallViewportQuery = window.matchMedia('(max-width: 767px)');
+const lowMemoryDevice = typeof navigator.deviceMemory === 'number' && navigator.deviceMemory <= 4;
+const shouldReduceVisualLoad = prefersReducedMotion || smallViewportQuery.matches || lowMemoryDevice;
 
 // Tracks active snapped scroll section to run transition triggers once
 let lastActiveIndex = -1;
 let metricsAnimated = false; // Guard to prevent odometer re-triggering
+let networkApi = null;
 
 /**
  * Performs a cybernetic scramble decryption effect on headings.
@@ -231,19 +239,53 @@ const cursorDot = document.getElementById('cursorDot');
 const cursorRing = document.getElementById('cursorRing');
 
 // Only initialize custom cursor on devices with a fine pointer
-if (cursorDot && cursorRing && window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
-    document.addEventListener('mousemove', (e) => {
-        // Instant tracking for the center dot using hardware-accelerated transforms
-        utils.set(cursorDot, { x: e.clientX, y: e.clientY });
-        
-        // Physics-based spring lag for the outer interactive ring
-        animate(cursorRing, {
-            x: e.clientX,
-            y: e.clientY,
-            ease: 'spring(1, 80, 10, 0)',
-            composition: 'replace'
-        });
-    });
+if (cursorDot && cursorRing && finePointerQuery.matches && !prefersReducedMotion) {
+    let cursorX = 0;
+    let cursorY = 0;
+    let ringX = 0;
+    let ringY = 0;
+    let cursorFrame = 0;
+
+    const paintCursor = () => {
+        ringX += (cursorX - ringX) * 0.22;
+        ringY += (cursorY - ringY) * 0.22;
+        cursorDot.style.transform = `translate3d(${cursorX}px, ${cursorY}px, 0) translate(-50%, -50%)`;
+        cursorRing.style.transform = `translate3d(${ringX}px, ${ringY}px, 0) translate(-50%, -50%)`;
+
+        if (Math.abs(cursorX - ringX) > 0.2 || Math.abs(cursorY - ringY) > 0.2) {
+            cursorFrame = requestAnimationFrame(paintCursor);
+        } else {
+            cursorFrame = 0;
+        }
+    };
+
+    document.addEventListener('pointermove', (e) => {
+        if (e.pointerType !== 'mouse') return;
+        cursorX = e.clientX;
+        cursorY = e.clientY;
+        if (!document.body.classList.contains('custom-cursor-enabled')) {
+            ringX = cursorX;
+            ringY = cursorY;
+            document.body.classList.add('custom-cursor-enabled');
+        }
+        if (!cursorFrame) {
+            cursorFrame = requestAnimationFrame(paintCursor);
+        }
+    }, { passive: true });
+
+    const handlePointerCapabilityChange = (event) => {
+        if (!event.matches) {
+            document.body.classList.remove('custom-cursor-enabled');
+            cancelAnimationFrame(cursorFrame);
+            cursorFrame = 0;
+        }
+    };
+
+    if (finePointerQuery.addEventListener) {
+        finePointerQuery.addEventListener('change', handlePointerCapabilityChange);
+    } else if (finePointerQuery.addListener) {
+        finePointerQuery.addListener(handlePointerCapabilityChange);
+    }
 
     // Cursor expansion on hovering interactive links and buttons
     const interactives = document.querySelectorAll('.interactive');
@@ -260,11 +302,19 @@ if (cursorDot && cursorRing && window.matchMedia('(hover: hover) and (pointer: f
 try {
 // Three.js initialization wrapped in try/catch for graceful WebGL fallback
 const canvas = document.getElementById('webgl-canvas');
+if (shouldReduceVisualLoad) {
+    throw new Error('3D disabled for this device or motion preference');
+}
 const scene = new THREE.Scene();
 
-const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true, powerPreference: "high-performance" });
+const renderer = new THREE.WebGLRenderer({
+    canvas,
+    alpha: true,
+    antialias: !shouldReduceVisualLoad,
+    powerPreference: shouldReduceVisualLoad ? "low-power" : "high-performance"
+});
 renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setPixelRatio(shouldReduceVisualLoad ? 1 : Math.min(window.devicePixelRatio, 1.5));
 
 const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
 camera.position.z = 15; 
@@ -518,7 +568,7 @@ for (let L = 0; L < layers.length - 1; L++) {
 
 // Active flowing data packets running through the 3D grid
 const pulses = [];
-const maxPulses = 35;
+const maxPulses = shouldReduceVisualLoad ? 8 : 35;
 
 const box3 = new THREE.Box3().setFromObject(networkGroup);
 const center3 = box3.getCenter(new THREE.Vector3());
@@ -551,10 +601,11 @@ for (let i = 0; i < maxPulses; i++) {
 // Initial perspective tilt
 networkWrapper.rotation.y = -Math.PI / 5;
 networkWrapper.rotation.x = Math.PI / 12;
+networkApi = { wrapper: networkWrapper, layers };
 
 // Floating ambient background particles
 const particlesGeo = new THREE.BufferGeometry();
-const particleCount = 600;
+const particleCount = shouldReduceVisualLoad ? 120 : 600;
 const posArray = new Float32Array(particleCount * 3);
 
 for(let i = 0; i < particleCount * 3; i++) {
@@ -576,57 +627,82 @@ window.addEventListener('resize', () => {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(shouldReduceVisualLoad ? 1 : Math.min(window.devicePixelRatio, 1.5));
 });
 
 // Render Loop Execution
-function render() {
-    layerRings.forEach(r => {
-        r.mesh.rotation.z += r.speed;
-    });
+let webglPaused = false;
+let lastWebglRender = 0;
 
-    // Update active telemetry packets along synapses
-    pulses.forEach((p, idx) => {
-        p.progress += p.speed;
-        if (p.progress >= 1) {
-            p.currentLayer++;
-            if (p.currentLayer >= layers.length - 1) {
-                p.currentLayer = 0;
+function render(now = 0) {
+    if (webglPaused) return;
+    const frameInterval = shouldReduceVisualLoad ? 66 : 0;
+    const shouldPaint = frameInterval === 0 || now - lastWebglRender >= frameInterval;
+
+    if (shouldPaint) {
+        layerRings.forEach(r => {
+            r.mesh.rotation.z += r.speed;
+        });
+
+        // Update active telemetry packets along synapses
+        pulses.forEach((p, idx) => {
+            p.progress += p.speed;
+            if (p.progress >= 1) {
+                p.currentLayer++;
+                if (p.currentLayer >= layers.length - 1) {
+                    p.currentLayer = 0;
+                }
+                p.progress = 0;
+                p.sourceNode = p.targetNode;
+
+                const nextNodes = layers[p.currentLayer + 1].nodes;
+                p.targetNode = nextNodes[Math.floor(Math.random() * nextNodes.length)];
             }
-            p.progress = 0;
-            p.sourceNode = p.targetNode;
-            
-            const nextNodes = layers[p.currentLayer + 1].nodes;
-            p.targetNode = nextNodes[Math.floor(Math.random() * nextNodes.length)];
-        }
-        
-        p.mesh.position.lerpVectors(p.sourceNode.position, p.targetNode.position, p.progress);
-        
-        const pulseScale = 1.0 + 0.35 * Math.sin(Date.now() * 0.008 + idx);
-        p.mesh.scale.set(pulseScale, pulseScale, pulseScale);
-    });
 
-    renderer.render(scene, camera);
+            p.mesh.position.lerpVectors(p.sourceNode.position, p.targetNode.position, p.progress);
+
+            const pulseScale = 1.0 + 0.35 * Math.sin(now * 0.008 + idx);
+            p.mesh.scale.set(pulseScale, pulseScale, pulseScale);
+        });
+
+        renderer.render(scene, camera);
+        lastWebglRender = now;
+    }
     requestAnimationFrame(render);
 }
-render();
+if (prefersReducedMotion) {
+    renderer.render(scene, camera);
+} else {
+    requestAnimationFrame(render);
+}
+
+document.addEventListener('visibilitychange', () => {
+    webglPaused = document.hidden;
+    if (!webglPaused && !prefersReducedMotion) {
+        lastWebglRender = 0;
+        requestAnimationFrame(render);
+    }
+});
 
 // Binds WebGL movements to Anime's requestAnimationFrame ticker
-createTimeline({
-    loop: true,
-    direction: 'alternate',
-    defaults: { ease: 'inOutSine' }
-})
-.add(networkGroup.rotation, {
-    y: [-0.15, 0.15],
-    x: [-0.1, 0.1],
-    duration: 4000
-}, 0)
-.add(particlesMesh.rotation, {
-    y: [0, -Math.PI / 4],
-    duration: 20000,
-    ease: 'linear',
-    direction: 'normal'
-}, 0);
+if (!prefersReducedMotion) {
+    createTimeline({
+        loop: true,
+        direction: 'alternate',
+        defaults: { ease: 'inOutSine' }
+    })
+    .add(networkGroup.rotation, {
+        y: [-0.15, 0.15],
+        x: [-0.1, 0.1],
+        duration: 4000
+    }, 0)
+    .add(particlesMesh.rotation, {
+        y: [0, -Math.PI / 4],
+        duration: 20000,
+        ease: 'linear',
+        direction: 'normal'
+    }, 0);
+}
 
 // =========================================================================
 // SECTION 4: Z-AXIS SCROLL PROXY & TIMING MATHEMATICS
@@ -788,8 +864,18 @@ function updateActiveNavLink() {
     }
 }
 
-// Listen to native browser scrolls
-window.addEventListener('scroll', updateActiveNavLink);
+// Listen to native browser scrolls, but coalesce bursts into one layout pass per frame.
+let navUpdateQueued = false;
+function scheduleActiveNavUpdate() {
+    if (navUpdateQueued) return;
+    navUpdateQueued = true;
+    requestAnimationFrame(() => {
+        navUpdateQueued = false;
+        updateActiveNavLink();
+    });
+}
+
+window.addEventListener('scroll', scheduleActiveNavUpdate, { passive: true });
 
 /**
  * Custom smooth scroll program to snap viewport cleanly to Z-axis coordinates.
@@ -877,9 +963,20 @@ masterTl.add(camera.position, {
 updateActiveNavLink();
 
 } catch (e) {
-    console.warn('Three.js/WebGL initialization failed:', e.message);
+    if (e.message !== '3D disabled for this device or motion preference') {
+        console.warn('Three.js/WebGL initialization failed:', e.message);
+    }
+    document.body.classList.add('no-webgl');
+    if (typeof window.scrollToSection !== 'function') {
+        window.scrollToSection = (targetId) => {
+            const target = document.getElementById(targetId);
+            if (target) target.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth' });
+        };
+    }
     // Still run nav updates even without 3D
-    updateActiveNavLink();
+    if (typeof updateActiveNavLink === 'function') {
+        updateActiveNavLink();
+    }
 }
 
 // =========================================================================
@@ -890,27 +987,37 @@ updateActiveNavLink();
 const magneticBtns = document.querySelectorAll('.magnetic-btn');
 magneticBtns.forEach(btn => {
     const inner = btn.querySelector('.magnetic-inner');
+    if (!inner || prefersReducedMotion || !finePointerQuery.matches) return;
+
+    let targetX = 0;
+    let targetY = 0;
+    let currentX = 0;
+    let currentY = 0;
+    let magneticFrame = 0;
+
+    const paintMagnet = () => {
+        currentX += (targetX - currentX) * 0.28;
+        currentY += (targetY - currentY) * 0.28;
+        inner.style.transform = `translate3d(${currentX}px, ${currentY}px, 0)`;
+
+        if (Math.abs(targetX - currentX) > 0.2 || Math.abs(targetY - currentY) > 0.2) {
+            magneticFrame = requestAnimationFrame(paintMagnet);
+        } else {
+            magneticFrame = 0;
+        }
+    };
 
     btn.addEventListener('mousemove', (e) => {
         const rect = btn.getBoundingClientRect();
-        const x = (e.clientX - rect.left - rect.width / 2) * 0.4;
-        const y = (e.clientY - rect.top - rect.height / 2) * 0.4;
-
-        animate(inner, {
-            x: x,
-            y: y,
-            ease: 'spring(1, 100, 15, 0)',
-            composition: 'blend' 
-        });
+        targetX = (e.clientX - rect.left - rect.width / 2) * 0.4;
+        targetY = (e.clientY - rect.top - rect.height / 2) * 0.4;
+        if (!magneticFrame) paintMagnet();
     });
 
     btn.addEventListener('mouseleave', () => {
-        animate(inner, {
-            x: 0,
-            y: 0,
-            ease: 'spring(1, 100, 15, 0)',
-            composition: 'blend'
-        });
+        targetX = 0;
+        targetY = 0;
+        if (!magneticFrame) paintMagnet();
     });
 });
 
@@ -919,6 +1026,8 @@ magneticBtns.forEach(btn => {
  * @param {number} layerIndex 
  */
 function focusNetworkOnLayer(layerIndex) {
+    if (!networkApi) return;
+    const { wrapper, layers: networkLayers } = networkApi;
     let targetX = 0;
     let targetY = 0;
     let targetZ = 0;
@@ -941,7 +1050,7 @@ function focusNetworkOnLayer(layerIndex) {
         targetRotY = -Math.PI / 3;
     }
     
-    animate(networkWrapper.position, {
+    animate(wrapper.position, {
         x: targetX,
         y: targetY,
         z: targetZ,
@@ -949,13 +1058,13 @@ function focusNetworkOnLayer(layerIndex) {
         ease: 'outExpo'
     });
     
-    animate(networkWrapper.rotation, {
+    animate(wrapper.rotation, {
         y: targetRotY,
         duration: 1200,
         ease: 'outExpo'
     });
     
-    layers.forEach((l, idx) => {
+    networkLayers.forEach((l, idx) => {
         let isMatch = false;
         if (layerIndex === 0 && idx <= 2) isMatch = true;
         if (layerIndex === 1 && (idx >= 3 && idx <= 5)) isMatch = true;
@@ -1034,7 +1143,15 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('touchend', handleEnd);
 
     // Skills physics and layout rendering loop
-    const renderLoop = () => {
+    let lastOrbitRender = 0;
+    const renderLoop = (now = 0) => {
+        const frameInterval = shouldReduceVisualLoad ? 66 : 16;
+        if (now - lastOrbitRender < frameInterval) {
+            requestAnimationFrame(renderLoop);
+            return;
+        }
+        lastOrbitRender = now;
+
         if (!isDragging) {
             currentVelocity += (targetVelocity - currentVelocity) * 0.05;
         }
@@ -1053,7 +1170,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const normalizedZ = (zDepth + 1) / 2;
             
             const opacity = Math.pow(normalizedZ, 5); 
-            const blur = (1 - normalizedZ) * 6;
+            const blur = shouldReduceVisualLoad ? 0 : (1 - normalizedZ) * 6;
             const scale = 0.5 + (normalizedZ * 0.6);
             
             node.style.transform = `translate3d(-50%, -50%, 0) rotateY(${angleOffset}deg) translateZ(${radius}px) rotateY(${-globalAngle}deg) rotateX(-8deg) scale(${scale})`;
@@ -1078,10 +1195,17 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        requestAnimationFrame(renderLoop);
+        if (!shouldReduceVisualLoad) {
+            requestAnimationFrame(renderLoop);
+        }
     };
 
-    renderLoop();
+    if (shouldReduceVisualLoad) {
+        targetVelocity = 0;
+        renderLoop(1000);
+    } else {
+        requestAnimationFrame(renderLoop);
+    }
 });
 
 // =========================================================================
@@ -1092,10 +1216,20 @@ const vernierScale = document.getElementById('vernierScale');
 const vernierMarker = document.getElementById('vernierMarker');
 
 if (vernierScale && vernierMarker) {
-    window.addEventListener('scroll', () => {
+    let markerUpdateQueued = false;
+    const updateVernierMarker = () => {
         const scrollPct = window.pageYOffset / (document.documentElement.scrollHeight - window.innerHeight);
         vernierMarker.style.top = `${Math.min(100, Math.max(0, scrollPct * 100))}%`;
-    });
+    };
+
+    window.addEventListener('scroll', () => {
+        if (markerUpdateQueued) return;
+        markerUpdateQueued = true;
+        requestAnimationFrame(() => {
+            markerUpdateQueued = false;
+            updateVernierMarker();
+        });
+    }, { passive: true });
     
     vernierScale.addEventListener('click', (e) => {
         const rect = vernierScale.getBoundingClientRect();
