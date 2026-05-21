@@ -37,8 +37,9 @@ try {
 const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const finePointerQuery = window.matchMedia('(hover: hover) and (pointer: fine)');
 const smallViewportQuery = window.matchMedia('(max-width: 767px)');
-const lowMemoryDevice = typeof navigator.deviceMemory === 'number' && navigator.deviceMemory <= 4;
-const shouldReduceVisualLoad = prefersReducedMotion || smallViewportQuery.matches || lowMemoryDevice;
+// Detect actual mobile devices: small screen AND no mouse/trackpad (coarse touch pointer)
+const isMobileDevice = smallViewportQuery.matches && !finePointerQuery.matches;
+const shouldReduceVisualLoad = prefersReducedMotion || isMobileDevice;
 
 // Tracks active snapped scroll section to run transition triggers once
 let lastActiveIndex = -1;
