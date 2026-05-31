@@ -1,179 +1,208 @@
-<svg viewBox="0 0 800 400" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-    <defs>
-        <filter id="pgG" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3"/><feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-        <filter id="pgG2" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="6"/><feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-        <filter id="pgSh" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="2" dy="3" stdDeviation="4" flood-color="#1B2A22" flood-opacity="0.12"/></filter>
-        <filter id="pgLift" x="-10%" y="-10%" width="130%" height="130%"><feDropShadow dx="4" dy="6" stdDeviation="8" flood-color="#1B2A22" flood-opacity="0.22"/></filter>
-        <filter id="pgDeep" x="-10%" y="-10%" width="130%" height="130%"><feDropShadow dx="5" dy="8" stdDeviation="12" flood-color="#1B2A22" flood-opacity="0.28"/></filter>
-        <radialGradient id="pgRG" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#FF5B62" stop-opacity="0.14"/><stop offset="60%" stop-color="#FF5B62" stop-opacity="0.04"/><stop offset="100%" stop-color="#F7F4EB" stop-opacity="0"/></radialGradient>
-        <linearGradient id="pgPN" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#F7F4EB" stop-opacity="0.97"/><stop offset="100%" stop-color="#EAE6D9" stop-opacity="0.9"/></linearGradient>
-        <linearGradient id="pgTermBG" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#F7F4EB" stop-opacity="0.98"/><stop offset="100%" stop-color="#EDE9DF" stop-opacity="0.95"/></linearGradient>
-    </defs>
+<svg viewBox="0 0 2160 1080" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+<style>
+.grid { stroke: rgba(24, 36, 32, 0.25); stroke-width: 0.5; fill: none; }
+.trace { stroke: #D4940A; stroke-width: 2.5; fill: none; opacity: 0.8; stroke-dasharray: 8 8; stroke-dashoffset: 0; animation: dash-flow 3s linear infinite; }
+.trace-glow { stroke: #4A6583; stroke-width: 3; fill: none; filter: drop-shadow(0px 0px 6px #4A6583); animation: pulse-width 1s infinite alternate, dash-flow 5s linear infinite reverse; }
+@keyframes pulse-width { 0% { stroke-width: 3; filter: drop-shadow(0px 0px 6px #4A6583); } 100% { stroke-width: 6; filter: drop-shadow(0px 0px 12px #4A6583); } }
+@keyframes dash-flow { to { stroke-dashoffset: -80; } }
+@media (prefers-reduced-motion: reduce) { .trace, .trace-glow { animation: none; } }
+</style>
+<rect width="100%" height="100%" fill="transparent" />
+<line x1="1080.0" y1="-60.0" x2="40.799999999999955" y2="540.0" class="grid" />
+<line x1="1080.0" y1="-60.0" x2="2119.2" y2="540.0" class="grid" />
+<line x1="1114.64" y1="-40.0" x2="75.44000000000005" y2="560.0" class="grid" />
+<line x1="1045.36" y1="-40.0" x2="2084.56" y2="560.0" class="grid" />
+<line x1="1149.28" y1="-20.0" x2="110.08000000000004" y2="580.0" class="grid" />
+<line x1="1010.72" y1="-20.0" x2="2049.92" y2="580.0" class="grid" />
+<line x1="1183.92" y1="0.0" x2="144.72000000000003" y2="600.0" class="grid" />
+<line x1="976.08" y1="0.0" x2="2015.28" y2="600.0" class="grid" />
+<line x1="1218.56" y1="20.0" x2="179.36" y2="620.0" class="grid" />
+<line x1="941.44" y1="20.0" x2="1980.6399999999999" y2="620.0" class="grid" />
+<line x1="1253.2" y1="40.0" x2="214.0" y2="640.0" class="grid" />
+<line x1="906.8" y1="40.0" x2="1946.0" y2="640.0" class="grid" />
+<line x1="1287.84" y1="60.0" x2="248.64" y2="660.0" class="grid" />
+<line x1="872.16" y1="60.0" x2="1911.3600000000001" y2="660.0" class="grid" />
+<line x1="1322.48" y1="80.0" x2="283.28" y2="680.0" class="grid" />
+<line x1="837.52" y1="80.0" x2="1876.72" y2="680.0" class="grid" />
+<line x1="1357.12" y1="100.0" x2="317.91999999999996" y2="700.0" class="grid" />
+<line x1="802.88" y1="100.0" x2="1842.08" y2="700.0" class="grid" />
+<line x1="1391.76" y1="120.0" x2="352.56000000000006" y2="720.0" class="grid" />
+<line x1="768.24" y1="120.0" x2="1807.44" y2="720.0" class="grid" />
+<line x1="1426.4" y1="140.0" x2="387.20000000000005" y2="740.0" class="grid" />
+<line x1="733.6" y1="140.0" x2="1772.8" y2="740.0" class="grid" />
+<line x1="1461.04" y1="160.0" x2="421.84000000000003" y2="760.0" class="grid" />
+<line x1="698.96" y1="160.0" x2="1738.1599999999999" y2="760.0" class="grid" />
+<line x1="1495.68" y1="180.0" x2="456.48" y2="780.0" class="grid" />
+<line x1="664.3199999999999" y1="180.0" x2="1703.52" y2="780.0" class="grid" />
+<line x1="1530.32" y1="200.0" x2="491.12" y2="800.0" class="grid" />
+<line x1="629.6800000000001" y1="200.0" x2="1668.88" y2="800.0" class="grid" />
+<line x1="1564.96" y1="220.0" x2="525.76" y2="820.0" class="grid" />
+<line x1="595.04" y1="220.0" x2="1634.24" y2="820.0" class="grid" />
+<line x1="1599.6" y1="240.0" x2="560.4" y2="840.0" class="grid" />
+<line x1="560.4" y1="240.0" x2="1599.6" y2="840.0" class="grid" />
+<line x1="1634.24" y1="260.0" x2="595.04" y2="860.0" class="grid" />
+<line x1="525.76" y1="260.0" x2="1564.96" y2="860.0" class="grid" />
+<line x1="1668.88" y1="280.0" x2="629.6800000000001" y2="880.0" class="grid" />
+<line x1="491.12" y1="280.0" x2="1530.32" y2="880.0" class="grid" />
+<line x1="1703.52" y1="300.0" x2="664.3199999999999" y2="900.0" class="grid" />
+<line x1="456.48" y1="300.0" x2="1495.68" y2="900.0" class="grid" />
+<line x1="1738.1599999999999" y1="320.0" x2="698.96" y2="920.0" class="grid" />
+<line x1="421.84000000000003" y1="320.0" x2="1461.04" y2="920.0" class="grid" />
+<line x1="1772.8" y1="340.0" x2="733.6" y2="940.0" class="grid" />
+<line x1="387.20000000000005" y1="340.0" x2="1426.4" y2="940.0" class="grid" />
+<line x1="1807.44" y1="360.0" x2="768.24" y2="960.0" class="grid" />
+<line x1="352.56000000000006" y1="360.0" x2="1391.76" y2="960.0" class="grid" />
+<line x1="1842.08" y1="380.0" x2="802.88" y2="980.0" class="grid" />
+<line x1="317.91999999999996" y1="380.0" x2="1357.12" y2="980.0" class="grid" />
+<line x1="1876.72" y1="400.0" x2="837.52" y2="1000.0" class="grid" />
+<line x1="283.28" y1="400.0" x2="1322.48" y2="1000.0" class="grid" />
+<line x1="1911.3600000000001" y1="420.0" x2="872.16" y2="1020.0" class="grid" />
+<line x1="248.64" y1="420.0" x2="1287.84" y2="1020.0" class="grid" />
+<line x1="1946.0" y1="440.0" x2="906.8" y2="1040.0" class="grid" />
+<line x1="214.0" y1="440.0" x2="1253.2" y2="1040.0" class="grid" />
+<line x1="1980.6399999999999" y1="460.0" x2="941.44" y2="1060.0" class="grid" />
+<line x1="179.36" y1="460.0" x2="1218.56" y2="1060.0" class="grid" />
+<line x1="2015.28" y1="480.0" x2="976.08" y2="1080.0" class="grid" />
+<line x1="144.72000000000003" y1="480.0" x2="1183.92" y2="1080.0" class="grid" />
+<line x1="2049.92" y1="500.0" x2="1010.72" y2="1100.0" class="grid" />
+<line x1="110.08000000000004" y1="500.0" x2="1149.28" y2="1100.0" class="grid" />
+<line x1="2084.56" y1="520.0" x2="1045.36" y2="1120.0" class="grid" />
+<line x1="75.44000000000005" y1="520.0" x2="1114.64" y2="1120.0" class="grid" />
+<line x1="2119.2" y1="540.0" x2="1080.0" y2="1140.0" class="grid" />
+<line x1="40.799999999999955" y1="540.0" x2="1080.0" y2="1140.0" class="grid" />
+<polygon points="1080.0,460.0 941.44,540.0 941.44,480.0 1080.0,400.0" fill="#D4940A" fill-opacity="0.30000000000000004" stroke="#D4940A" stroke-width="1" />
+<polygon points="1080.0,460.0 1218.56,540.0 1218.56,480.0 1080.0,400.0" fill="#D4940A" fill-opacity="0.1" stroke="#D4940A" stroke-width="1" />
+<polygon points="1080.0,400.0 1218.56,480.0 1080.0,560.0 941.44,480.0" fill="#D4940A" fill-opacity="0.4" stroke="#D4940A" stroke-width="1.5" />
+<polygon points="1080.0,420.0 976.08,480.0 976.08,380.0 1080.0,320.0" fill="#D4940A" fill-opacity="0.44999999999999996" stroke="#D4940A" stroke-width="1" />
+<polygon points="1080.0,420.0 1183.92,480.0 1183.92,380.0 1080.0,320.0" fill="#D4940A" fill-opacity="0.15" stroke="#D4940A" stroke-width="1" />
+<polygon points="1080.0,320.0 1183.92,380.0 1080.0,440.0 976.08,380.0" fill="#D4940A" fill-opacity="0.6" stroke="#D4940A" stroke-width="1.5" />
+<polygon points="1270.52,625.0 1227.22,650.0 1227.22,570.0 1270.52,545.0" fill="#4A6583" fill-opacity="0.30000000000000004" stroke="#4A6583" stroke-width="1" />
+<polygon points="1270.52,625.0 1313.82,650.0 1313.82,570.0 1270.52,545.0" fill="#4A6583" fill-opacity="0.1" stroke="#4A6583" stroke-width="1" />
+<polygon points="1270.52,545.0 1313.82,570.0 1270.52,595.0 1227.22,570.0" fill="#4A6583" fill-opacity="0.4" stroke="#4A6583" stroke-width="1.5" />
+<line x1="1080.0" y1="510.0" x2="1270.52" y2="620.0" class="trace" />
+<line x1="1080.0" y1="510.0" x2="1270.52" y2="620.0" class="trace-glow" stroke-dasharray="10 50"></line>
+<polygon points="1149.7351599290114,665.2627944162882 1106.4351599290112,690.2627944162882 1106.4351599290112,610.2627944162882 1149.7351599290114,585.2627944162882" fill="#4A6583" fill-opacity="0.30000000000000004" stroke="#4A6583" stroke-width="1" />
+<polygon points="1149.7351599290114,665.2627944162882 1193.0351599290113,690.2627944162882 1193.0351599290113,610.2627944162882 1149.7351599290114,585.2627944162882" fill="#4A6583" fill-opacity="0.1" stroke="#4A6583" stroke-width="1" />
+<polygon points="1149.7351599290114,585.2627944162882 1193.0351599290113,610.2627944162882 1149.7351599290112,635.2627944162882 1106.4351599290112,610.2627944162882" fill="#4A6583" fill-opacity="0.4" stroke="#4A6583" stroke-width="1.5" />
+<line x1="1080.0" y1="510.0" x2="1149.7351599290114" y2="660.2627944162882" class="trace" />
+<line x1="1080.0" y1="510.0" x2="1149.7351599290114" y2="660.2627944162882" class="trace-glow" stroke-dasharray="10 50"></line>
+<polygon points="1010.2648400709888,665.2627944162882 966.9648400709888,690.2627944162882 966.9648400709888,610.2627944162882 1010.2648400709888,585.2627944162882" fill="#4A6583" fill-opacity="0.30000000000000004" stroke="#4A6583" stroke-width="1" />
+<polygon points="1010.2648400709888,665.2627944162882 1053.5648400709888,690.2627944162882 1053.5648400709888,610.2627944162882 1010.2648400709888,585.2627944162882" fill="#4A6583" fill-opacity="0.1" stroke="#4A6583" stroke-width="1" />
+<polygon points="1010.2648400709888,585.2627944162882 1053.5648400709888,610.2627944162882 1010.2648400709888,635.2627944162882 966.9648400709888,610.2627944162882" fill="#4A6583" fill-opacity="0.4" stroke="#4A6583" stroke-width="1.5" />
+<line x1="1080.0" y1="510.0" x2="1010.2648400709888" y2="660.2627944162882" class="trace" />
+<line x1="1080.0" y1="510.0" x2="1010.2648400709888" y2="660.2627944162882" class="trace-glow" stroke-dasharray="10 50"></line>
+<polygon points="889.48,625.0 846.1800000000001,650.0 846.1800000000001,570.0 889.48,545.0" fill="#4A6583" fill-opacity="0.30000000000000004" stroke="#4A6583" stroke-width="1" />
+<polygon points="889.48,625.0 932.78,650.0 932.78,570.0 889.48,545.0" fill="#4A6583" fill-opacity="0.1" stroke="#4A6583" stroke-width="1" />
+<polygon points="889.48,545.0 932.78,570.0 889.48,595.0 846.1800000000001,570.0" fill="#4A6583" fill-opacity="0.4" stroke="#4A6583" stroke-width="1.5" />
+<line x1="1080.0" y1="510.0" x2="889.48" y2="620.0" class="trace" />
+<line x1="1080.0" y1="510.0" x2="889.48" y2="620.0" class="trace-glow" stroke-dasharray="10 50"></line>
+<polygon points="819.7448400709889,555.2627944162883 776.4448400709888,580.2627944162883 776.4448400709888,500.2627944162883 819.7448400709889,475.2627944162883" fill="#4A6583" fill-opacity="0.30000000000000004" stroke="#4A6583" stroke-width="1" />
+<polygon points="819.7448400709889,555.2627944162883 863.0448400709888,580.2627944162883 863.0448400709888,500.2627944162883 819.7448400709889,475.2627944162883" fill="#4A6583" fill-opacity="0.1" stroke="#4A6583" stroke-width="1" />
+<polygon points="819.7448400709889,475.2627944162883 863.0448400709888,500.2627944162883 819.7448400709889,525.2627944162883 776.4448400709888,500.2627944162883" fill="#4A6583" fill-opacity="0.4" stroke="#4A6583" stroke-width="1.5" />
+<line x1="1080.0" y1="510.0" x2="819.7448400709887" y2="550.2627944162883" class="trace" />
+<line x1="1080.0" y1="510.0" x2="819.7448400709887" y2="550.2627944162883" class="trace-glow" stroke-dasharray="10 50"></line>
+<polygon points="819.7448400709887,474.7372055837117 776.4448400709887,499.7372055837117 776.4448400709887,419.7372055837117 819.7448400709887,394.7372055837117" fill="#4A6583" fill-opacity="0.30000000000000004" stroke="#4A6583" stroke-width="1" />
+<polygon points="819.7448400709887,474.7372055837117 863.0448400709888,499.7372055837117 863.0448400709888,419.7372055837117 819.7448400709887,394.7372055837117" fill="#4A6583" fill-opacity="0.1" stroke="#4A6583" stroke-width="1" />
+<polygon points="819.7448400709887,394.7372055837117 863.0448400709888,419.7372055837117 819.7448400709886,444.7372055837117 776.4448400709887,419.7372055837117" fill="#4A6583" fill-opacity="0.4" stroke="#4A6583" stroke-width="1.5" />
+<line x1="1080.0" y1="510.0" x2="819.7448400709887" y2="469.7372055837117" class="trace" />
+<line x1="1080.0" y1="510.0" x2="819.7448400709887" y2="469.7372055837117" class="trace-glow" stroke-dasharray="10 50"></line>
+<polygon points="889.48,405.0 846.1800000000001,430.0 846.1800000000001,350.0 889.48,325.0" fill="#4A6583" fill-opacity="0.30000000000000004" stroke="#4A6583" stroke-width="1" />
+<polygon points="889.48,405.0 932.78,430.0 932.78,350.0 889.48,325.0" fill="#4A6583" fill-opacity="0.1" stroke="#4A6583" stroke-width="1" />
+<polygon points="889.48,325.0 932.78,350.0 889.48,375.0 846.1800000000001,350.0" fill="#4A6583" fill-opacity="0.4" stroke="#4A6583" stroke-width="1.5" />
+<line x1="1080.0" y1="510.0" x2="889.48" y2="400.0" class="trace" />
+<line x1="1080.0" y1="510.0" x2="889.48" y2="400.0" class="trace-glow" stroke-dasharray="10 50"></line>
+<polygon points="1010.2648400709888,364.7372055837117 966.9648400709888,389.7372055837117 966.9648400709888,309.7372055837117 1010.2648400709888,284.7372055837117" fill="#4A6583" fill-opacity="0.30000000000000004" stroke="#4A6583" stroke-width="1" />
+<polygon points="1010.2648400709888,364.7372055837117 1053.5648400709888,389.7372055837117 1053.5648400709888,309.7372055837117 1010.2648400709888,284.7372055837117" fill="#4A6583" fill-opacity="0.1" stroke="#4A6583" stroke-width="1" />
+<polygon points="1010.2648400709888,284.7372055837117 1053.5648400709888,309.7372055837117 1010.2648400709888,334.7372055837117 966.9648400709888,309.7372055837117" fill="#4A6583" fill-opacity="0.4" stroke="#4A6583" stroke-width="1.5" />
+<line x1="1080.0" y1="510.0" x2="1010.2648400709888" y2="359.7372055837117" class="trace" />
+<line x1="1080.0" y1="510.0" x2="1010.2648400709888" y2="359.7372055837117" class="trace-glow" stroke-dasharray="10 50"></line>
+<polygon points="1149.7351599290112,364.7372055837117 1106.4351599290112,389.7372055837117 1106.4351599290112,309.7372055837117 1149.7351599290112,284.7372055837117" fill="#4A6583" fill-opacity="0.30000000000000004" stroke="#4A6583" stroke-width="1" />
+<polygon points="1149.7351599290112,364.7372055837117 1193.0351599290111,389.7372055837117 1193.0351599290111,309.7372055837117 1149.7351599290112,284.7372055837117" fill="#4A6583" fill-opacity="0.1" stroke="#4A6583" stroke-width="1" />
+<polygon points="1149.7351599290112,284.7372055837117 1193.0351599290111,309.7372055837117 1149.7351599290112,334.7372055837117 1106.4351599290112,309.7372055837117" fill="#4A6583" fill-opacity="0.4" stroke="#4A6583" stroke-width="1.5" />
+<line x1="1080.0" y1="510.0" x2="1149.7351599290112" y2="359.7372055837117" class="trace" />
+<line x1="1080.0" y1="510.0" x2="1149.7351599290112" y2="359.7372055837117" class="trace-glow" stroke-dasharray="10 50"></line>
+<polygon points="1270.52,405.0 1227.22,430.0 1227.22,350.0 1270.52,325.0" fill="#4A6583" fill-opacity="0.30000000000000004" stroke="#4A6583" stroke-width="1" />
+<polygon points="1270.52,405.0 1313.82,430.0 1313.82,350.0 1270.52,325.0" fill="#4A6583" fill-opacity="0.1" stroke="#4A6583" stroke-width="1" />
+<polygon points="1270.52,325.0 1313.82,350.0 1270.52,375.0 1227.22,350.0" fill="#4A6583" fill-opacity="0.4" stroke="#4A6583" stroke-width="1.5" />
+<line x1="1080.0" y1="510.0" x2="1270.52" y2="400.0" class="trace" />
+<line x1="1080.0" y1="510.0" x2="1270.52" y2="400.0" class="trace-glow" stroke-dasharray="10 50"></line>
+<polygon points="1340.2551599290114,474.7372055837118 1296.9551599290112,499.7372055837118 1296.9551599290112,419.7372055837118 1340.2551599290114,394.7372055837118" fill="#4A6583" fill-opacity="0.30000000000000004" stroke="#4A6583" stroke-width="1" />
+<polygon points="1340.2551599290114,474.7372055837118 1383.5551599290113,499.7372055837118 1383.5551599290113,419.7372055837118 1340.2551599290114,394.7372055837118" fill="#4A6583" fill-opacity="0.1" stroke="#4A6583" stroke-width="1" />
+<polygon points="1340.2551599290114,394.7372055837118 1383.5551599290113,419.7372055837118 1340.2551599290114,444.7372055837118 1296.9551599290112,419.7372055837118" fill="#4A6583" fill-opacity="0.4" stroke="#4A6583" stroke-width="1.5" />
+<line x1="1080.0" y1="510.0" x2="1340.2551599290114" y2="469.7372055837118" class="trace" />
+<line x1="1080.0" y1="510.0" x2="1340.2551599290114" y2="469.7372055837118" class="trace-glow" stroke-dasharray="10 50"></line>
+<polygon points="1340.2551599290114,555.2627944162882 1296.9551599290112,580.2627944162882 1296.9551599290112,500.26279441628816 1340.2551599290114,475.26279441628816" fill="#4A6583" fill-opacity="0.30000000000000004" stroke="#4A6583" stroke-width="1" />
+<polygon points="1340.2551599290114,555.2627944162882 1383.5551599290113,580.2627944162882 1383.5551599290113,500.26279441628816 1340.2551599290114,475.26279441628816" fill="#4A6583" fill-opacity="0.1" stroke="#4A6583" stroke-width="1" />
+<polygon points="1340.2551599290114,475.26279441628816 1383.5551599290113,500.26279441628816 1340.2551599290114,525.2627944162882 1296.9551599290112,500.26279441628816" fill="#4A6583" fill-opacity="0.4" stroke="#4A6583" stroke-width="1.5" />
+<line x1="1080.0" y1="510.0" x2="1340.2551599290114" y2="550.2627944162882" class="trace" />
+<line x1="1080.0" y1="510.0" x2="1340.2551599290114" y2="550.2627944162882" class="trace-glow" stroke-dasharray="10 50"></line>
+<polygon points="430.5,465.0 343.9,515.0 343.9,375.0 430.5,325.0" fill="#D4940A" fill-opacity="0.30000000000000004" stroke="#D4940A" stroke-width="1" />
+<polygon points="430.5,465.0 517.1,515.0 517.1,375.0 430.5,325.0" fill="#D4940A" fill-opacity="0.1" stroke="#D4940A" stroke-width="1" />
+<polygon points="430.5,325.0 517.1,375.0 430.5,425.0 343.9,375.0" fill="#D4940A" fill-opacity="0.4" stroke="#D4940A" stroke-width="1.5" />
+<path d="M 430.5 515.0 Q 733.6 340.0 1080.0 540.0" class="trace" stroke-width="4" id="main-path1" />
+<path d="M 430.5 515.0 Q 733.6 340.0 1080.0 540.0" class="trace-glow" stroke-width="4" stroke-dasharray="20 100"></path>
 
-    <rect width="800" height="400" fill="none"/>
-
-    <!-- Subtle convergence lines -->
-    <g opacity="0.015" stroke="#1B2A22" stroke-width="0.4">
-        <line x1="0" y1="400" x2="500" y2="0"/><line x1="200" y1="400" x2="600" y2="0"/>
-        <line x1="400" y1="400" x2="700" y2="0"/><line x1="600" y1="400" x2="800" y2="0"/>
-    </g>
-
-    <!-- ===== TERMINAL WINDOW (deep 3D shadow) ===== -->
-    <g filter="url(#pgDeep)">
-        <g transform="translate(18, 14)">
-            <!-- Window frame with 3D layers -->
-            <rect width="462" height="345" rx="8" fill="#1B2A22" opacity="0.04" transform="translate(4,5)"/>
-            <rect width="462" height="345" rx="8" fill="url(#pgTermBG)" stroke="#1B2A22" stroke-width="1.5" opacity="0.95"/>
-            <!-- Top edge highlight -->
-            <rect x="1" y="1" width="460" height="1" fill="#FFFFFF" opacity="0.6" rx="1"/>
-            <!-- Title bar with depth -->
-            <rect width="462" height="32" rx="8" fill="#1B2A22" fill-opacity="0.04"/>
-            <rect y="24" width="462" height="8" fill="#1B2A22" fill-opacity="0.04"/>
-            <line x1="0" y1="32" x2="462" y2="32" stroke="#1B2A22" stroke-width="1" opacity="0.1"/>
-            <!-- Traffic lights (3D raised) -->
-            <circle cx="20" cy="16" r="6" fill="#FF5B62"/>
-            <circle cx="20" cy="16" r="4" fill="#FF5B62" opacity="0.7" transform="translate(-0.5,-0.5)"/>
-            <circle cx="38" cy="16" r="6" fill="#F59E0B"/>
-            <circle cx="38" cy="16" r="4" fill="#F59E0B" opacity="0.7" transform="translate(-0.5,-0.5)"/>
-            <circle cx="56" cy="16" r="6" fill="#33CCFF"/>
-            <circle cx="56" cy="16" r="4" fill="#33CCFF" opacity="0.7" transform="translate(-0.5,-0.5)"/>
-            <text x="231" y="20" fill="#1B2A22" font-family="'Share Tech Mono',monospace" font-size="10" font-weight="bold" opacity="0.5" text-anchor="middle" letter-spacing="0.5">pygog — bash</text>
-
-            <!-- Terminal content -->
-            <g font-family="'Share Tech Mono',monospace" transform="translate(22, 52)">
-                <text y="0" fill="#1B2A22" font-size="9" opacity="0.3">~/projects/pygog</text>
-                <text y="20" fill="#1B2A22" font-size="12" font-weight="bold">❯ <tspan fill="#FF5B62">pygog ask</tspan> "find my Q4 revenue report"</text>
-                <text y="42" fill="#1B2A22" font-size="9" opacity="0.4">⠋ routing query through gemini-1.5-flash...</text>
-                <text y="64" fill="#1B2A22" font-size="9" font-weight="bold" opacity="0.65">✓ Intent parsed  <tspan opacity="0.2">───────</tspan> <tspan fill="#FF5B62">search_drive</tspan></text>
-                <text y="80" fill="#1B2A22" font-size="9" font-weight="bold" opacity="0.65">✓ API resolved   <tspan opacity="0.2">───────</tspan> drive.files.list</text>
-                <text y="96" fill="#1B2A22" font-size="9" font-weight="bold" opacity="0.65">✓ OAuth token    <tspan opacity="0.2">───────</tspan> oauth_token_cached</text>
-                <!-- Separator with glow effect -->
-                <text y="118" fill="#1B2A22" font-size="9" opacity="0.25">─── Query Results ────────────────────────────</text>
-                <!-- Results with subtle hover-like highlight bg -->
-                <rect x="-4" y="125" width="420" height="30" fill="#33CCFF" opacity="0.015" rx="2"/>
-                <text y="140" fill="#1B2A22" font-size="11" font-weight="bold">  1  Q4_Revenue_Final.xlsx</text>
-                <text y="154" fill="#1B2A22" font-size="8" opacity="0.4">     Dec 15, 2024 · 2.4 MB · <tspan fill="#FF5B62" font-weight="bold">shared</tspan></text>
-                <rect x="-4" y="161" width="420" height="30" fill="#1B2A22" opacity="0.008" rx="2"/>
-                <text y="176" fill="#1B2A22" font-size="11" font-weight="bold">  2  Q4_Revenue_Draft.docx</text>
-                <text y="190" fill="#1B2A22" font-size="8" opacity="0.4">     Dec 10, 2024 · 840 KB · private</text>
-                <rect x="-4" y="197" width="420" height="30" fill="#33CCFF" opacity="0.015" rx="2"/>
-                <text y="212" fill="#1B2A22" font-size="11" font-weight="bold">  3  Revenue_Q4_Slides.pptx</text>
-                <text y="226" fill="#1B2A22" font-size="8" opacity="0.4">     Dec 18, 2024 · 5.1 MB · <tspan fill="#FF5B62" font-weight="bold">shared</tspan></text>
-                <text y="252" fill="#1B2A22" font-size="8" opacity="0.3">3 results resolved in 142ms</text>
-                <text y="278" fill="#1B2A22" font-size="12" font-weight="bold">❯ <tspan opacity="0.3">_</tspan></text>
-                <rect x="22" y="266" width="9" height="15" fill="#1B2A22" opacity="0.7">
-                    <animate attributeName="opacity" values="0.8;0;0.8" dur="1.1s" repeatCount="indefinite"/>
-                </rect>
-            </g>
-            <!-- Line numbers gutter -->
-            <g font-family="'Share Tech Mono',monospace" font-size="7" fill="#1B2A22" opacity="0.1" transform="translate(8, 52)">
-                <text y="0">01</text><text y="20">02</text><text y="42">03</text><text y="64">04</text>
-                <text y="80">05</text><text y="96">06</text><text y="118">07</text><text y="140">08</text>
-                <text y="176">09</text><text y="212">10</text><text y="252">11</text><text y="278">12</text>
-            </g>
-        </g>
-    </g>
-
-    <!-- ===== CENTRAL LLM ROUTER NODE (big, 3D) ===== -->
-    <circle cx="612" cy="145" r="90" fill="url(#pgRG)" filter="url(#pgG2)"/>
-    <g transform="translate(612, 145)">
-        <!-- Outer orbits -->
-        <circle r="52" fill="none" stroke="#1B2A22" stroke-width="1" stroke-dasharray="5 10" opacity="0.18">
-            <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="22s" repeatCount="indefinite"/>
-        </circle>
-        <circle r="42" fill="none" stroke="#FF5B62" stroke-width="0.8" stroke-dasharray="3 8" opacity="0.15">
-            <animateTransform attributeName="transform" type="rotate" from="360" to="0" dur="15s" repeatCount="indefinite"/>
-        </circle>
-        <!-- Core with 3D depth -->
-        <circle r="33" fill="#1B2A22" opacity="0.04" transform="translate(2,3)"/>
-        <circle r="33" fill="#F7F4EB" stroke="#1B2A22" stroke-width="2.2"/>
-        <circle r="33" fill="none" stroke="#FF5B62" stroke-width="0.6" opacity="0.25"/>
-        <circle r="22" fill="none" stroke="#1B2A22" stroke-width="0.3" opacity="0.08"/>
-        <!-- Neural net icon (3D-ish connected nodes) -->
-        <circle cx="-10" cy="-10" r="5" fill="#FF5B62"/>
-        <circle cx="-10" cy="-10" r="3.5" fill="#FF5B62" opacity="0.5" transform="translate(-0.5,-0.5)"/>
-        <circle cx="10" cy="-10" r="5" fill="#33CCFF"/>
-        <circle cx="10" cy="-10" r="3.5" fill="#33CCFF" opacity="0.5" transform="translate(-0.5,-0.5)"/>
-        <circle cx="0" cy="10" r="5" fill="#1B2A22"/>
-        <line x1="-10" y1="-10" x2="0" y2="10" stroke="#1B2A22" stroke-width="1.5" opacity="0.3"/>
-        <line x1="10" y1="-10" x2="0" y2="10" stroke="#1B2A22" stroke-width="1.5" opacity="0.3"/>
-        <line x1="-10" y1="-10" x2="10" y2="-10" stroke="#1B2A22" stroke-width="1.5" opacity="0.3"/>
-        <!-- Labels -->
-        <text x="0" y="57" fill="#1B2A22" font-family="'Share Tech Mono',monospace" font-size="11" font-weight="bold" text-anchor="middle" letter-spacing="1.5">LLM ROUTER</text>
-        <text x="0" y="70" fill="#1B2A22" font-family="'Share Tech Mono',monospace" font-size="7" opacity="0.4" text-anchor="middle">gemini-1.5-flash</text>
-    </g>
-
-    <!-- ===== CONNECTION: Terminal → Router (animated) ===== -->
-    <path id="pgTR" d="M 480 155 C 525 155, 545 145, 572 145" fill="none" stroke="#FF5B62" stroke-width="2.8" opacity="0.55"/>
-    <circle r="5" fill="#FF5B62" filter="url(#pgG)">
-        <animateMotion dur="1.5s" repeatCount="indefinite"><mpath href="#pgTR"/></animateMotion>
-    </circle>
-
-    <!-- ===== API SERVICE CARDS (3D raised, with depth stacking) ===== -->
-    <!-- Gmail -->
-    <g transform="translate(688, 24)" filter="url(#pgSh)">
-        <rect width="98" height="46" rx="5" fill="url(#pgPN)"/>
-        <rect width="98" height="46" rx="5" fill="none" stroke="#1B2A22" stroke-width="1" opacity="0.15"/>
-        <rect x="1" y="1" width="96" height="1" fill="#FFFFFF" opacity="0.4" rx="1"/>
-        <rect width="4" height="46" rx="2" fill="#FF5B62"/>
-        <text x="16" y="19" fill="#1B2A22" font-family="'Share Tech Mono',monospace" font-size="9" font-weight="bold" letter-spacing="0.5">GMAIL API</text>
-        <text x="16" y="33" fill="#1B2A22" font-family="'Share Tech Mono',monospace" font-size="6.5" opacity="0.4">users.messages</text>
-    </g>
-    <path d="M 710 70 L 640 112" fill="none" stroke="#FF5B62" stroke-width="1.2" stroke-dasharray="3 4" opacity="0.25"/>
-
-    <!-- Drive -->
-    <g transform="translate(700, 82)" filter="url(#pgSh)">
-        <rect width="90" height="46" rx="5" fill="url(#pgPN)"/>
-        <rect width="90" height="46" rx="5" fill="none" stroke="#1B2A22" stroke-width="1" opacity="0.15"/>
-        <rect x="1" y="1" width="88" height="1" fill="#FFFFFF" opacity="0.4" rx="1"/>
-        <rect width="4" height="46" rx="2" fill="#F59E0B"/>
-        <text x="16" y="19" fill="#1B2A22" font-family="'Share Tech Mono',monospace" font-size="9" font-weight="bold" letter-spacing="0.5">DRIVE API</text>
-        <text x="16" y="33" fill="#1B2A22" font-family="'Share Tech Mono',monospace" font-size="6.5" opacity="0.4">files.list</text>
-    </g>
-    <path d="M 700 110 L 652 132" fill="none" stroke="#F59E0B" stroke-width="1.2" stroke-dasharray="3 4" opacity="0.25"/>
-
-    <!-- Calendar -->
-    <g transform="translate(708, 174)" filter="url(#pgSh)">
-        <rect width="84" height="46" rx="5" fill="url(#pgPN)"/>
-        <rect width="84" height="46" rx="5" fill="none" stroke="#1B2A22" stroke-width="1" opacity="0.15"/>
-        <rect x="1" y="1" width="82" height="1" fill="#FFFFFF" opacity="0.4" rx="1"/>
-        <rect width="4" height="46" rx="2" fill="#33CCFF"/>
-        <text x="16" y="19" fill="#1B2A22" font-family="'Share Tech Mono',monospace" font-size="9" font-weight="bold" letter-spacing="0.5">CALENDAR</text>
-        <text x="16" y="33" fill="#1B2A22" font-family="'Share Tech Mono',monospace" font-size="6.5" opacity="0.4">events.list</text>
-    </g>
-    <path d="M 708 197 L 658 162" fill="none" stroke="#33CCFF" stroke-width="1.2" stroke-dasharray="3 4" opacity="0.25"/>
-
-    <!-- Tasks -->
-    <g transform="translate(694, 250)" filter="url(#pgSh)">
-        <rect width="86" height="46" rx="5" fill="url(#pgPN)"/>
-        <rect width="86" height="46" rx="5" fill="none" stroke="#1B2A22" stroke-width="1" opacity="0.15"/>
-        <rect x="1" y="1" width="84" height="1" fill="#FFFFFF" opacity="0.4" rx="1"/>
-        <rect width="4" height="46" rx="2" fill="#1B2A22" opacity="0.5"/>
-        <text x="16" y="19" fill="#1B2A22" font-family="'Share Tech Mono',monospace" font-size="9" font-weight="bold" letter-spacing="0.5">TASKS API</text>
-        <text x="16" y="33" fill="#1B2A22" font-family="'Share Tech Mono',monospace" font-size="6.5" opacity="0.4">tasks.list</text>
-    </g>
-    <path d="M 694 273 L 645 185" fill="none" stroke="#1B2A22" stroke-width="1.2" stroke-dasharray="3 4" opacity="0.15"/>
-
-    <!-- ===== OS KEYRING (raised badge) ===== -->
-    <g transform="translate(598, 310)" filter="url(#pgSh)">
-        <rect width="125" height="44" rx="5" fill="url(#pgPN)"/>
-        <rect width="125" height="44" rx="5" fill="none" stroke="#1B2A22" stroke-width="1" opacity="0.15"/>
-        <rect x="1" y="1" width="123" height="1" fill="#FFFFFF" opacity="0.4" rx="1"/>
-        <rect width="4" height="44" rx="2" fill="#FF5B62"/>
-        <text x="16" y="18" fill="#1B2A22" font-family="'Share Tech Mono',monospace" font-size="8" font-weight="bold" letter-spacing="0.5">OS KEYRING</text>
-        <text x="16" y="32" fill="#1B2A22" font-family="'Share Tech Mono',monospace" font-size="6.5" opacity="0.4">AES-256 Auth Storage</text>
-        <!-- Lock icon -->
-        <rect x="102" y="12" width="12" height="10" rx="2" fill="none" stroke="#FF5B62" stroke-width="1.2"/>
-        <path d="M 105 12 L 105 8 A 3 3 0 0 1 111 8 L 111 12" fill="none" stroke="#FF5B62" stroke-width="1.2"/>
-    </g>
-    <line x1="648" y1="310" x2="630" y2="220" stroke="#1B2A22" stroke-width="1" stroke-dasharray="2 4" opacity="0.15"/>
-
-    <!-- ===== BOTTOM FLOW STRIP (raised) ===== -->
-    <g filter="url(#pgSh)">
-        <rect x="0" y="372" width="800" height="28" fill="url(#pgPN)"/>
-    </g>
-    <rect x="0" y="371" width="800" height="1" fill="#1B2A22" opacity="0.12"/>
-    <g transform="translate(400, 389)" font-family="'Share Tech Mono',monospace" font-size="8" fill="#1B2A22" opacity="0.55" text-anchor="middle" letter-spacing="1">
-        <text><tspan fill="#FF5B62" font-weight="bold">STDIN</tspan> → TOKENIZE → <tspan fill="#FF5B62" font-weight="bold">LLM ROUTE</tspan> → <tspan fill="#33CCFF" font-weight="bold">GOOGLE API</tspan> → FORMAT → STDOUT</text>
-    </g>
+<polygon points="1729.5,515.0 1677.54,545.0 1677.54,465.0 1729.5,435.0" fill="#D4940A" fill-opacity="0.30000000000000004" stroke="#D4940A" stroke-width="1" />
+<polygon points="1729.5,515.0 1781.46,545.0 1781.46,465.0 1729.5,435.0" fill="#D4940A" fill-opacity="0.1" stroke="#D4940A" stroke-width="1" />
+<polygon points="1729.5,435.0 1781.46,465.0 1729.5,495.0 1677.54,465.0" fill="#D4940A" fill-opacity="0.4" stroke="#D4940A" stroke-width="1.5" />
+<line x1="1080.0" y1="540.0" x2="1729.5" y2="545.0" class="trace" />
+<polygon points="1642.9,565.0 1590.94,595.0 1590.94,515.0 1642.9,485.0" fill="#D4940A" fill-opacity="0.30000000000000004" stroke="#D4940A" stroke-width="1" />
+<polygon points="1642.9,565.0 1694.8600000000001,595.0 1694.8600000000001,515.0 1642.9,485.0" fill="#D4940A" fill-opacity="0.1" stroke="#D4940A" stroke-width="1" />
+<polygon points="1642.9,485.0 1694.8600000000001,515.0 1642.9,545.0 1590.94,515.0" fill="#D4940A" fill-opacity="0.4" stroke="#D4940A" stroke-width="1.5" />
+<line x1="1080.0" y1="540.0" x2="1642.9" y2="595.0" class="trace" />
+<polygon points="1556.3,615.0 1504.34,645.0 1504.34,565.0 1556.3,535.0" fill="#D4940A" fill-opacity="0.30000000000000004" stroke="#D4940A" stroke-width="1" />
+<polygon points="1556.3,615.0 1608.26,645.0 1608.26,565.0 1556.3,535.0" fill="#D4940A" fill-opacity="0.1" stroke="#D4940A" stroke-width="1" />
+<polygon points="1556.3,535.0 1608.26,565.0 1556.3,595.0 1504.34,565.0" fill="#D4940A" fill-opacity="0.4" stroke="#D4940A" stroke-width="1.5" />
+<line x1="1080.0" y1="540.0" x2="1556.3" y2="645.0" class="trace" />
+<polygon points="1469.7,665.0 1417.74,695.0 1417.74,615.0 1469.7,585.0" fill="#D4940A" fill-opacity="0.30000000000000004" stroke="#D4940A" stroke-width="1" />
+<polygon points="1469.7,665.0 1521.6599999999999,695.0 1521.6599999999999,615.0 1469.7,585.0" fill="#D4940A" fill-opacity="0.1" stroke="#D4940A" stroke-width="1" />
+<polygon points="1469.7,585.0 1521.6599999999999,615.0 1469.7,645.0 1417.74,615.0" fill="#D4940A" fill-opacity="0.4" stroke="#D4940A" stroke-width="1.5" />
+<line x1="1080.0" y1="540.0" x2="1469.7" y2="695.0" class="trace" />
+<polygon points="1383.1,715.0 1331.1399999999999,745.0 1331.1399999999999,665.0 1383.1,635.0" fill="#D4940A" fill-opacity="0.30000000000000004" stroke="#D4940A" stroke-width="1" />
+<polygon points="1383.1,715.0 1435.06,745.0 1435.06,665.0 1383.1,635.0" fill="#D4940A" fill-opacity="0.1" stroke="#D4940A" stroke-width="1" />
+<polygon points="1383.1,635.0 1435.06,665.0 1383.1,695.0 1331.1399999999999,665.0" fill="#D4940A" fill-opacity="0.4" stroke="#D4940A" stroke-width="1.5" />
+<line x1="1080.0" y1="540.0" x2="1383.1" y2="745.0" class="trace" />
+<polygon points="1296.5,765.0 1244.54,795.0 1244.54,715.0 1296.5,685.0" fill="#D4940A" fill-opacity="0.30000000000000004" stroke="#D4940A" stroke-width="1" />
+<polygon points="1296.5,765.0 1348.46,795.0 1348.46,715.0 1296.5,685.0" fill="#D4940A" fill-opacity="0.1" stroke="#D4940A" stroke-width="1" />
+<polygon points="1296.5,685.0 1348.46,715.0 1296.5,745.0 1244.54,715.0" fill="#D4940A" fill-opacity="0.4" stroke="#D4940A" stroke-width="1.5" />
+<line x1="1080.0" y1="540.0" x2="1296.5" y2="795.0" class="trace" />
+<path d="M 380 628 L 603.7 628 L 603.7 385.0" fill="none" stroke="#D4940A" stroke-width="1.5" stroke-dasharray="4 4" opacity="0.4" />
+<circle cx="603.7" cy="385.0" r="4" fill="#D4940A" />
+<circle cx="380" cy="628" r="2" fill="#D4940A" />
+<g transform="translate(100, 600)">
+<rect x="0" y="0" width="560" height="240" fill="#FFFDF5" stroke="rgba(24,36,32,0.2)" stroke-width="2" opacity="0.95" rx="8" />
+<line x1="0" y1="50" x2="560" y2="50" stroke="#D4940A" stroke-width="4" />
+<rect x="0" y="0" width="6" height="50" fill="#D4940A" />
+<text x="18" y="38" font-family="ui-monospace, 'SF Mono', Menlo, monospace" font-size="40" font-weight="800" fill="#182420" letter-spacing="1.5">CLI_TERMINAL</text>
+<text x="18" y="95" font-family="ui-monospace, 'SF Mono', Menlo, monospace" font-size="30" font-weight="600" fill="#4A6583">OS: DARWIN</text>
+<text x="18" y="138" font-family="ui-monospace, 'SF Mono', Menlo, monospace" font-size="30" font-weight="600" fill="#4A6583">INPUT: 'schedule meeting'</text>
+<rect x="445" y="112" width="18" height="30" fill="#D4940A"></rect>
+<text x="18" y="181" font-family="ui-monospace, 'SF Mono', Menlo, monospace" font-size="30" font-weight="600" fill="#4A6583">STATE: PARSING</text>
+</g>
+<path d="M 380 248 L 1080.0 248 L 1080.0 420.0" fill="none" stroke="#D4940A" stroke-width="1.5" stroke-dasharray="4 4" opacity="0.4" />
+<circle cx="1080.0" cy="420.0" r="4" fill="#D4940A" />
+<circle cx="380" cy="248" r="2" fill="#D4940A" />
+<g transform="translate(100, 220)">
+<rect x="0" y="0" width="560" height="240" fill="#FFFDF5" stroke="rgba(24,36,32,0.2)" stroke-width="2" opacity="0.95" rx="8" />
+<line x1="0" y1="50" x2="560" y2="50" stroke="#D4940A" stroke-width="4" />
+<rect x="0" y="0" width="6" height="50" fill="#D4940A" />
+<text x="18" y="38" font-family="ui-monospace, 'SF Mono', Menlo, monospace" font-size="40" font-weight="800" fill="#182420" letter-spacing="1.5">NLP_INTENT_ROUTER</text>
+<text x="18" y="95" font-family="ui-monospace, 'SF Mono', Menlo, monospace" font-size="30" font-weight="600" fill="#4A6583">MODEL: GEMINI_2.5</text>
+<text x="18" y="138" font-family="ui-monospace, 'SF Mono', Menlo, monospace" font-size="30" font-weight="600" fill="#4A6583">CONFIDENCE: 0.98</text>
+<text x="18" y="181" font-family="ui-monospace, 'SF Mono', Menlo, monospace" font-size="30" font-weight="600" fill="#4A6583">TARGET: CAL_V3</text>
+</g>
+<path d="M 1500 128 L 1625.58 128 L 1625.58 475.0" fill="none" stroke="#D4940A" stroke-width="1.5" stroke-dasharray="4 4" opacity="0.4" />
+<circle cx="1625.58" cy="475.0" r="4" fill="#D4940A" />
+<circle cx="1500" cy="128" r="2" fill="#D4940A" />
+<g transform="translate(1500, 100)">
+<rect x="0" y="0" width="560" height="240" fill="#FFFDF5" stroke="rgba(24,36,32,0.2)" stroke-width="2" opacity="0.95" rx="8" />
+<line x1="0" y1="50" x2="560" y2="50" stroke="#D4940A" stroke-width="4" />
+<rect x="0" y="0" width="6" height="50" fill="#D4940A" />
+<text x="18" y="38" font-family="ui-monospace, 'SF Mono', Menlo, monospace" font-size="40" font-weight="800" fill="#182420" letter-spacing="1.5">GOOGLE_CALENDAR_API</text>
+<text x="18" y="95" font-family="ui-monospace, 'SF Mono', Menlo, monospace" font-size="30" font-weight="600" fill="#4A6583">STATUS: 200 OK</text>
+<text x="18" y="138" font-family="ui-monospace, 'SF Mono', Menlo, monospace" font-size="30" font-weight="600" fill="#4A6583">AUTH: OAUTH2</text>
+<text x="18" y="181" font-family="ui-monospace, 'SF Mono', Menlo, monospace" font-size="30" font-weight="600" fill="#4A6583">LATENCY: 45ms</text>
+</g>
+<text x="100" y="110" font-family="system-ui, -apple-system, sans-serif" font-size="110" font-weight="900" fill="#D4940A" letter-spacing="4">PY-GOOG-CLI</text>
+<text x="104" y="175" font-family="ui-monospace, 'SF Mono', Menlo, monospace" font-size="40" font-weight="700" fill="#4A6583" letter-spacing="6">NATURAL LANGUAGE TERMINAL ARCHITECTURE</text>
 </svg>

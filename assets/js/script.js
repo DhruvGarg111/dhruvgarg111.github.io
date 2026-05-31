@@ -4,12 +4,11 @@
  * 
  * TABLE OF CONTENTS:
  * 1. Anime.js v4 Micro-Interactions (Scramble, Odometer, SVG Plotter, HUD Ripple)
- * 2. Custom Cursor Physics & Hover States
- * 3. Three.js 3D Neural Network / Mechanical Stage
- * 4. Z-Axis Scroll Proxy & Timing Mathematics
- * 5. Interactive UI components (Magnetic Buttons, Layer Focusing)
- * 6. Orbital Typographic Constellation Engine (Skills)
- * 7. Vernier Scale Scroll HUD Navigation
+ * 2. Three.js 3D Neural Network / Mechanical Stage
+ * 3. Z-Axis Scroll Proxy & Timing Mathematics
+ * 4. Interactive UI components (Magnetic Buttons, Layer Focusing)
+ * 5. Orbital Typographic Constellation Engine (Skills)
+ * 6. Vernier Scale Scroll HUD Navigation
  */
 
 // =========================================================================
@@ -151,18 +150,26 @@ function triggerVernierRipple(activeIndex) {
  */
 async function inlineSVGs() {
     const images = document.querySelectorAll('.project-card img[src$=".svg"]');
-    for (const img of images) {
+    const fetchPromises = Array.from(images).map(async (img) => {
         const src = img.getAttribute('src');
         const alt = img.getAttribute('alt');
         const imgClasses = img.getAttribute('class');
         
         try {
             const response = await fetch(src);
-            if (!response.ok) continue;
+            if (!response.ok) return;
             let svgText = await response.text();
             
             const parser = new DOMParser();
             const doc = parser.parseFromString(svgText, 'image/svg+xml');
+            
+            // Check for parse errors
+            const parseError = doc.querySelector('parsererror');
+            if (parseError) {
+                console.error('SVG parse error:', src, parseError.textContent);
+                return;
+            }
+            
             const svgElement = doc.querySelector('svg');
             
             if (svgElement) {
@@ -187,7 +194,8 @@ async function inlineSVGs() {
         } catch (e) {
             console.error('Failed to inline SVG:', src, e);
         }
-    }
+    });
+    await Promise.all(fetchPromises);
 }
 
 /**
@@ -195,11 +203,34 @@ async function inlineSVGs() {
  * @param {HTMLElement} card 
  * @param {SVGElement} svgElement 
  */
+// Cache for getTotalLength results to avoid expensive recalculations
+const lengthCache = new WeakMap();
+
+function getCachedLength(el) {
+    if (lengthCache.has(el)) return lengthCache.get(el);
+    
+    let len = 1000;
+    if (el.getTotalLength) {
+        // Some browsers throw on getTotalLength if the element is not rendered
+        try { len = el.getTotalLength(); } catch(e) {}
+    } else if (el.tagName.toLowerCase() === 'line') {
+        const x1 = parseFloat(el.getAttribute('x1') || 0);
+        const y1 = parseFloat(el.getAttribute('y1') || 0);
+        const x2 = parseFloat(el.getAttribute('x2') || 0);
+        const y2 = parseFloat(el.getAttribute('y2') || 0);
+        len = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+    }
+    
+    lengthCache.set(el, len);
+    return len;
+}
+
 function bindSVGLineDrawing(card, svgElement) {
-    const paths = svgElement.querySelectorAll('path, line, rect, circle, polygon, polyline');
+    // Only select elements that benefit from stroke-dasharray drawing
+    const paths = svgElement.querySelectorAll('path, polyline, line');
     
     paths.forEach(path => {
-        const length = path.getTotalLength ? path.getTotalLength() : 1000;
+        const length = getCachedLength(path);
         path.style.strokeDasharray = length;
         path.style.strokeDashoffset = '0';
     });
@@ -211,7 +242,7 @@ function bindSVGLineDrawing(card, svgElement) {
         
         activeAnimation = animate(paths, {
             strokeDashoffset: [
-                (el) => el.getTotalLength ? el.getTotalLength() : 1000,
+                (el) => getCachedLength(el),
                 0
             ],
             duration: 1000,
@@ -232,69 +263,6 @@ function bindSVGLineDrawing(card, svgElement) {
 // Initialize SVG inlining instantly on load
 inlineSVGs();
 
-// =========================================================================
-// SECTION 2: CUSTOM CURSOR PHYSICS & HOVER STATES
-// =========================================================================
-
-const cursorDot = document.getElementById('cursorDot');
-const cursorRing = document.getElementById('cursorRing');
-
-// Only initialize custom cursor on devices with a fine pointer
-if (cursorDot && cursorRing && finePointerQuery.matches && !prefersReducedMotion) {
-    let cursorX = 0;
-    let cursorY = 0;
-    let ringX = 0;
-    let ringY = 0;
-    let cursorFrame = 0;
-
-    const paintCursor = () => {
-        ringX += (cursorX - ringX) * 0.22;
-        ringY += (cursorY - ringY) * 0.22;
-        cursorDot.style.transform = `translate3d(${cursorX}px, ${cursorY}px, 0) translate(-50%, -50%)`;
-        cursorRing.style.transform = `translate3d(${ringX}px, ${ringY}px, 0) translate(-50%, -50%)`;
-
-        if (Math.abs(cursorX - ringX) > 0.2 || Math.abs(cursorY - ringY) > 0.2) {
-            cursorFrame = requestAnimationFrame(paintCursor);
-        } else {
-            cursorFrame = 0;
-        }
-    };
-
-    document.addEventListener('pointermove', (e) => {
-        if (e.pointerType !== 'mouse') return;
-        cursorX = e.clientX;
-        cursorY = e.clientY;
-        if (!document.body.classList.contains('custom-cursor-enabled')) {
-            ringX = cursorX;
-            ringY = cursorY;
-            document.body.classList.add('custom-cursor-enabled');
-        }
-        if (!cursorFrame) {
-            cursorFrame = requestAnimationFrame(paintCursor);
-        }
-    }, { passive: true });
-
-    const handlePointerCapabilityChange = (event) => {
-        if (!event.matches) {
-            document.body.classList.remove('custom-cursor-enabled');
-            cancelAnimationFrame(cursorFrame);
-            cursorFrame = 0;
-        }
-    };
-
-    if (finePointerQuery.addEventListener) {
-        finePointerQuery.addEventListener('change', handlePointerCapabilityChange);
-    } else if (finePointerQuery.addListener) {
-        finePointerQuery.addListener(handlePointerCapabilityChange);
-    }
-
-    // Cursor expansion on hovering interactive links and buttons
-    const interactives = document.querySelectorAll('.interactive');
-    interactives.forEach(el => {
-        el.addEventListener('mouseenter', () => cursorRing.classList.add('active'));
-        el.addEventListener('mouseleave', () => cursorRing.classList.remove('active'));
-    });
-}
 
 // =========================================================================
 // SECTION 3: THREE.JS 3D NEURAL NETWORK / MECHANICAL STAGE
@@ -709,7 +677,6 @@ if (!prefersReducedMotion) {
 // SECTION 4: Z-AXIS SCROLL PROXY & TIMING MATHEMATICS
 // =========================================================================
 
-const proxy = document.querySelector('.scroll-proxy');
 const sections = document.querySelectorAll('.scroll-section');
 const navLinks = document.querySelectorAll('nav a[href^="#"]');
 
@@ -861,6 +828,15 @@ function updateActiveNavLink() {
             triggerMetricsOdometer();
         }
         
+        // Gate orbital render loop — only run when skills section (index 6) is active
+        if (window._orbitalControl) {
+            if (index === 6) {
+                window._orbitalControl.start();
+            } else {
+                window._orbitalControl.stop();
+            }
+        }
+        
         triggerVernierRipple(index);
     }
 }
@@ -873,6 +849,8 @@ function scheduleActiveNavUpdate() {
     requestAnimationFrame(() => {
         navUpdateQueued = false;
         updateActiveNavLink();
+        // Also update vernier marker position in the same frame
+        if (typeof window.updateVernierMarker === 'function') window.updateVernierMarker();
     });
 }
 
@@ -881,8 +859,9 @@ window.addEventListener('scroll', scheduleActiveNavUpdate, { passive: true });
 /**
  * Custom smooth scroll program to snap viewport cleanly to Z-axis coordinates.
  * @param {string} targetId 
+ * @param {boolean} skipHistory - If true, avoids pushing a new history state
  */
-window.scrollToSection = function(targetId) {
+window.scrollToSection = function(targetId, skipHistory = false) {
     let targetSection = document.getElementById(targetId);
     if (!targetSection) return;
 
@@ -908,7 +887,9 @@ window.scrollToSection = function(targetId) {
         behavior: 'smooth'
     });
     
-    history.pushState(null, null, `#${targetId}`);
+    if (!skipHistory) {
+        history.pushState(null, null, `#${targetId}`);
+    }
 };
 
 // Bind relative hash anchors to scrollToSection
@@ -924,7 +905,9 @@ document.querySelectorAll('a[href^="#"]').forEach(link => {
 window.addEventListener('popstate', () => {
     const hash = window.location.hash.substring(1);
     if (hash) {
-        window.scrollToSection(hash);
+        window.scrollToSection(hash, true); // Skip pushing history on popstate
+    } else {
+        window.scrollToSection('hero', true); // Default to top if no hash
     }
 });
 
@@ -962,6 +945,14 @@ masterTl.add(camera.position, {
 
 // Initialize layouts on initial run
 updateActiveNavLink();
+
+// Handle initial deep link from URL hash
+if (window.location.hash) {
+    const initialHash = window.location.hash.substring(1);
+    if (initialHash) {
+        requestAnimationFrame(() => window.scrollToSection(initialHash));
+    }
+}
 
 } catch (e) {
     if (e.message !== '3D disabled for this device or motion preference') {
@@ -1139,13 +1130,33 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('mousemove', (e) => handleMove(e.clientX));
     window.addEventListener('mouseup', handleEnd);
     
+    let isHovering = false;
+    viewport.addEventListener('mouseenter', () => isHovering = true);
+    viewport.addEventListener('mouseleave', () => isHovering = false);
+    
     viewport.addEventListener('touchstart', (e) => handleStart(e.touches[0].clientX), { passive: true });
     window.addEventListener('touchmove', (e) => handleMove(e.touches[0].clientX), { passive: true });
     window.addEventListener('touchend', handleEnd);
 
     // Skills physics and layout rendering loop
     let lastOrbitRender = 0;
+    let orbitalRunning = false;
+    
+    // Expose a function to start/stop the orbital loop based on section visibility
+    window._orbitalControl = {
+        start: function() {
+            if (orbitalRunning || shouldReduceVisualLoad) return;
+            orbitalRunning = true;
+            requestAnimationFrame(renderLoop);
+        },
+        stop: function() {
+            orbitalRunning = false;
+        }
+    };
+    
     const renderLoop = (now = 0) => {
+        if (!orbitalRunning) return;
+        
         const frameInterval = shouldReduceVisualLoad ? 66 : 16;
         if (now - lastOrbitRender < frameInterval) {
             requestAnimationFrame(renderLoop);
@@ -1154,7 +1165,11 @@ document.addEventListener('DOMContentLoaded', () => {
         lastOrbitRender = now;
 
         if (!isDragging) {
-            currentVelocity += (targetVelocity - currentVelocity) * 0.05;
+            if (isHovering) {
+                currentVelocity *= 0.95; // Smooth slow down
+            } else {
+                currentVelocity += (targetVelocity - currentVelocity) * 0.05;
+            }
         }
 
         currentRotation += currentVelocity;
@@ -1196,15 +1211,15 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        if (!shouldReduceVisualLoad) {
-            requestAnimationFrame(renderLoop);
-        }
+        requestAnimationFrame(renderLoop);
     };
 
     if (shouldReduceVisualLoad) {
         targetVelocity = 0;
         renderLoop(1000);
     } else {
+        // Start immediately — visibility gating will be handled by scroll handler
+        orbitalRunning = true;
         requestAnimationFrame(renderLoop);
     }
 });
@@ -1217,20 +1232,11 @@ const vernierScale = document.getElementById('vernierScale');
 const vernierMarker = document.getElementById('vernierMarker');
 
 if (vernierScale && vernierMarker) {
-    let markerUpdateQueued = false;
-    const updateVernierMarker = () => {
+    // Vernier marker position is updated from the consolidated scroll handler above
+    window.updateVernierMarker = function() {
         const scrollPct = window.pageYOffset / (document.documentElement.scrollHeight - window.innerHeight);
         vernierMarker.style.top = `${Math.min(100, Math.max(0, scrollPct * 100))}%`;
     };
-
-    window.addEventListener('scroll', () => {
-        if (markerUpdateQueued) return;
-        markerUpdateQueued = true;
-        requestAnimationFrame(() => {
-            markerUpdateQueued = false;
-            updateVernierMarker();
-        });
-    }, { passive: true });
     
     vernierScale.addEventListener('click', (e) => {
         const rect = vernierScale.getBoundingClientRect();
@@ -1261,12 +1267,14 @@ if (vernierScale && vernierMarker) {
     function openDrawer() {
         drawer.classList.add('open');
         hamburgerBtn.querySelector('span').textContent = 'close';
+        hamburgerBtn.setAttribute('aria-expanded', 'true');
         document.body.style.overflow = 'hidden';
     }
 
     function closeDrawer() {
         drawer.classList.remove('open');
         hamburgerBtn.querySelector('span').textContent = 'menu';
+        hamburgerBtn.setAttribute('aria-expanded', 'false');
         document.body.style.overflow = '';
     }
 
@@ -1275,6 +1283,13 @@ if (vernierScale && vernierMarker) {
             closeDrawer();
         } else {
             openDrawer();
+        }
+    });
+
+    // Escape key closes drawer
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && drawer.classList.contains('open')) {
+            closeDrawer();
         }
     });
 

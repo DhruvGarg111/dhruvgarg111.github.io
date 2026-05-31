@@ -6,13 +6,16 @@
     <title>Dhruv Garg | AI/ML Engineer & Full-Stack Developer</title>
     <meta name="description" content="Dhruv Garg — AI/ML engineer building intelligent systems in computer vision, generative AI, and full-stack development. View projects, skills, and get in touch.">
     <meta name="keywords" content="Dhruv Garg, AI, ML, Computer Vision, Full Stack, Portfolio, PyTorch, Deep Learning">
-    <meta property="og:title" content="Dhruv Garg | AI/ML Engineer & Full-Stack Developer">
+    <meta property="og:title" content="Dhruv Garg | AI/ML Engineer &amp; Full-Stack Developer">
     <meta property="og:description" content="Building intelligent systems that see, understand, and create. Explore my projects in computer vision, generative AI, and production ML.">
     <meta property="og:type" content="website">
-    <meta property="og:image" content="assets/img/logo.png">
+    <meta property="og:image" content="https://dhruvgarg111.github.io/assets/img/logo.png">
+    <meta property="og:url" content="https://dhruvgarg111.github.io/">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Dhruv Garg | AI/ML Engineer">
     <meta name="twitter:description" content="Building intelligent systems that see, understand, and create.">
+    <meta name="twitter:image" content="https://dhruvgarg111.github.io/assets/img/logo.png">
+    <link rel="canonical" href="https://dhruvgarg111.github.io/">
     <script>
         // Trailing slash redirect to ensure relative paths resolve correctly
         if (window.location.pathname.endsWith('/v4')) {
@@ -22,8 +25,13 @@
     <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
     <link rel="icon" type="image/png" sizes="32x32" href="assets/img/logo.png">
     
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.tailwindcss.com">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:ital,wght@0,400..700;1,400..700&family=Schibsted+Grotesk:ital,wght@0,400..900;1,400..900&family=Azeret+Mono:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:ital,wght@0,400..700;1,400..700&family=Schibsted+Grotesk:ital,wght@0,400..900;1,400..900&family=Azeret+Mono:ital,wght@0,100..900;1,100..900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="assets/css/style.css">
     
@@ -36,7 +44,7 @@
                         "laser-cyan": "#D4940A",
                         "deep-slate-green": "#182420",
                         "electric-coral": "#9B3422",
-                        "warm-pebble": "#F2EDDF",
+                        "warm-pebble": "#EDEAE2",
                         "blueprint-line": "rgba(24, 36, 32, 0.12)",
                         "muted-cream": "#E5DFCD",
                         "inverse-surface": "#2A2A29",
@@ -57,6 +65,7 @@
                         "body-sm": ["Schibsted Grotesk", "sans-serif"],
                         "data-mono": ["Azeret Mono", "monospace"],
                         "label-caps": ["Azeret Mono", "monospace"],
+                        "rajdhani": ["Rajdhani", "sans-serif"],
                         "display-lg-mobile": ["Familjen Grotesk", "sans-serif"],
                         "body-lg": ["Schibsted Grotesk", "sans-serif"],
                         "headline-md-mobile": ["Familjen Grotesk", "sans-serif"],
@@ -70,7 +79,12 @@
                         "display-lg-mobile": ["64px", { "lineHeight": "110%", "letterSpacing": "-0.02em", "fontWeight": "600" }],
                         "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
                         "headline-md-mobile": ["32px", { "lineHeight": "120%", "fontWeight": "500" }],
-                        "headline-md": ["48px", { "lineHeight": "120%", "fontWeight": "500" }]
+                        "headline-md": ["48px", { "lineHeight": "120%", "fontWeight": "500" }],
+                        "micro": "9px",
+                        "micro-alt": "10px",
+                        "display-hero-mobile": "110px",
+                        "display-hero": "160px",
+                        "display-accent": "88px"
                     }
                 }
             }
@@ -84,20 +98,30 @@
 </head>
 
 <body class="blueprint-bg text-ink-body antialiased overflow-x-hidden font-body-lg">
+    <!-- Procedural Noise Texture -->
+    <svg style="position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1;opacity:0.04">
+        <filter id="grain"><feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/></filter>
+        <rect width="100%" height="100%" filter="url(#grain)"/>
+    </svg>
+
+    <!-- Ambient Light Pools -->
+    <div class="ambient-blob ambient-blob-1"></div>
+    <div class="ambient-blob ambient-blob-2"></div>
+    <div class="ambient-blob ambient-blob-3"></div>
+
+    <!-- WebGL Edge Fade -->
+    <div class="webgl-edge-fade"></div>
+
     <!-- Skip to content link for keyboard accessibility -->
     <a href="#hero" class="skip-nav">Skip to main content</a>
 
     <!-- WebGL Canvas for Z-axis background and 3D Mechanics -->
-    <canvas id="webgl-canvas">3D neural network visualization</canvas>
-
-    <!-- Custom Cursor Overlay -->
-    <div class="custom-cursor-ring" id="cursorRing"></div>
-    <div class="custom-cursor-dot" id="cursorDot"></div>
+    <canvas id="webgl-canvas" role="img" aria-label="3D neural network visualization">3D neural network visualization</canvas>
 
     <!-- Top Navigation (Mobile) -->
-    <nav class="fixed top-0 w-full z-50 bg-warm-pebble/80 backdrop-blur-md border-b border-blueprint-line flex justify-between items-center px-gutter py-grid-unit transition-all duration-300 md:hidden" id="top-nav">
-        <a class="font-display-lg-mobile text-headline-md-mobile text-deep-slate-green interactive" href="#">DHRUV GARG</a>
-        <button class="interactive text-deep-slate-green hover:text-laser-cyan transition-colors duration-300" aria-label="Open navigation menu">
+    <nav class="fixed top-0 w-full z-50 bg-warm-pebble/80 backdrop-blur-md border-b border-blueprint-line flex justify-between items-center px-gutter py-grid-unit transition-all duration-300 md:hidden overflow-hidden max-w-[100vw]" id="top-nav" aria-label="Mobile navigation">
+        <a class="font-display-lg-mobile text-headline-md-mobile text-deep-slate-green interactive" href="#hero">DHRUV GARG</a>
+        <button class="interactive text-deep-slate-green hover:text-laser-cyan transition-colors duration-300" type="button" aria-label="Open navigation menu" aria-expanded="false" aria-controls="mobile-drawer">
             <span class="material-symbols-outlined" data-icon="menu">menu</span>
         </button>
     </nav>
@@ -106,10 +130,10 @@
     <div class="mobile-drawer md:hidden" id="mobile-drawer">
         <div class="mobile-drawer-backdrop"></div>
         <div class="mobile-drawer-panel">
-            <button class="mobile-drawer-close" aria-label="Close navigation menu">
+            <button class="mobile-drawer-close" type="button" aria-label="Close navigation menu">
                 <span class="material-symbols-outlined">close</span>
             </button>
-            <nav>
+            <nav aria-label="Mobile drawer navigation">
                 <a class="mobile-drawer-link" href="#hero"><span class="material-symbols-outlined">grid_view</span> INDEX</a>
                 <a class="mobile-drawer-link" href="#projects"><span class="material-symbols-outlined">precision_manufacturing</span> PROJECTS</a>
                 <a class="mobile-drawer-link" href="#journey"><span class="material-symbols-outlined">timeline</span> JOURNEY</a>
@@ -137,7 +161,7 @@
     </div>
 
     <!-- Side Navigation (Desktop) -->
-    <aside class="hidden md:flex fixed left-0 top-0 h-full w-20 z-40 bg-warm-pebble border-r border-blueprint-line flex-col items-center py-8 text-deep-slate-green transition-all duration-300">
+    <aside class="hidden md:flex fixed left-0 top-0 h-full w-20 z-40 border-r border-blueprint-line/0 flex-col items-center py-8 text-deep-slate-green transition-all duration-300" style="background: linear-gradient(to right, var(--color-warm-pebble) 60%, transparent 100%);">
         <!-- Telemetry Status Logo Widget -->
         <div class="relative w-12 h-12 flex items-center justify-center mb-6">
             <!-- Rotating outer ring -->
@@ -155,48 +179,48 @@
         </div>
 
         <!-- System Coordinates Reading (Vertical Telemetry) -->
-        <div class="writing-vertical font-data-mono text-[9px] tracking-[0.25em] text-deep-slate-green/40 select-none transform rotate-180 mb-8 whitespace-nowrap uppercase" style="writing-mode: vertical-rl;">
+        <div class="writing-vertical font-data-mono text-micro tracking-[0.25em] text-deep-slate-green/60 select-none transform rotate-180 mb-8 whitespace-nowrap uppercase" style="writing-mode: vertical-rl;">
             SYS_V4.0 // CORE_ACTIVE // [ 34.56.09.22 ]
         </div>
 
         <!-- Navigation Slots -->
-        <nav class="flex flex-col items-center space-y-4 font-data-mono text-data-mono w-full px-4">
+        <nav class="flex flex-col items-center space-y-4 font-data-mono text-data-mono w-full px-4" aria-label="Main navigation">
             <a class="group relative flex flex-col items-center justify-center w-12 h-12 rounded border border-blueprint-line/10 hover:border-blueprint-line/40 text-deep-slate-green/40 hover:text-laser-cyan transition-all duration-300 interactive" href="#hero">
                 <span class="material-symbols-outlined text-lg group-hover:scale-110 transition-transform">grid_view</span>
                 <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-3 bg-current rounded-r opacity-0 group-[.text-laser-cyan]:opacity-100 group-hover:opacity-40 transition-all duration-300 shadow-[0_0_8px_currentColor]"></span>
-                <span class="text-[9px] uppercase tracking-widest absolute left-full ml-4 top-1/2 -translate-y-1/2 bg-deep-slate-green text-warm-pebble px-2.5 py-1 rounded shadow-lg opacity-0 pointer-events-none group-hover:opacity-100 transition-all duration-300 transform translate-x-[-10px] group-hover:translate-x-0 z-50">INDEX</span>
+                <span class="text-micro uppercase tracking-widest absolute left-full ml-4 top-1/2 -translate-y-1/2 bg-deep-slate-green text-warm-pebble px-2.5 py-1 rounded shadow-lg opacity-0 pointer-events-none group-hover:opacity-100 transition-all duration-300 transform translate-x-[-10px] group-hover:translate-x-0 z-50">INDEX</span>
             </a>
             <a class="group relative flex flex-col items-center justify-center w-12 h-12 rounded border border-blueprint-line/10 hover:border-blueprint-line/40 text-deep-slate-green/40 hover:text-laser-cyan transition-all duration-300 interactive" href="#projects">
                 <span class="material-symbols-outlined text-lg group-hover:scale-110 transition-transform">precision_manufacturing</span>
                 <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-3 bg-current rounded-r opacity-0 group-[.text-laser-cyan]:opacity-100 group-hover:opacity-40 transition-all duration-300 shadow-[0_0_8px_currentColor]"></span>
-                <span class="text-[9px] uppercase tracking-widest absolute left-full ml-4 top-1/2 -translate-y-1/2 bg-deep-slate-green text-warm-pebble px-2.5 py-1 rounded shadow-lg opacity-0 pointer-events-none group-hover:opacity-100 transition-all duration-300 transform translate-x-[-10px] group-hover:translate-x-0 z-50">PROJECTS</span>
+                <span class="text-micro uppercase tracking-widest absolute left-full ml-4 top-1/2 -translate-y-1/2 bg-deep-slate-green text-warm-pebble px-2.5 py-1 rounded shadow-lg opacity-0 pointer-events-none group-hover:opacity-100 transition-all duration-300 transform translate-x-[-10px] group-hover:translate-x-0 z-50">PROJECTS</span>
             </a>
             <a class="group relative flex flex-col items-center justify-center w-12 h-12 rounded border border-blueprint-line/10 hover:border-blueprint-line/40 text-deep-slate-green/40 hover:text-laser-cyan transition-all duration-300 interactive" href="#journey">
                 <span class="material-symbols-outlined text-lg group-hover:scale-110 transition-transform">timeline</span>
                 <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-3 bg-current rounded-r opacity-0 group-[.text-laser-cyan]:opacity-100 group-hover:opacity-40 transition-all duration-300 shadow-[0_0_8px_currentColor]"></span>
-                <span class="text-[9px] uppercase tracking-widest absolute left-full ml-4 top-1/2 -translate-y-1/2 bg-deep-slate-green text-warm-pebble px-2.5 py-1 rounded shadow-lg opacity-0 pointer-events-none group-hover:opacity-100 transition-all duration-300 transform translate-x-[-10px] group-hover:translate-x-0 z-50">JOURNEY</span>
+                <span class="text-micro uppercase tracking-widest absolute left-full ml-4 top-1/2 -translate-y-1/2 bg-deep-slate-green text-warm-pebble px-2.5 py-1 rounded shadow-lg opacity-0 pointer-events-none group-hover:opacity-100 transition-all duration-300 transform translate-x-[-10px] group-hover:translate-x-0 z-50">JOURNEY</span>
             </a>
             <a class="group relative flex flex-col items-center justify-center w-12 h-12 rounded border border-blueprint-line/10 hover:border-blueprint-line/40 text-deep-slate-green/40 hover:text-laser-cyan transition-all duration-300 interactive" href="#skills">
                 <span class="material-symbols-outlined text-lg group-hover:scale-110 transition-transform">architecture</span>
                 <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-3 bg-current rounded-r opacity-0 group-[.text-laser-cyan]:opacity-100 group-hover:opacity-40 transition-all duration-300 shadow-[0_0_8px_currentColor]"></span>
-                <span class="text-[9px] uppercase tracking-widest absolute left-full ml-4 top-1/2 -translate-y-1/2 bg-deep-slate-green text-warm-pebble px-2.5 py-1 rounded shadow-lg opacity-0 pointer-events-none group-hover:opacity-100 transition-all duration-300 transform translate-x-[-10px] group-hover:translate-x-0 z-50">SKILLS</span>
+                <span class="text-micro uppercase tracking-widest absolute left-full ml-4 top-1/2 -translate-y-1/2 bg-deep-slate-green text-warm-pebble px-2.5 py-1 rounded shadow-lg opacity-0 pointer-events-none group-hover:opacity-100 transition-all duration-300 transform translate-x-[-10px] group-hover:translate-x-0 z-50">SKILLS</span>
             </a>
             <a class="group relative flex flex-col items-center justify-center w-12 h-12 rounded border border-blueprint-line/10 hover:border-blueprint-line/40 text-deep-slate-green/40 hover:text-laser-cyan transition-all duration-300 interactive" href="#metrics">
                 <span class="material-symbols-outlined text-lg group-hover:scale-110 transition-transform">speed</span>
                 <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-3 bg-current rounded-r opacity-0 group-[.text-laser-cyan]:opacity-100 group-hover:opacity-40 transition-all duration-300 shadow-[0_0_8px_currentColor]"></span>
-                <span class="text-[9px] uppercase tracking-widest absolute left-full ml-4 top-1/2 -translate-y-1/2 bg-deep-slate-green text-warm-pebble px-2.5 py-1 rounded shadow-lg opacity-0 pointer-events-none group-hover:opacity-100 transition-all duration-300 transform translate-x-[-10px] group-hover:translate-x-0 z-50">METRICS</span>
+                <span class="text-micro uppercase tracking-widest absolute left-full ml-4 top-1/2 -translate-y-1/2 bg-deep-slate-green text-warm-pebble px-2.5 py-1 rounded shadow-lg opacity-0 pointer-events-none group-hover:opacity-100 transition-all duration-300 transform translate-x-[-10px] group-hover:translate-x-0 z-50">METRICS</span>
             </a>
             <a class="group relative flex flex-col items-center justify-center w-12 h-12 rounded border border-blueprint-line/10 hover:border-blueprint-line/40 text-deep-slate-green/40 hover:text-laser-cyan transition-all duration-300 interactive" href="#contact">
                 <span class="material-symbols-outlined text-lg group-hover:scale-110 transition-transform">mail</span>
                 <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-3 bg-current rounded-r opacity-0 group-[.text-laser-cyan]:opacity-100 group-hover:opacity-40 transition-all duration-300 shadow-[0_0_8px_currentColor]"></span>
-                <span class="text-[9px] uppercase tracking-widest absolute left-full ml-4 top-1/2 -translate-y-1/2 bg-deep-slate-green text-warm-pebble px-2.5 py-1 rounded shadow-lg opacity-0 pointer-events-none group-hover:opacity-100 transition-all duration-300 transform translate-x-[-10px] group-hover:translate-x-0 z-50">CONTACT</span>
+                <span class="text-micro uppercase tracking-widest absolute left-full ml-4 top-1/2 -translate-y-1/2 bg-deep-slate-green text-warm-pebble px-2.5 py-1 rounded shadow-lg opacity-0 pointer-events-none group-hover:opacity-100 transition-all duration-300 transform translate-x-[-10px] group-hover:translate-x-0 z-50">CONTACT</span>
             </a>
         </nav>
 
         <!-- Bottom Initialize Comm Action -->
         <div class="mt-auto w-full flex flex-col items-center space-y-4">
             <div class="w-8 h-[1px] bg-blueprint-line/20"></div>
-            <button class="writing-vertical font-data-mono text-[9px] tracking-[0.35em] transform -rotate-180 hover:text-laser-cyan transition-colors duration-300 interactive whitespace-nowrap" style="writing-mode: vertical-rl;" onclick="scrollToSection('contact')">
+            <button class="writing-vertical font-data-mono text-micro tracking-[0.35em] transform -rotate-180 hover:text-laser-cyan transition-colors duration-300 interactive whitespace-nowrap" type="button" style="writing-mode: vertical-rl;" onclick="scrollToSection('contact')">
                 INITIALIZE_COMM
             </button>
         </div>
@@ -216,26 +240,32 @@
                 <!-- Left Column: Copy & Details -->
                 <div class="col-span-1 lg:col-span-7 flex flex-col items-center lg:items-start text-center lg:text-left space-y-4 lg:space-y-8">
                     <!-- Massive Display Title -->
-                    <h1 class="font-display-lg-mobile lg:font-display-lg text-display-lg-mobile lg:text-display-lg text-ink-primary mix-blend-multiply flex flex-col items-center lg:items-start leading-none gap-1 lg:gap-3 w-full reveal-item delay-2">
-                        <span data-scramble>DHRUV</span>
-                        <span data-scramble>GARG</span>
+                    <h1 class="font-rajdhani font-bold uppercase text-display-hero-mobile lg:text-display-hero flex flex-col items-center lg:items-start leading-[0.85] gap-1 lg:gap-2 w-full reveal-item delay-2 select-none tracking-tight">
+                        <span data-scramble class="text-deep-slate-green">DHRUV</span>
+                        <span data-scramble class="text-electric-coral">GARG</span>
                     </h1>
                     
-                    <p class="font-body-lg text-sm sm:text-base lg:text-body-lg max-w-xl text-ink-body mt-2 mb-4 lg:mt-4 lg:mb-6 reveal-item delay-3">
+                    <div class="h-px w-full max-w-md bg-gradient-to-r from-transparent via-laser-cyan/50 to-transparent my-6 reveal-item delay-3"></div>
+
+                    <p class="font-body-lg text-sm sm:text-base lg:text-body-lg max-w-xl text-ink-body mt-2 mb-4 lg:mt-4 lg:mb-6 reveal-item delay-3 border-l-2 border-laser-cyan pl-4 bg-gradient-to-r from-laser-cyan/5 to-transparent py-2">
                         Building intelligent systems that see, understand, and create. Translating complex research papers into optimized, production-ready code. Precision engineering meets raw mechanical capability.
                     </p>
                     
                     <!-- Primary CTA -->
                     <a class="interactive btn-spring bg-deep-slate-green text-warm-pebble font-label-caps text-label-caps uppercase tracking-[0.15em] px-6 py-3 lg:px-8 lg:py-4 flex items-center justify-center space-x-4 border border-deep-slate-green relative overflow-hidden group reveal-item delay-4" href="#projects">
-                        <span class="relative z-10">ENTER WORKSPACE</span>
-                        <span class="material-symbols-outlined relative z-10 group-hover:translate-x-2 transition-transform duration-300" data-icon="arrow_forward">arrow_forward</span>
+                        <span class="absolute inset-0 w-full h-full bg-gradient-to-r from-laser-cyan/80 to-electric-coral/80 opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-0"></span>
+                        <span class="relative z-10 group-hover:text-deep-slate-green transition-colors duration-500 font-bold">ENTER WORKSPACE</span>
+                        <span class="material-symbols-outlined relative z-10 group-hover:translate-x-2 group-hover:text-deep-slate-green transition-all duration-500" data-icon="arrow_forward">arrow_forward</span>
                     </a>
                 </div>
 
                 <!-- Right Column: Avatar Illustration -->
-                <div class="col-span-1 lg:col-span-5 flex justify-center relative w-full reveal-item delay-5">
+                <div class="col-span-1 lg:col-span-5 flex justify-center relative w-full reveal-item delay-5 group">
+                    <!-- Glow Aura -->
+                    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[110%] h-[110%] max-w-[400px] aspect-square bg-laser-cyan/20 blur-[60px] rounded-full scale-90 group-hover:scale-110 group-hover:bg-electric-coral/20 transition-all duration-1000 z-0"></div>
+                    
                     <!-- Bounded blueprint frame for the illustration -->
-                    <div class="relative w-full max-w-[220px] sm:max-w-[300px] lg:max-w-[380px] aspect-square bg-warm-pebble/40 border border-blueprint-line/30 rounded-lg p-3 lg:p-6 flex items-center justify-center shadow-lg group">
+                    <div class="relative w-full max-w-[220px] sm:max-w-[300px] lg:max-w-[380px] aspect-square bg-warm-pebble/40 border border-blueprint-line/30 rounded-lg p-3 lg:p-6 flex items-center justify-center shadow-lg group z-10">
                         <!-- Corner Reticles for design grounding -->
                         <div class="reticle-corner reticle-corner-tl"></div>
                         <div class="reticle-corner reticle-corner-tr"></div>
@@ -246,18 +276,31 @@
                         <div class="absolute inset-0 bg-[radial-gradient(rgba(24,36,32,0.06)_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none opacity-60"></div>
                         
                         <!-- The Illustration -->
-                        <img src="assets/img/logo.png" alt="Dhruv Garg Illustration" class="w-full h-full object-contain relative z-10 transition-transform duration-500 group-hover:scale-105" />
+                        <img src="assets/img/logo.png" alt="Dhruv Garg Illustration" width="500" height="500" loading="eager" decoding="async" class="w-full h-full object-contain relative z-10 transition-transform duration-500 group-hover:scale-105" />
                     </div>
                 </div>
 
             </div>
+            <!-- Floating Particles Container -->
+            <div class="absolute inset-0 overflow-hidden pointer-events-none z-0">
+                <div class="floating-particle w-1 h-1 text-laser-cyan" style="left: 10%; bottom: -10px; --duration: 15s; --max-opacity: 0.5;"></div>
+                <div class="floating-particle w-2 h-2 text-electric-coral" style="left: 25%; bottom: -20px; --duration: 22s; --max-opacity: 0.3; animation-delay: 2s;"></div>
+                <div class="floating-particle w-1.5 h-1.5 text-laser-cyan" style="left: 45%; bottom: -15px; --duration: 18s; --max-opacity: 0.6; animation-delay: 5s;"></div>
+                <div class="floating-particle w-1 h-1 text-deep-slate-green" style="left: 65%; bottom: -5px; --duration: 12s; --max-opacity: 0.4; animation-delay: 1s;"></div>
+                <div class="floating-particle w-2.5 h-2.5 text-laser-cyan" style="left: 80%; bottom: -25px; --duration: 25s; --max-opacity: 0.2; animation-delay: 4s;"></div>
+                <div class="floating-particle w-1 h-1 text-electric-coral" style="left: 90%; bottom: -10px; --duration: 17s; --max-opacity: 0.5; animation-delay: 7s;"></div>
+                
+                <!-- SVG Tech Particles -->
+                <svg class="floating-particle w-4 h-4 text-laser-cyan" style="left: 15%; bottom: -20px; --duration: 20s; --max-opacity: 0.3; animation-delay: 3s;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path></svg>
+                <svg class="floating-particle w-3 h-3 text-electric-coral" style="left: 75%; bottom: -15px; --duration: 24s; --max-opacity: 0.4; animation-delay: 6s;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path></svg>
+            </div>
             
             <!-- Metadata Corners -->
-            <div class="absolute bottom-margin-mobile left-margin-mobile md:bottom-margin-desktop md:left-margin-desktop font-label-caps text-label-caps text-deep-slate-green/50 hidden md:block z-10">
+            <div class="absolute bottom-8 left-margin-mobile md:bottom-12 md:left-[160px] font-label-caps text-label-caps text-deep-slate-green/50 hidden md:block z-10">
                 LAT: 28.7041° N<br/>
                 LON: 77.1025° E
             </div>
-            <div class="absolute bottom-margin-mobile right-margin-mobile md:bottom-margin-desktop md:right-margin-desktop font-label-caps text-label-caps text-deep-slate-green/50 text-right z-10">
+            <div class="absolute bottom-8 right-margin-mobile md:bottom-12 md:right-margin-desktop font-label-caps text-label-caps text-deep-slate-green/50 text-right z-10">
                 SCROLL TO EXPLORE<br/>
                 ↓
             </div>
@@ -295,7 +338,7 @@
                         <div class="reticle-corner reticle-corner-tr"></div>
                         <div class="reticle-corner reticle-corner-bl"></div>
                         <div class="reticle-corner reticle-corner-br"></div>
-                        <img src="assets/img/searchlight.svg" alt="Searchlight Protocol" class="w-full h-full object-contain drop-shadow-xl z-10 relative" onerror="this.style.display='none'" />
+                        <img src="assets/img/searchlight.svg" alt="Searchlight Protocol" width="2160" height="1080" loading="lazy" decoding="async" class="w-full h-full object-contain drop-shadow-xl z-10 relative" onerror="this.style.display='none'" />
                     </div>
                 </div>
             </div>
@@ -312,7 +355,7 @@
                         <div class="reticle-corner reticle-corner-tr"></div>
                         <div class="reticle-corner reticle-corner-bl"></div>
                         <div class="reticle-corner reticle-corner-br"></div>
-                        <img src="assets/img/pixelqueue.svg" alt="Pixel Queue" class="w-full h-full object-contain drop-shadow-xl z-10 relative" onerror="this.style.display='none'" />
+                        <img src="assets/img/pixelqueue.svg" alt="Pixel Queue" width="2160" height="1080" loading="lazy" decoding="async" class="w-full h-full object-contain drop-shadow-xl z-10 relative" onerror="this.style.display='none'" />
                     </div>
                 </div>
                 <!-- Editorial Right -->
@@ -371,7 +414,7 @@
                         <div class="reticle-corner reticle-corner-tr"></div>
                         <div class="reticle-corner reticle-corner-bl"></div>
                         <div class="reticle-corner reticle-corner-br"></div>
-                        <img src="assets/img/neural_canvas.svg" alt="Neural Canvas" class="w-full h-full object-contain drop-shadow-xl z-10 relative" onerror="this.style.display='none'" />
+                        <img src="assets/img/neural_canvas.svg" alt="Neural Canvas" width="2160" height="1080" loading="lazy" decoding="async" class="w-full h-full object-contain drop-shadow-xl z-10 relative" onerror="this.style.display='none'" />
                     </div>
                 </div>
             </div>
@@ -388,7 +431,7 @@
                         <div class="reticle-corner reticle-corner-tr"></div>
                         <div class="reticle-corner reticle-corner-bl"></div>
                         <div class="reticle-corner reticle-corner-br"></div>
-                        <img src="assets/img/pygog.svg" alt="pygog CLI" class="w-full h-full object-contain drop-shadow-xl z-10 relative" onerror="this.style.display='none'" />
+                        <img src="assets/img/pygog.svg" alt="pygog CLI" width="2160" height="1080" loading="lazy" decoding="async" class="w-full h-full object-contain drop-shadow-xl z-10 relative" onerror="this.style.display='none'" />
                     </div>
                 </div>
                 <!-- Editorial Right -->
@@ -428,44 +471,77 @@
                     </h2>
                 </header>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+                <div class="relative">
+                    <!-- Connecting Timeline Line -->
+                    <div class="hidden lg:block absolute top-1/2 left-0 w-full h-[2px] bg-blueprint-line/20 -translate-y-1/2 z-0 overflow-hidden">
+                        <div class="h-full w-full bg-gradient-to-r from-transparent via-laser-cyan to-transparent opacity-50 animate-sweep"></div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 relative z-10">
                     <!-- Phase 1 -->
-                    <div class="relative interactive group border border-blueprint-line p-6 bg-warm-pebble/40 backdrop-blur-sm hover:bg-warm-pebble/80 transition-colors reveal-item delay-1">
+                    <div class="relative interactive group border border-blueprint-line p-6 bg-warm-pebble/40 backdrop-blur-sm hover:bg-warm-pebble/80 hover:-translate-y-2 hover:shadow-[0_0_20px_rgba(212,148,10,0.15)] hover:border-laser-cyan/40 transition-all duration-300 reveal-item delay-1 overflow-hidden rounded-lg">
+                        <div class="absolute inset-0 pointer-events-none z-0 select-none flex items-end justify-end p-2 opacity-5 group-hover:opacity-10 transition-opacity duration-300">
+                            <span class="text-7xl font-data-mono font-bold text-deep-slate-green leading-none">ML</span>
+                        </div>
                         <div class="intersection-node top-0 left-0"></div>
+                        <div class="relative z-10">
                         <div class="font-data-mono text-label-caps text-ink-body/50 mb-2">PHASE_01</div>
                         <h3 class="font-display-lg-mobile text-headline-md-mobile text-ink-heading mb-4 group-hover:text-laser-cyan transition-colors">Foundation</h3>
                         <p class="font-body-sm text-ink-body">Built confidence with predictive ML — house price prediction, training loops, and evaluation.</p>
+                        </div>
                     </div>
                     
                     <!-- Phase 2 -->
-                    <div class="relative interactive group border border-blueprint-line p-6 bg-warm-pebble/40 backdrop-blur-sm hover:bg-warm-pebble/80 transition-colors reveal-item delay-2">
-                        <div class="font-data-mono text-label-caps text-ink-body/50 mb-2">PHASE_02</div>
-                        <h3 class="font-display-lg-mobile text-headline-md-mobile text-ink-heading mb-4 group-hover:text-electric-coral transition-colors">Vision</h3>
-                        <p class="font-body-sm text-ink-body">Moved into computer vision — depth estimation and architecture decisions.</p>
+                    <div class="relative interactive group border border-blueprint-line p-6 bg-warm-pebble/40 backdrop-blur-sm hover:bg-warm-pebble/80 hover:-translate-y-2 hover:shadow-[0_0_20px_rgba(212,148,10,0.15)] hover:border-laser-cyan/40 transition-all duration-300 reveal-item delay-2 overflow-hidden rounded-lg">
+                        <div class="absolute inset-0 pointer-events-none z-0 select-none flex items-end justify-end p-2 opacity-5 group-hover:opacity-10 transition-opacity duration-300">
+                            <span class="text-7xl font-data-mono font-bold text-deep-slate-green leading-none">CV</span>
+                        </div>
+                        <div class="relative z-10">
+                            <div class="font-data-mono text-label-caps text-ink-body/50 mb-2">PHASE_02</div>
+                            <h3 class="font-display-lg-mobile text-headline-md-mobile text-ink-heading mb-4 group-hover:text-electric-coral transition-colors">Vision</h3>
+                            <p class="font-body-sm text-ink-body">Moved into computer vision — depth estimation and architecture decisions.</p>
+                        </div>
                     </div>
 
                     <!-- Phase 3 -->
-                    <div class="relative interactive group border border-blueprint-line p-6 bg-warm-pebble/40 backdrop-blur-sm hover:bg-warm-pebble/80 transition-colors reveal-item delay-3">
-                        <div class="font-data-mono text-label-caps text-ink-body/50 mb-2">PHASE_03</div>
-                        <h3 class="font-display-lg-mobile text-headline-md-mobile text-ink-heading mb-4 group-hover:text-ink-heading transition-colors">Creative</h3>
-                        <p class="font-body-sm text-ink-body">Explored GAN-based generation — training dynamics and instability.</p>
+                    <div class="relative interactive group border border-blueprint-line p-6 bg-warm-pebble/40 backdrop-blur-sm hover:bg-warm-pebble/80 hover:-translate-y-2 hover:shadow-[0_0_20px_rgba(212,148,10,0.15)] hover:border-laser-cyan/40 transition-all duration-300 reveal-item delay-3 overflow-hidden rounded-lg">
+                        <div class="absolute inset-0 pointer-events-none z-0 select-none flex items-end justify-end p-2 opacity-5 group-hover:opacity-10 transition-opacity duration-300">
+                            <span class="text-7xl font-data-mono font-bold text-deep-slate-green leading-none">GEN</span>
+                        </div>
+                        <div class="relative z-10">
+                            <div class="font-data-mono text-label-caps text-ink-body/50 mb-2">PHASE_03</div>
+                            <h3 class="font-display-lg-mobile text-headline-md-mobile text-ink-heading mb-4 group-hover:text-ink-heading transition-colors">Creative</h3>
+                            <p class="font-body-sm text-ink-body">Explored GAN-based generation — training dynamics and instability.</p>
+                        </div>
                     </div>
 
                     <!-- Phase 4 -->
-                    <div class="relative interactive group border border-blueprint-line p-6 bg-warm-pebble/40 backdrop-blur-sm hover:bg-warm-pebble/80 transition-colors reveal-item delay-4">
-                        <div class="font-data-mono text-label-caps text-ink-body/50 mb-2">PHASE_04</div>
-                        <h3 class="font-display-lg-mobile text-headline-md-mobile text-ink-heading mb-4 group-hover:text-laser-cyan transition-colors">Product</h3>
-                        <p class="font-body-sm text-ink-body">Built Neural Canvas — style transfer shipped to Hugging Face as a tool.</p>
+                    <div class="relative interactive group border border-blueprint-line p-6 bg-warm-pebble/40 backdrop-blur-sm hover:bg-warm-pebble/80 hover:-translate-y-2 hover:shadow-[0_0_20px_rgba(212,148,10,0.15)] hover:border-laser-cyan/40 transition-all duration-300 reveal-item delay-4 overflow-hidden rounded-lg">
+                        <div class="absolute inset-0 pointer-events-none z-0 select-none flex items-end justify-end p-2 opacity-5 group-hover:opacity-10 transition-opacity duration-300">
+                            <span class="text-7xl font-data-mono font-bold text-deep-slate-green leading-none">SYS</span>
+                        </div>
+                        <div class="relative z-10">
+                            <div class="font-data-mono text-label-caps text-ink-body/50 mb-2">PHASE_04</div>
+                            <h3 class="font-display-lg-mobile text-headline-md-mobile text-ink-heading mb-4 group-hover:text-laser-cyan transition-colors">Product</h3>
+                            <p class="font-body-sm text-ink-body">Built Neural Canvas — style transfer shipped to Hugging Face as a tool.</p>
+                        </div>
                     </div>
 
                     <!-- Phase 5 -->
-                    <div class="relative interactive group border-2 border-laser-cyan p-6 bg-laser-cyan/5 backdrop-blur-sm hover:bg-laser-cyan/10 transition-colors reveal-item delay-5">
+                    <div class="relative interactive group border-2 border-laser-cyan p-6 bg-laser-cyan/5 backdrop-blur-sm hover:bg-laser-cyan/10 hover:-translate-y-2 transition-all duration-300 reveal-item delay-5 overflow-hidden rounded-lg shadow-[0_0_15px_rgba(212,148,10,0.2)]">
+                        <div class="absolute inset-0 border-2 border-laser-cyan rounded-lg animate-[ping_3s_cubic-bezier(0,0,0.2,1)_infinite] opacity-30 pointer-events-none"></div>
+                        <div class="absolute inset-0 pointer-events-none z-0 select-none flex items-end justify-end p-2 opacity-5 group-hover:opacity-10 transition-opacity duration-300">
+                            <span class="text-7xl font-data-mono font-bold text-laser-cyan leading-none">OPS</span>
+                        </div>
                         <div class="intersection-node bottom-0 right-0"></div>
-                        <div class="font-data-mono text-label-caps text-laser-cyan mb-2 flex items-center gap-2"><span class="w-1.5 h-1.5 bg-laser-cyan rounded-full animate-pulse"></span> CURRENT</div>
-                        <h3 class="font-display-lg-mobile text-headline-md-mobile text-ink-heading mb-4 group-hover:text-electric-coral transition-colors">Systems</h3>
-                        <p class="font-body-sm text-ink-body">Investing in full-stack, cloud deployment, and DevOps to build complete AI systems.</p>
+                        <div class="relative z-10">
+                            <div class="font-data-mono text-label-caps text-laser-cyan mb-2 flex items-center gap-2"><span class="w-1.5 h-1.5 bg-laser-cyan rounded-full animate-pulse"></span> CURRENT</div>
+                            <h3 class="font-display-lg-mobile text-headline-md-mobile text-ink-heading mb-4 group-hover:text-electric-coral transition-colors">Systems</h3>
+                            <p class="font-body-sm text-ink-body">Investing in full-stack, cloud deployment, and DevOps to build complete AI systems.</p>
+                        </div>
                     </div>
                 </div>
+            </div>
             </div>
         </section>
 
@@ -508,63 +584,71 @@
                     </div>
 
                     <!-- The 3D Rotating Cluster -->
-                    <div id="orbital-cluster" class="orbital-cluster w-full h-full absolute top-0 left-0">
+                    <div id="orbital-cluster" class="orbital-cluster w-full h-full absolute top-0 left-0" style="transform-style: preserve-3d;">
+                        <!-- 3D Orbit Path -->
+                        <div class="absolute top-1/2 left-1/2 w-[680px] h-[680px] -translate-x-1/2 -translate-y-1/2 hidden md:block" style="transform: rotateX(90deg);">
+                            <svg class="w-full h-full animate-[spin_20s_linear_infinite]" viewBox="0 0 680 680" overflow="visible">
+                                <circle cx="340" cy="340" r="340" fill="none" stroke="rgba(212,148,10,0.3)" stroke-width="1" stroke-dasharray="4 12" />
+                                <circle cx="340" cy="340" r="336" fill="none" stroke="rgba(212,148,10,0.1)" stroke-width="4" />
+                            </svg>
+                        </div>
+                        
                         <!-- Node 1 -->
-                        <div class="orbit-node absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center w-[80vw] max-w-[700px]" data-angle="0">
-                            <h3 class="orbit-title font-display-lg text-2xl md:text-5xl lg:text-7xl uppercase tracking-tighter text-ink-primary">Computer Vision</h3>
+                        <div class="orbit-node absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center w-[80vw] max-w-[600px] bg-warm-pebble/40 backdrop-blur-md border border-blueprint-line/50 shadow-[0_10px_30px_rgba(24,36,32,0.1)] rounded-2xl p-6 transition-all duration-300" data-angle="0">
+                            <h3 class="orbit-title font-display-lg text-2xl md:text-5xl lg:text-6xl uppercase tracking-tighter text-ink-primary">Computer Vision</h3>
                             <div class="orbit-detail flex items-center justify-center gap-4 mt-2">
                                 <span class="h-[1px] w-8 bg-electric-coral"></span>
-                                <p class="font-data-mono text-[10px] md:text-xs tracking-[0.2em] uppercase text-ink-heading font-semibold">YOLOv8 // PyTorch // Custom CNN Arch.</p>
+                                <p class="font-data-mono text-micro-alt md:text-xs tracking-[0.2em] uppercase text-ink-heading font-semibold">YOLOv8 // PyTorch // Custom CNN Arch.</p>
                                 <span class="h-[1px] w-8 bg-electric-coral"></span>
                             </div>
                         </div>
                         
                         <!-- Node 2 -->
-                        <div class="orbit-node absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center w-[80vw] max-w-[700px]" data-angle="60">
-                            <h3 class="orbit-title font-display-lg text-2xl md:text-5xl lg:text-7xl uppercase tracking-tighter text-ink-primary">Architecture</h3>
+                        <div class="orbit-node absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center w-[80vw] max-w-[600px] bg-warm-pebble/40 backdrop-blur-md border border-blueprint-line/50 shadow-[0_10px_30px_rgba(24,36,32,0.1)] rounded-2xl p-6 transition-all duration-300" data-angle="60">
+                            <h3 class="orbit-title font-display-lg text-2xl md:text-5xl lg:text-6xl uppercase tracking-tighter text-ink-primary">Architecture</h3>
                             <div class="orbit-detail flex items-center justify-center gap-4 mt-2">
                                 <span class="h-[1px] w-8 bg-laser-cyan"></span>
-                                <p class="font-data-mono text-[10px] md:text-xs tracking-[0.2em] uppercase text-ink-heading font-semibold">FastAPI // Docker // K8s // Github</p>
+                                <p class="font-data-mono text-micro-alt md:text-xs tracking-[0.2em] uppercase text-ink-heading font-semibold">FastAPI // Docker // K8s // Github</p>
                                 <span class="h-[1px] w-8 bg-laser-cyan"></span>
                             </div>
                         </div>
                         
                         <!-- Node 3 -->
-                        <div class="orbit-node absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center w-[80vw] max-w-[700px]" data-angle="120">
-                            <h3 class="orbit-title font-display-lg text-2xl md:text-5xl lg:text-7xl uppercase tracking-tighter text-ink-primary">Generative AI</h3>
+                        <div class="orbit-node absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center w-[80vw] max-w-[600px] bg-warm-pebble/40 backdrop-blur-md border border-blueprint-line/50 shadow-[0_10px_30px_rgba(24,36,32,0.1)] rounded-2xl p-6 transition-all duration-300" data-angle="120">
+                            <h3 class="orbit-title font-display-lg text-2xl md:text-5xl lg:text-6xl uppercase tracking-tighter text-ink-primary">Generative AI</h3>
                             <div class="orbit-detail flex items-center justify-center gap-4 mt-2">
                                 <span class="h-[1px] w-8 bg-electric-coral"></span>
-                                <p class="font-data-mono text-[10px] md:text-xs tracking-[0.2em] uppercase text-ink-heading font-semibold">LLMs // LangChain // CLI Agents // MCP Integration</p>
+                                <p class="font-data-mono text-micro-alt md:text-xs tracking-[0.2em] uppercase text-ink-heading font-semibold">LLMs // LangChain // CLI Agents // MCP Integration</p>
                                 <span class="h-[1px] w-8 bg-electric-coral"></span>
                             </div>
                         </div>
 
                         <!-- Node 4 -->
-                        <div class="orbit-node absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center w-[80vw] max-w-[700px]" data-angle="180">
-                            <h3 class="orbit-title font-display-lg text-2xl md:text-5xl lg:text-7xl uppercase tracking-tighter text-ink-primary">Data Pipelines</h3>
+                        <div class="orbit-node absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center w-[80vw] max-w-[600px] bg-warm-pebble/40 backdrop-blur-md border border-blueprint-line/50 shadow-[0_10px_30px_rgba(24,36,32,0.1)] rounded-2xl p-6 transition-all duration-300" data-angle="180">
+                            <h3 class="orbit-title font-display-lg text-2xl md:text-5xl lg:text-6xl uppercase tracking-tighter text-ink-primary">Data Pipelines</h3>
                             <div class="orbit-detail flex items-center justify-center gap-4 mt-2">
                                 <span class="h-[1px] w-8 bg-laser-cyan"></span>
-                                <p class="font-data-mono text-[10px] md:text-xs tracking-[0.2em] uppercase text-ink-heading font-semibold">PostgreSQL // MongoDB // MySQL</p>
+                                <p class="font-data-mono text-micro-alt md:text-xs tracking-[0.2em] uppercase text-ink-heading font-semibold">PostgreSQL // MongoDB // MySQL</p>
                                 <span class="h-[1px] w-8 bg-laser-cyan"></span>
                             </div>
                         </div>
 
                         <!-- Node 5 -->
-                        <div class="orbit-node absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center w-[80vw] max-w-[700px]" data-angle="240">
-                            <h3 class="orbit-title font-display-lg text-2xl md:text-5xl lg:text-7xl uppercase tracking-tighter text-ink-primary">Full Stack</h3>
+                        <div class="orbit-node absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center w-[80vw] max-w-[600px] bg-warm-pebble/40 backdrop-blur-md border border-blueprint-line/50 shadow-[0_10px_30px_rgba(24,36,32,0.1)] rounded-2xl p-6 transition-all duration-300" data-angle="240">
+                            <h3 class="orbit-title font-display-lg text-2xl md:text-5xl lg:text-6xl uppercase tracking-tighter text-ink-primary">Full Stack</h3>
                             <div class="orbit-detail flex items-center justify-center gap-4 mt-2">
                                 <span class="h-[1px] w-8 bg-electric-coral"></span>
-                                <p class="font-data-mono text-[10px] md:text-xs tracking-[0.2em] uppercase text-ink-heading font-semibold">AnimeJS // NodeJS // ReactJS</p>
+                                <p class="font-data-mono text-micro-alt md:text-xs tracking-[0.2em] uppercase text-ink-heading font-semibold">React // NextJS // Tailwind // Express</p>
                                 <span class="h-[1px] w-8 bg-electric-coral"></span>
                             </div>
                         </div>
 
                         <!-- Node 6 -->
-                        <div class="orbit-node absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center w-[80vw] max-w-[700px]" data-angle="300">
-                            <h3 class="orbit-title font-display-lg text-2xl md:text-5xl lg:text-7xl uppercase tracking-tighter text-ink-primary">Edge Compute</h3>
+                        <div class="orbit-node absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center w-[80vw] max-w-[600px] bg-warm-pebble/40 backdrop-blur-md border border-blueprint-line/50 shadow-[0_10px_30px_rgba(24,36,32,0.1)] rounded-2xl p-6 transition-all duration-300" data-angle="300">
+                            <h3 class="orbit-title font-display-lg text-2xl md:text-5xl lg:text-6xl uppercase tracking-tighter text-ink-primary">System Ops</h3>
                             <div class="orbit-detail flex items-center justify-center gap-4 mt-2">
                                 <span class="h-[1px] w-8 bg-laser-cyan"></span>
-                                <p class="font-data-mono text-[10px] md:text-xs tracking-[0.2em] uppercase text-ink-heading font-semibold">TensorRT // ONNX // Low-latency inference</p>
+                                <p class="font-data-mono text-micro-alt md:text-xs tracking-[0.2em] uppercase text-ink-heading font-semibold">Linux // Git // CI/CD // Cloud</p>
                                 <span class="h-[1px] w-8 bg-laser-cyan"></span>
                             </div>
                         </div>
@@ -593,9 +677,10 @@
                     <div class="h-[1px] flex-grow bg-blueprint-line"></div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 relative z-10">
                     <!-- Terminal 1 -->
-                    <div class="odometer-container odometer-shadow p-6 interactive reveal-item delay-1">
+                    <div class="relative odometer-container odometer-shadow p-6 interactive reveal-item delay-1 bg-warm-pebble/40 backdrop-blur-sm border border-blueprint-line hover:border-laser-cyan/50 hover:-translate-y-2 hover:shadow-[0_10px_30px_rgba(212,148,10,0.15)] transition-all duration-300 rounded-lg overflow-hidden group">
+                        <div class="absolute inset-0 bg-[linear-gradient(to_bottom,transparent,rgba(212,148,10,0.1),transparent)] bg-[length:100%_200%] animate-[scan-line-sweep_3s_linear_infinite] opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
                         <div class="intersection-node top-0 left-0"></div>
                         <div class="intersection-node top-0 right-0"></div>
                         <div class="intersection-node bottom-0 left-0"></div>
@@ -608,11 +693,12 @@
                             <span class="metric-number odometer" data-value="150">150</span>
                             <span class="text-laser-cyan">+</span>
                         </div>
-                        <div class="font-body-sm text-body-sm text-ink-body">Open Source PRs Merged</div>
+                        <div class="font-body-sm text-body-sm text-ink-body relative z-10">Open Source PRs Merged</div>
                     </div>
 
                     <!-- Terminal 2 -->
-                    <div class="odometer-container odometer-shadow p-6 interactive reveal-item delay-2">
+                    <div class="relative odometer-container odometer-shadow p-6 interactive reveal-item delay-2 bg-warm-pebble/40 backdrop-blur-sm border border-blueprint-line hover:border-electric-coral/50 hover:-translate-y-2 hover:shadow-[0_10px_30px_rgba(155,52,34,0.15)] transition-all duration-300 rounded-lg overflow-hidden group">
+                        <div class="absolute inset-0 bg-[linear-gradient(to_bottom,transparent,rgba(155,52,34,0.1),transparent)] bg-[length:100%_200%] animate-[scan-line-sweep_3s_linear_infinite] opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
                         <div class="intersection-node top-0 left-0"></div>
                         <div class="intersection-node top-0 right-0"></div>
                         <div class="intersection-node bottom-0 left-0"></div>
@@ -625,11 +711,12 @@
                             <span class="metric-number odometer" data-value="1730">1730</span>
                             <span class="text-electric-coral">+</span>
                         </div>
-                        <div class="font-body-sm text-body-sm text-ink-body">LeetCode Rating</div>
+                        <div class="font-body-sm text-body-sm text-ink-body relative z-10">LeetCode Rating</div>
                     </div>
 
                     <!-- Terminal 3 -->
-                    <div class="odometer-container odometer-shadow p-6 bg-deep-slate-green text-warm-pebble interactive reveal-item delay-3">
+                    <div class="relative odometer-container odometer-shadow p-6 interactive reveal-item delay-3 bg-deep-slate-green text-warm-pebble border border-deep-slate-green hover:border-laser-cyan/50 hover:-translate-y-2 hover:shadow-[0_10px_30px_rgba(212,148,10,0.2)] transition-all duration-300 rounded-lg overflow-hidden group">
+                        <div class="absolute inset-0 bg-[linear-gradient(to_bottom,transparent,rgba(212,148,10,0.15),transparent)] bg-[length:100%_200%] animate-[scan-line-sweep_3s_linear_infinite] opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
                         <div class="intersection-node top-0 left-0 bg-warm-pebble"></div>
                         <div class="intersection-node top-0 right-0 bg-warm-pebble"></div>
                         <div class="intersection-node bottom-0 left-0 bg-warm-pebble"></div>
@@ -641,7 +728,7 @@
                         <div class="font-display-lg-mobile text-headline-md-mobile text-warm-pebble mb-2 flex items-baseline gap-1">
                             <span class="metric-number odometer" data-value="15">15</span>
                         </div>
-                        <div class="font-body-sm text-body-sm text-warm-pebble/80">Active Repositories</div>
+                        <div class="font-body-sm text-body-sm text-warm-pebble/80 relative z-10">Active Repositories</div>
                     </div>
                 </div>
             </div>
@@ -657,10 +744,14 @@
                 <div class="grid grid-cols-1 md:grid-cols-12 gap-8 relative z-10">
                     <!-- Left Column: Context / Archive -->
                     <div class="md:col-span-6 flex flex-col justify-center space-y-8 relative pl-gutter border-l border-blueprint-line bg-warm-pebble/50 backdrop-blur-sm reveal-item delay-1">
-                        <div class="font-data-mono text-label-caps text-ink-body/50">
+                        <div class="font-data-mono text-label-caps text-laser-cyan flex items-center gap-3 bg-laser-cyan/5 border border-laser-cyan/20 px-4 py-2 rounded-sm w-max shadow-[0_0_15px_rgba(212,148,10,0.1)]">
+                            <span class="relative flex h-2.5 w-2.5">
+                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-laser-cyan opacity-75"></span>
+                                <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-laser-cyan"></span>
+                            </span>
                             [ SYSTEM STATUS: ONLINE ]
                         </div>
-                        <h2 class="font-display-lg-mobile text-display-lg-mobile md:text-headline-md xl:text-[88px] text-ink-primary leading-none" data-scramble>
+                        <h2 class="font-display-lg-mobile text-display-lg-mobile md:text-headline-md xl:text-display-accent text-ink-primary leading-none" data-scramble>
                             Init<br/>Message
                         </h2>
                         <p class="font-body-sm text-body-sm text-ink-body max-w-sm">
@@ -668,9 +759,11 @@
                         </p>
                         <div class="mt-8">
                             <div class="font-label-caps text-label-caps mb-4 uppercase tracking-[0.15em] text-ink-body">Archive Comm Link</div>
-                            <div class="font-data-mono text-data-mono border border-blueprint-line p-4 rounded inline-block bg-muted-cream/50 backdrop-blur-sm shadow-[2px_2px_0px_0px_#182420]">
-                                <span class="text-laser-cyan mr-2">&gt;</span> dhruvgarg.garg123@gmail.com
-                            </div>
+                            <a href="mailto:dhruvgarg.garg123@gmail.com" class="group font-data-mono text-data-mono border border-blueprint-line p-4 rounded inline-flex items-center gap-2 bg-warm-pebble/80 hover:bg-laser-cyan/10 hover:border-laser-cyan backdrop-blur-sm shadow-[4px_4px_0px_0px_rgba(24,36,32,1)] hover:shadow-[6px_6px_0px_0px_rgba(212,148,10,0.4)] hover:-translate-y-1 transition-all duration-300 interactive relative overflow-hidden">
+                                <span class="absolute inset-0 w-full h-full bg-gradient-to-r from-laser-cyan/20 to-transparent -translate-x-full group-hover:animate-[sweep-right_1.5s_ease-in-out_infinite]"></span>
+                                <span class="text-laser-cyan animate-pulse group-hover:animate-none">&gt;</span> 
+                                <span class="relative z-10 text-ink-body group-hover:text-deep-slate-green transition-colors">dhruvgarg.garg123@gmail.com</span>
+                            </a>
                         </div>
                         <div class="flex gap-4 items-center">
                             <a href="https://github.com/DhruvGarg111" target="_blank" rel="noopener noreferrer" class="text-ink-body hover:text-electric-coral transition-colors interactive" aria-label="GitHub">
@@ -683,15 +776,22 @@
                     </div>
                     
                     <!-- Right Column: Form -->
-                    <div class="md:col-span-6 bg-muted-cream/80 backdrop-blur-md p-8 rounded relative z-20 border border-blueprint-line shadow-[4px_4px_0px_0px_#182420] reveal-item delay-3">
+                    <div class="md:col-span-6 bg-warm-pebble/80 backdrop-blur-md p-8 rounded relative z-20 border border-blueprint-line shadow-[8px_8px_0px_0px_#182420] hover:shadow-[12px_12px_0px_0px_#182420] hover:-translate-y-1 hover:-translate-x-1 transition-all duration-300 reveal-item delay-3 group">
+                        <!-- Blueprint Corner Reticles -->
+                        <div class="reticle-corner reticle-corner-tl opacity-50 group-hover:opacity-100 transition-opacity"></div>
+                        <div class="reticle-corner reticle-corner-tr opacity-50 group-hover:opacity-100 transition-opacity"></div>
+                        <div class="reticle-corner reticle-corner-bl opacity-50 group-hover:opacity-100 transition-opacity"></div>
+                        <div class="reticle-corner reticle-corner-br opacity-50 group-hover:opacity-100 transition-opacity"></div>
                         <form class="space-y-8 font-data-mono text-data-mono" action="https://formspree.io/f/xdkoqpvr" method="POST">
+                            <!-- Honeypot field for spam protection -->
+                            <input type="text" name="_gotcha" style="display:none" tabindex="-1" autocomplete="off">
                             <div class="relative group">
                                 <label class="block font-label-caps text-label-caps text-ink-body mb-1" for="id_vector">ID Vector (Name)</label>
-                                <input class="input-underline w-full bg-transparent text-ink-body py-2 focus:ring-0 interactive" id="id_vector" name="name" placeholder="Enter designation..." type="text" required/>
+                                <input class="input-underline w-full bg-transparent text-ink-body py-2 focus:ring-0 interactive" id="id_vector" name="name" placeholder="Enter designation..." type="text" autocomplete="name" required/>
                             </div>
                             <div class="relative group">
                                 <label class="block font-label-caps text-label-caps text-ink-body mb-1" for="comm_channel">Comm Channel (Email)</label>
-                                <input class="input-underline w-full bg-transparent text-ink-body py-2 focus:ring-0 interactive" id="comm_channel" name="email" placeholder="user@domain.com" type="email" required/>
+                                <input class="input-underline w-full bg-transparent text-ink-body py-2 focus:ring-0 interactive" id="comm_channel" name="email" placeholder="user@domain.com" type="email" autocomplete="email" required/>
                             </div>
                             <div class="relative group">
                                 <label class="block font-label-caps text-label-caps text-ink-body mb-1" for="payload">Payload Data (Message)</label>
@@ -716,6 +816,14 @@
 
         </div> <!-- end world-3d -->
     </main> <!-- end viewport-3d -->
+
+    <!-- Mobile Experience Toast -->
+    <div class="md:hidden fixed bottom-4 left-4 right-4 z-50 bg-deep-slate-green/90 backdrop-blur-md text-warm-pebble font-data-mono text-xs p-3 rounded shadow-lg border border-laser-cyan/30 flex items-center justify-center text-center opacity-90 pointer-events-none transition-opacity duration-1000" id="mobile-toast">
+        <span class="flex items-center justify-center gap-2">
+            <span class="material-symbols-outlined text-base text-laser-cyan">desktop_windows</span>
+            View on PC for best experience
+        </span>
+    </div>
 
     <script src="assets/js/script.js"></script>
 </body>

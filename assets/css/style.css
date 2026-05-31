@@ -1,11 +1,9 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* Note: Tailwind is loaded via CDN in index.html, no build-step directives needed */
 
 /* ======== CSS CUSTOM PROPERTIES ======== */
 :root {
     --color-deep-slate: #182420;
-    --color-warm-pebble: #F2EDDF;
+    --color-warm-pebble: #EDEAE2;
     --color-laser-cyan: #D4940A;
     --color-electric-coral: #9B3422;
     --color-blueprint-line: rgba(24, 36, 32, 0.12);
@@ -60,11 +58,93 @@ body {
 
 /* --- Blueprint Grid Background (overlaying WebGL subtly) --- */
 .blueprint-bg {
+    position: relative;
     background-image:
-        linear-gradient(to right, rgba(24, 36, 32, 0.12) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(24, 36, 32, 0.12) 1px, transparent 1px);
-    background-size: 48px 48px;
+        /* Major grid */
+        linear-gradient(to right, rgba(24, 36, 32, 0.18) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(24, 36, 32, 0.18) 1px, transparent 1px),
+        /* Minor grid */
+        linear-gradient(to right, rgba(24, 36, 32, 0.07) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(24, 36, 32, 0.07) 1px, transparent 1px);
+    background-size: 96px 96px, 96px 96px, 48px 48px, 48px 48px;
     background-position: center top;
+}
+
+/* Radial Vignette Overlay */
+.blueprint-bg::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 1;
+    background: radial-gradient(circle at center, transparent 30%, rgba(24, 36, 32, 0.08) 100%);
+}
+
+/* Animated Scan-line Sweep */
+.blueprint-bg::after {
+    content: '';
+    position: fixed;
+    top: -5px;
+    left: 0;
+    width: 100vw;
+    height: 2px;
+    background: linear-gradient(to right, transparent 0%, rgba(212, 148, 10, 0.08) 50%, transparent 100%);
+    box-shadow: 0 0 10px rgba(212, 148, 10, 0.15);
+    pointer-events: none;
+    z-index: 2;
+    animation: scan-line-sweep 15s linear infinite;
+    will-change: transform;
+}
+
+@keyframes scan-line-sweep {
+    0% { transform: translateY(-10px); }
+    100% { transform: translateY(105vh); }
+}
+
+/* WebGL edge fade */
+.webgl-edge-fade {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 1;
+    background: linear-gradient(to bottom, var(--color-warm-pebble) 0%, transparent 15%, transparent 85%, var(--color-warm-pebble) 100%);
+}
+
+/* Ambient gradient light pools */
+.ambient-blob {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(100px);
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.04;
+}
+.ambient-blob-1 {
+    width: 600px;
+    height: 600px;
+    top: -100px;
+    left: -100px;
+    background: radial-gradient(circle, var(--color-laser-cyan) 0%, transparent 70%);
+}
+.ambient-blob-2 {
+    width: 800px;
+    height: 800px;
+    bottom: -200px;
+    right: -200px;
+    background: radial-gradient(circle, var(--color-electric-coral) 0%, transparent 70%);
+}
+.ambient-blob-3 {
+    width: 500px;
+    height: 500px;
+    top: 40%;
+    left: 60%;
+    background: radial-gradient(circle, var(--color-laser-cyan) 0%, transparent 70%);
 }
 
 .intersection-node {
@@ -76,60 +156,6 @@ body {
     transform: translate(-50%, -50%);
 }
 
-/* --- Custom Cursor --- */
-.custom-cursor-dot {
-    width: 6px;
-    height: 6px;
-    background-color: #9B3422;
-    border-radius: 50%;
-    position: fixed;
-    top: 0;
-    left: 0;
-    pointer-events: none;
-    z-index: 9999;
-    display: none;
-    transform: translate(-50%, -50%);
-    transition: width 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275),
-                height 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275),
-                background-color 0.3s ease;
-}
-
-.custom-cursor-ring {
-    width: 32px;
-    height: 32px;
-    border: 1px solid #9B3422;
-    border-radius: 50%;
-    position: fixed;
-    top: 0;
-    left: 0;
-    pointer-events: none;
-    z-index: 9998;
-    display: none;
-    transform: translate(-50%, -50%);
-    transition: opacity 0.3s;
-    opacity: 0;
-}
-
-body.custom-cursor-enabled {
-    cursor: none;
-}
-
-body.custom-cursor-enabled .custom-cursor-ring,
-body.custom-cursor-enabled .custom-cursor-dot {
-    display: block;
-}
-
-body:hover .custom-cursor-ring.active {
-    opacity: 1;
-}
-
-/* Only show custom cursor on devices with a fine pointer (mouse) */
-@media (hover: hover) and (pointer: fine) {
-    body.custom-cursor-enabled { cursor: none; }
-}
-@media not all and (hover: hover) and (pointer: fine) {
-    .custom-cursor-ring, .custom-cursor-dot { display: none !important; }
-}
 
 /* --- Layout Structure --- */
 .scroll-proxy {
@@ -203,6 +229,30 @@ body.no-webgl .z-content {
     box-sizing: border-box;
     transform-style: flat;
     backdrop-filter: none;
+}
+
+.floating-particle {
+    position: absolute;
+    border-radius: 50%;
+    background: currentColor;
+    pointer-events: none;
+    animation: float-up-particle var(--duration, 10s) linear infinite;
+    opacity: 0;
+    will-change: transform, opacity;
+}
+@keyframes float-up-particle {
+    0% { transform: translateY(0) scale(1); opacity: 0; }
+    20% { opacity: var(--max-opacity, 0.4); }
+    80% { opacity: var(--max-opacity, 0.4); }
+    100% { transform: translateY(-100vh) scale(0.5); opacity: 0; }
+}
+
+@keyframes sweep-right {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+.animate-sweep {
+    animation: sweep-right 3s ease-in-out infinite alternate;
 }
 
 @media (max-width: 767px) {
@@ -330,12 +380,12 @@ body.no-webgl .z-content {
     width: 10px;
 }
 ::-webkit-scrollbar-track {
-    background: #F2EDDF;
+    background: #EDEAE2;
     border-left: 1px solid rgba(24, 36, 32, 0.1);
 }
 ::-webkit-scrollbar-thumb {
     background: rgba(24, 36, 32, 0.25);
-    border: 3px solid #F2EDDF;
+    border: 3px solid #EDEAE2;
     border-radius: 5px;
     transition: background-color 0.3s ease;
 }
@@ -479,7 +529,7 @@ body.no-webgl .z-content {
 
 .orbit-node {
     transform-style: preserve-3d;
-    will-change: transform, opacity, filter;
+    will-change: transform, opacity;
     /* Pointer events none so it doesn't block the drag on the viewport */
     pointer-events: none;
 }
@@ -491,10 +541,10 @@ body.no-webgl .z-content {
     line-height: 0.9;
     /* Strong opaque glow for high contrast against 3D background */
     text-shadow: 
-        0 0 20px rgba(242, 237, 223, 1),
-        0 0 40px rgba(242, 237, 223, 0.9),
-        0 0 60px rgba(242, 237, 223, 0.7),
-        0 2px 4px rgba(242, 237, 223, 0.95);
+        0 0 20px rgba(237, 234, 226, 1),
+        0 0 40px rgba(237, 234, 226, 0.9),
+        0 0 60px rgba(237, 234, 226, 0.7),
+        0 2px 4px rgba(237, 234, 226, 0.95);
     transition: color 0.3s ease;
 }
 
@@ -502,7 +552,7 @@ body.no-webgl .z-content {
     opacity: 0;
     transform: translateY(10px);
     transition: opacity 0.3s ease, transform 0.3s ease;
-    background: rgba(242, 237, 223, 0.85);
+    background: rgba(237, 234, 226, 0.85);
     backdrop-filter: blur(6px);
     padding: 6px 16px;
     border-radius: 4px;
@@ -518,9 +568,9 @@ body.no-webgl .z-content {
     .orbit-title {
         font-size: 2rem;
         text-shadow: 
-            0 0 15px rgba(242, 237, 223, 1),
-            0 0 30px rgba(242, 237, 223, 0.9),
-            0 2px 4px rgba(242, 237, 223, 0.95);
+            0 0 15px rgba(237, 234, 226, 1),
+            0 0 30px rgba(237, 234, 226, 0.9),
+            0 2px 4px rgba(237, 234, 226, 0.95);
         white-space: normal;
     }
     .orbit-node {
@@ -687,8 +737,7 @@ body.no-webgl .z-content {
 @media (max-width: 767px) {
     /* Give z-content containers a semi-opaque background for readability */
     .z-content {
-        background: rgba(242, 237, 223, 0.85);
-        backdrop-filter: blur(6px);
+        background: rgba(237, 234, 226, 0.92);
         border-radius: 8px;
         padding: 16px;
     }
@@ -775,4 +824,6 @@ body.no-webgl .z-content {
     .orbit-node { transition: none !important; }
     .custom-cursor-ring, .custom-cursor-dot { display: none !important; }
     .btn-spring:hover { transform: none; }
+    .floating-particle, .hero-glow, .ambient-blob { animation: none !important; display: none !important; }
+    .blueprint-bg::after { display: none !important; }
 }
