@@ -1,830 +1,574 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dhruv Garg | AI/ML Engineer & Full-Stack Developer</title>
-    <meta name="description" content="Dhruv Garg — AI/ML engineer building intelligent systems in computer vision, generative AI, and full-stack development. View projects, skills, and get in touch.">
-    <meta name="keywords" content="Dhruv Garg, AI, ML, Computer Vision, Full Stack, Portfolio, PyTorch, Deep Learning">
-    <meta property="og:title" content="Dhruv Garg | AI/ML Engineer &amp; Full-Stack Developer">
-    <meta property="og:description" content="Building intelligent systems that see, understand, and create. Explore my projects in computer vision, generative AI, and production ML.">
-    <meta property="og:type" content="website">
-    <meta property="og:image" content="https://dhruvgarg111.github.io/assets/img/logo.png">
-    <meta property="og:url" content="https://dhruvgarg111.github.io/">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Dhruv Garg | AI/ML Engineer">
-    <meta name="twitter:description" content="Building intelligent systems that see, understand, and create.">
-    <meta name="twitter:image" content="https://dhruvgarg111.github.io/assets/img/logo.png">
-    <link rel="canonical" href="https://dhruvgarg111.github.io/">
-    <script>
-        // Trailing slash redirect to ensure relative paths resolve correctly
-        if (window.location.pathname.endsWith('/v4')) {
-            window.location.replace(window.location.pathname + '/' + window.location.search + window.location.hash);
-        }
-    </script>
-    <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
-    <link rel="icon" type="image/png" sizes="32x32" href="assets/img/logo.png">
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preconnect" href="https://cdn.tailwindcss.com">
-    <link rel="preconnect" href="https://cdn.jsdelivr.net">
-    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:ital,wght@0,400..700;1,400..700&family=Schibsted+Grotesk:ital,wght@0,400..900;1,400..900&family=Azeret+Mono:ital,wght@0,100..900;1,100..900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="assets/css/style.css">
-    
-    <script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        "laser-cyan": "#D4940A",
-                        "deep-slate-green": "#182420",
-                        "electric-coral": "#9B3422",
-                        "warm-pebble": "#EDEAE2",
-                        "blueprint-line": "rgba(24, 36, 32, 0.12)",
-                        "muted-cream": "#E5DFCD",
-                        "inverse-surface": "#2A2A29",
-                        "ink-primary": "#1A2C42",
-                        "ink-heading": "#263E5A",
-                        "ink-body": "#4A6583",
-                    },
-                    spacing: {
-                        "gutter": "24px",
-                        "grid-unit": "8px",
-                        "margin-mobile": "20px",
-                        "margin-tablet": "32px",
-                        "margin-desktop": "64px",
-                        "blueprint-step": "48px"
-                    },
-                    fontFamily: {
-                        "display-lg": ["Familjen Grotesk", "sans-serif"],
-                        "body-sm": ["Schibsted Grotesk", "sans-serif"],
-                        "data-mono": ["Azeret Mono", "monospace"],
-                        "label-caps": ["Azeret Mono", "monospace"],
-                        "rajdhani": ["Rajdhani", "sans-serif"],
-                        "display-lg-mobile": ["Familjen Grotesk", "sans-serif"],
-                        "body-lg": ["Schibsted Grotesk", "sans-serif"],
-                        "headline-md-mobile": ["Familjen Grotesk", "sans-serif"],
-                        "headline-md": ["Familjen Grotesk", "sans-serif"]
-                    },
-                    fontSize: {
-                        "display-lg": ["120px", { "lineHeight": "110%", "letterSpacing": "-0.02em", "fontWeight": "600" }],
-                        "body-sm": ["15px", { "lineHeight": "1.6", "fontWeight": "400" }],
-                        "data-mono": ["14px", { "lineHeight": "1.4", "fontWeight": "400" }],
-                        "label-caps": ["12px", { "lineHeight": "1.2", "letterSpacing": "0.15em", "fontWeight": "400" }],
-                        "display-lg-mobile": ["64px", { "lineHeight": "110%", "letterSpacing": "-0.02em", "fontWeight": "600" }],
-                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
-                        "headline-md-mobile": ["32px", { "lineHeight": "120%", "fontWeight": "500" }],
-                        "headline-md": ["48px", { "lineHeight": "120%", "fontWeight": "500" }],
-                        "micro": "9px",
-                        "micro-alt": "10px",
-                        "display-hero-mobile": "110px",
-                        "display-hero": "160px",
-                        "display-accent": "88px"
-                    }
-                }
-            }
-        }
-    </script>
-    
-    <!-- Anime.js v4 -->
-    <script src="https://cdn.jsdelivr.net/npm/animejs@4.4.1/dist/bundles/anime.umd.min.js"></script>
-    <!-- Three.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dhruv Garg — Ground Truth</title>
+  <meta name="description" content="Dhruv Garg builds perception systems that ship — coarse-to-fine computer vision, production PyTorch, and full-stack ML infrastructure.">
+  <meta name="theme-color" content="#EDE7DA" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#1A2838" media="(prefers-color-scheme: dark)">
+  <meta property="og:title" content="Dhruv Garg — Ground Truth">
+  <meta property="og:description" content="Field survey of production ML: Searchlight, Neural Canvas, PixelQueue, PyGOG.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://www.dhruvgarg.tech/">
+  <meta property="og:image" content="https://www.dhruvgarg.tech/assets/img/og-card.jpg">
+  <meta property="og:site_name" content="Dhruv Garg">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Dhruv Garg — Ground Truth">
+  <meta name="twitter:description" content="Production ML engineer. Computer vision, generative systems, and the full stack around them.">
+  <link rel="canonical" href="https://www.dhruvgarg.tech/">
+  <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Barlow+Condensed:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Barlow+Condensed:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"></noscript>
+  <link rel="stylesheet" href="assets/css/style.css?v=2">
 </head>
+<body>
+  <div class="loader" id="loader" aria-label="Loading" role="status">
+    <div class="loader__inner">
+      <div class="loader__logo">
+        <svg width="48" height="48" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+          <polygon class="loader__hex loader__hex--outer" points="24,2 44,13 44,35 24,46 4,35 4,13" fill="none" stroke="var(--survey)" stroke-width="1.5"/>
+          <polygon class="loader__hex loader__hex--mid" points="24,9 38,17 38,31 24,39 10,31 10,17" fill="none" stroke="var(--survey)" stroke-width="1" opacity="0.7"/>
+          <polygon class="loader__hex loader__hex--inner" points="24,16 32,21 32,27 24,32 16,27 16,21" fill="none" stroke="var(--survey)" stroke-width="1" opacity="0.4"/>
+          <circle cx="24" cy="24" r="3" fill="var(--survey)" class="loader__core"/>
+        </svg>
+      </div>
+      <div class="loader__text">
+        <span class="loader__name mono">DHRUV GARG</span>
+        <span class="loader__status mono" id="loader-status">INITIALIZING DEPTH ENGINE</span>
+      </div>
+      <div class="loader__bar">
+        <div class="loader__bar-fill" id="loader-bar"></div>
+      </div>
+      <div class="loader__depth mono" id="loader-depth">0m</div>
+    </div>
+  </div>
 
-<body class="blueprint-bg text-ink-body antialiased overflow-x-hidden font-body-lg">
-    <!-- Procedural Noise Texture -->
-    <svg style="position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1;opacity:0.04">
-        <filter id="grain"><feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/></filter>
-        <rect width="100%" height="100%" filter="url(#grain)"/>
+  <a class="skip-link" href="#hero">Skip to content</a>
+
+  <!-- ═══ ATMOSPHERIC LAYERS ═══ -->
+  <canvas id="neural-bg-canvas" aria-hidden="true"></canvas>
+  <div class="fog-vignette" id="fog-vignette" aria-hidden="true"></div>
+  <div class="paper-grain" aria-hidden="true"></div>
+  <canvas id="fluid-canvas" aria-hidden="true"></canvas>
+
+  <!-- ═══ DEPTH GAUGE (right side — draggable navigation) ═══ -->
+  <div class="depth-gauge" id="depth-gauge" role="navigation" aria-label="Depth navigation — click or drag to navigate sections">
+    <div class="depth-gauge__track" id="depth-gauge-track" role="slider" aria-label="Scroll depth" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" tabindex="0">
+      <div class="depth-gauge__fill" id="depth-fill"></div>
+      <div class="depth-gauge__marker" id="depth-marker"></div>
+    </div>
+    <div class="depth-gauge__labels">
+      <span class="depth-gauge__label" style="top:0%">0m</span>
+      <span class="depth-gauge__label is-active" data-section="hero" style="top:5%">SURFACE</span>
+      <span class="depth-gauge__label" data-section="perception" style="top:16%">1200m</span>
+      <span class="depth-gauge__label" data-section="training" style="top:29%">2400m</span>
+      <span class="depth-gauge__label" data-section="infrastructure" style="top:42%">3600m</span>
+      <span class="depth-gauge__label" data-section="interface" style="top:54%">4800m</span>
+      <span class="depth-gauge__label" data-section="journey" style="top:66%">6000m</span>
+      <span class="depth-gauge__label" data-section="skills" style="top:78%">7200m</span>
+      <span class="depth-gauge__label" data-section="proof" style="top:88%">8400m</span>
+      <span class="depth-gauge__label" data-section="contact" style="top:97%">CORE</span>
+    </div>
+  </div>
+
+  <!-- ═══ VELOCITY HUD ═══ -->
+  <div class="velocity-hud" id="velocity-hud" aria-hidden="true">
+    <div class="hud-row">
+      <span class="hud-label">DEPTH</span>
+      <span class="hud-value" id="hud-depth">0m</span>
+    </div>
+    <div class="hud-row">
+      <span class="hud-label">STRATUM</span>
+      <span class="hud-value" id="hud-stratum">SURFACE</span>
+    </div>
+    <div class="hud-row">
+      <span class="hud-label">DRILL SPEED</span>
+      <span class="hud-value" id="hud-speed">0.00</span>
+    </div>
+  </div>
+
+  <!-- ═══ STACK TRACE (bottom bar) ═══ -->
+  <div class="stack-trace" id="stack-trace">
+    <span class="st-seg is-active" data-seg="perception">perception/searchlight</span>
+    <span class="st-arrow">→</span>
+    <span class="st-seg" data-seg="training">training/vgg-perceptual</span>
+    <span class="st-arrow">→</span>
+    <span class="st-seg" data-seg="infra">infra/celery-fastapi</span>
+    <span class="st-arrow">→</span>
+    <span class="st-seg" data-seg="interface">interface/typer-agents</span>
+  </div>
+
+  <!-- ═══ STRATA: Content layer (all sections fixed) ═══ -->
+  <div class="strata" id="strata">
+
+    <!-- ── HERO ── -->
+    <section class="stratum is-active" id="hero">
+      <div class="stratum__inner hero-layout">
+        <div class="hero__left">
+          <p class="hero__status mono">COARSE PASS — FULL FRAME</p>
+          <h1 class="hero__name" id="hero-name" aria-label="Dhruv Garg">
+            <span class="hero__word" data-word="DHRUV">
+              <span class="hero__char">D</span><span class="hero__char">H</span><span class="hero__char">R</span><span class="hero__char">U</span><span class="hero__char">V</span>
+            </span>
+            <span class="hero__word hero__word--accent" data-word="GARG">
+              <span class="hero__char">G</span><span class="hero__char">A</span><span class="hero__char">R</span><span class="hero__char">G</span>
+            </span>
+          </h1>
+          <p class="hero__role mono">AI / ML ENGINEER</p>
+          <p class="hero__tagline">
+            I ship <strong>PyTorch models</strong> to <strong>production</strong> —
+            computer vision, generative systems, and the full stack around them.
+            <strong>4 production systems</strong>. Scroll to drill.
+          </p>
+          <p class="hero__coords mono">28.7041° N · 77.1025° E</p>
+          <div class="hero__legend mono" aria-label="Portfolio signal summary">
+            <span><strong>04</strong> shipped systems</span>
+            <span><strong>CV</strong> inference</span>
+            <span><strong>LLM</strong> agents</span>
+          </div>
+        </div>
+        <div class="hero__right">
+          <div class="hero__image-wrap" id="hero-image-wrap">
+            <picture>
+              <source srcset="assets/img/hero-aerial-400.webp 400w, assets/img/hero-aerial-800.webp 800w, assets/img/hero-aerial-1200.webp 1200w" sizes="(min-width: 900px) 380px, 85vw" type="image/webp">
+              <img class="hero__image" src="assets/img/hero-aerial-800.jpg" alt="Aerial survey field" width="800" height="800" fetchpriority="high" decoding="async">
+            </picture>
+            <div class="hero__scan-beam" id="hero-scan"></div>
+            <div class="survey-brackets"></div>
+          </div>
+        </div>
+        <div class="hero__scroll-cue" id="hero-scroll-cue">
+          <span class="mono">SCROLL TO DRILL</span>
+          <svg width="16" height="24" viewBox="0 0 16 24" aria-hidden="true" focusable="false"><path d="M8 4v16M2 14l6 6 6-6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── PERCEPTION / SEARCHLIGHT ── -->
+    <section class="stratum" id="perception">
+      <div class="stratum__window">
+      <div class="stratum__inner">
+        <div class="stratum__label mono">Stratum I · 1200m</div>
+        <div class="stratum__grid">
+          <div class="stratum__copy">
+            <p class="stratum__id mono">SP-01 · Searchlight Protocol</p>
+            <h2 class="stratum__title">Coarse-to-Fine<br>Detection</h2>
+            <p class="stratum__desc">Pipeline for small-object detection in high-resolution aerial imagery. Intelligently slices regions of interest, skipping 80%+ of empty background before fine inference.</p>
+            <div class="stratum__tags"><span>Python</span><span>PyTorch</span><span>LayerCAM</span></div>
+            <a class="stratum__link" href="https://github.com/DhruvGarg111/The-Searchlight-Protocol" target="_blank" rel="noopener noreferrer">View repository →</a>
+          </div>
+          <div class="stratum__visual">
+            <div class="aerial-stage" id="aerial-stage">
+              <img class="aerial-stage__base" src="assets/img/hero-aerial-800.jpg" alt="" width="800" height="800" loading="lazy" decoding="async">
+              <img class="aerial-stage__sharp" src="assets/img/hero-aerial-800.jpg" alt="" width="800" height="800" loading="lazy" decoding="async" aria-hidden="true">
+              <div class="aerial-stage__roi" aria-hidden="true"></div>
+            </div>
+            <figure class="arch-figure">
+              <img src="assets/img/searchlight.svg" width="2160" height="1080" alt="Searchlight architecture" loading="lazy" decoding="async">
+              <figcaption class="mono">coarse detector → ROI slice → fine detect</figcaption>
+            </figure>
+          </div>
+        </div>
+      </div>
+      </div>
+    </section>
+
+    <!-- ── TRAINING / NEURAL CANVAS ── -->
+    <section class="stratum stratum--dark" id="training">
+      <div class="stratum__window">
+      <div class="stratum__inner">
+        <div class="stratum__label mono">Stratum II · 2400m</div>
+        <div class="stratum__grid stratum__grid--reverse">
+          <div class="stratum__visual">
+            <div class="seam-stage" id="seam-stage">
+              <div class="seam-stage__content">
+                <svg viewBox="0 0 800 400" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"><rect width="100%" height="100%" fill="#E5DFCD"/><g stroke="rgba(26,43,60,0.06)" stroke-width="1"><line x1="0" y1="100" x2="800" y2="100"/><line x1="0" y1="200" x2="800" y2="200"/><line x1="0" y1="300" x2="800" y2="300"/><line x1="200" y1="0" x2="200" y2="400"/><line x1="400" y1="0" x2="400" y2="400"/><line x1="600" y1="0" x2="600" y2="400"/></g><path d="M100 350 L300 120 L500 350 Z" fill="none" stroke="#1A2B3C" stroke-width="2" opacity="0.6"/><circle cx="550" cy="120" r="40" fill="none" stroke="#1A2B3C" stroke-width="2" opacity="0.5"/></svg>
+              </div>
+              <div class="seam-stage__style">
+                <svg viewBox="0 0 800 400" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"><rect width="100%" height="100%" fill="#1A2B3C"/><path d="M-50 200 C 150 100,250 300,450 200 C 650 100,750 300,850 200" fill="none" stroke="#E8B86D" stroke-width="18" stroke-linecap="round" opacity="0.6"/><path d="M-50 240 C 150 140,250 340,450 240 C 650 140,750 340,850 240" fill="none" stroke="#C45C26" stroke-width="12" stroke-linecap="round" opacity="0.7"/><circle cx="550" cy="120" r="60" fill="#E8B86D" opacity="0.8"/><circle cx="550" cy="120" r="45" fill="#C45C26" opacity="0.9"/></svg>
+              </div>
+              <div class="seam-stage__divider" id="seam-divider"></div>
+            </div>
+            <figure class="arch-figure arch-figure--dark">
+              <img src="assets/img/neural_canvas.svg" width="2160" height="1080" alt="Neural Canvas architecture" loading="lazy" decoding="async">
+              <figcaption class="mono">VGG-16 perceptual loss → transformer → stylized output</figcaption>
+            </figure>
+          </div>
+          <div class="stratum__copy">
+            <p class="stratum__id mono">NC-03 · Neural Canvas</p>
+            <h2 class="stratum__title">Perceptual<br>Style Transfer</h2>
+            <p class="stratum__desc">Feed-forward neural style transfer with perceptual loss via VGG-16 — shipped to Hugging Face with ONNX export.</p>
+            <div class="stratum__tags"><span>PyTorch</span><span>VGG-16</span><span>ONNX</span></div>
+            <a class="stratum__link" href="https://github.com/DhruvGarg111/Neural-Style-Transfer" target="_blank" rel="noopener noreferrer">View repository →</a>
+          </div>
+        </div>
+      </div>
+      </div>
+    </section>
+
+    <!-- ── INFRASTRUCTURE / PIXELQUEUE ── -->
+    <section class="stratum" id="infrastructure">
+      <div class="stratum__window">
+      <div class="stratum__inner">
+        <div class="stratum__label mono">Stratum III · 3600m</div>
+        <div class="stratum__grid">
+          <div class="stratum__copy">
+            <p class="stratum__id mono">PQ-02 · PixelQueue</p>
+            <h2 class="stratum__title">Async Annotation<br>Infrastructure</h2>
+            <p class="stratum__desc">React-Konva canvas, FastAPI, Celery workers, Redis broker, and PostgreSQL for human-in-the-loop vision pipelines.</p>
+            <div class="stratum__tags"><span>React</span><span>Celery</span><span>PostgreSQL</span><span>FastAPI</span></div>
+            <a class="stratum__link" href="https://github.com/DhruvGarg111/PixelQueue" target="_blank" rel="noopener noreferrer">View repository →</a>
+          </div>
+          <div class="stratum__visual">
+            <div class="pipeline" id="pipeline">
+              <div class="pipe-card pipe-card--ui">
+                <div class="pipe-card__grid-bg"></div>
+                <div class="pipe-card__bbox"><span class="mono">car: 0.94</span></div>
+                <div class="pipe-card__name mono">React-Konva</div>
+              </div>
+              <div class="pipe-connector"><svg viewBox="0 0 40 4" aria-hidden="true" focusable="false"><line x1="0" y1="2" x2="40" y2="2" stroke="var(--survey)" stroke-width="2" stroke-dasharray="4 3"/></svg></div>
+              <div class="pipe-card pipe-card--api">
+                <div class="pipe-card__route mono"><span class="route-method">POST</span> /api/v1/annotate</div>
+                <code class="pipe-card__json mono">{"id": 1042, "class": "car"}</code>
+                <div class="pipe-card__status mono">202 Accepted</div>
+                <div class="pipe-card__name mono">FastAPI</div>
+              </div>
+              <div class="pipe-connector"><svg viewBox="0 0 40 4" aria-hidden="true" focusable="false"><line x1="0" y1="2" x2="40" y2="2" stroke="var(--survey)" stroke-width="2" stroke-dasharray="4 3"/></svg></div>
+              <div class="pipe-card pipe-card--worker">
+                <div class="pipe-task pipe-task--done mono"><span>#1041</span><span>OK</span></div>
+                <div class="pipe-task pipe-task--active mono"><span>#1042</span><span>RUN</span><span class="spinner"></span></div>
+                <div class="pipe-task pipe-task--pending mono"><span>#1043</span><span>…</span></div>
+                <div class="pipe-card__name mono">Celery</div>
+              </div>
+              <div class="pipe-connector"><svg viewBox="0 0 40 4" aria-hidden="true" focusable="false"><line x1="0" y1="2" x2="40" y2="2" stroke="var(--survey)" stroke-width="2" stroke-dasharray="4 3"/></svg></div>
+              <div class="pipe-card pipe-card--db">
+                <div class="pipe-card__header mono">annotations</div>
+                <table class="pipe-table mono"><tr class="db-new"><td>1042</td><td>car</td><td>0.94</td></tr><tr><td>1041</td><td>truck</td><td>0.89</td></tr></table>
+                <div class="pipe-card__name mono">PostgreSQL</div>
+              </div>
+            </div>
+            <figure class="arch-figure">
+              <img src="assets/img/pixelqueue.svg" width="2160" height="1080" alt="PixelQueue architecture" loading="lazy" decoding="async">
+              <figcaption class="mono">React UI → FastAPI → Celery → ML workers → PostgreSQL</figcaption>
+            </figure>
+          </div>
+        </div>
+      </div>
+      </div>
+    </section>
+
+    <!-- ── INTERFACE / PYGOG ── -->
+    <section class="stratum stratum--dark" id="interface">
+      <div class="stratum__window">
+      <div class="stratum__inner">
+        <div class="stratum__label mono">Stratum IV · 4800m</div>
+        <div class="stratum__grid stratum__grid--reverse">
+          <div class="stratum__visual">
+            <div class="terminal" id="terminal">
+              <div class="terminal__chrome"><span class="tdot"></span><span class="tdot"></span><span class="tdot"></span><span class="terminal__title mono">pygog — agentic CLI</span></div>
+              <div class="terminal__body">
+                <p class="tline"><span class="tprompt">$</span> pygog "Schedule a meeting with the ML team for Thursday"</p>
+                <p class="tline">Parsing intent…</p>
+                <p class="tline">Detected: Calendar.CreateEvent</p>
+                <p class="tline">Resolved: ML Team → 5 contacts</p>
+                <p class="tline">Found slot: Thu 2:00 PM – 3:00 PM</p>
+                <p class="tline tline--ok">Event created · 5 attendees notified</p>
+                <p class="tline"><span class="tprompt">$</span> <span class="tcursor">▍</span></p>
+              </div>
+            </div>
+            <figure class="arch-figure arch-figure--dark">
+              <img src="assets/img/pygog.svg" width="2160" height="1080" alt="PyGOG CLI architecture" loading="lazy" decoding="async">
+              <figcaption class="mono">Typer CLI · LLM intent parsing · OAuth2 tool routing</figcaption>
+            </figure>
+          </div>
+          <div class="stratum__copy">
+            <p class="stratum__id mono">PG-04 · PyGOG CLI</p>
+            <h2 class="stratum__title">Agentic<br>Workspace CLI</h2>
+            <p class="stratum__desc">Natural language in, tool routing out. An agentic Google Workspace CLI that parses intent and orchestrates across Calendar, Gmail, Drive.</p>
+            <div class="stratum__tags"><span>Typer</span><span>LLM Agents</span><span>OAuth2</span></div>
+            <a class="stratum__link" href="https://github.com/DhruvGarg111/py-goog-cli" target="_blank" rel="noopener noreferrer">View repository →</a>
+          </div>
+        </div>
+      </div>
+      </div>
+    </section>
+
+    <!-- ── JOURNEY ── -->
+    <section class="stratum" id="journey">
+      <div class="stratum__window">
+      <div class="stratum__inner stratum__inner--center">
+        <div class="stratum__label mono">Core Sample · 6000m</div>
+        <h2 class="stratum__title stratum__title--center">Journey</h2>
+        <div class="journey-timeline" id="journey-timeline">
+          <div class="journey-track">
+            <div class="journey-era" data-year="2022" data-stratum="sandstone">
+              <div class="journey-era__marker"></div>
+              <div class="journey-era__card">
+                <span class="journey-era__year mono">2022</span>
+                <span class="journey-era__tag mono">Foundation</span>
+                <h3>Deep Learning</h3>
+                <p>CNN architectures, training dynamics, evaluation pipelines from scratch.</p>
+                <div class="journey-era__minerals">
+                  <span>PyTorch</span><span>NumPy</span><span>Matplotlib</span>
+                </div>
+              </div>
+            </div>
+            <div class="journey-era" data-year="2023a" data-stratum="basalt">
+              <div class="journey-era__marker"></div>
+              <div class="journey-era__card">
+                <span class="journey-era__year mono">2023</span>
+                <span class="journey-era__tag mono">Vision</span>
+                <h3>Computer Vision</h3>
+                <p>Monocular depth, custom detectors, real-time inference pipelines.</p>
+                <div class="journey-era__minerals">
+                  <span>YOLOv8</span><span>OpenCV</span><span>LayerCAM</span>
+                </div>
+              </div>
+            </div>
+            <div class="journey-era" data-year="2023b" data-stratum="copper">
+              <div class="journey-era__marker"></div>
+              <div class="journey-era__card">
+                <span class="journey-era__year mono">2023</span>
+                <span class="journey-era__tag mono">Creative</span>
+                <h3>Generative AI</h3>
+                <p>GANs, neural style transfer, VGG perceptual loss research.</p>
+                <div class="journey-era__minerals">
+                  <span>GANs</span><span>NST</span><span>VGG-16</span>
+                </div>
+              </div>
+            </div>
+            <div class="journey-era" data-year="2024" data-stratum="granite">
+              <div class="journey-era__marker"></div>
+              <div class="journey-era__card">
+                <span class="journey-era__year mono">2024</span>
+                <span class="journey-era__tag mono">Product</span>
+                <h3>Shipped to Prod</h3>
+                <p>Neural Canvas on Hugging Face — research notebook to ONNX export.</p>
+                <div class="journey-era__minerals">
+                  <span>ONNX</span><span>HuggingFace</span><span>Docker</span>
+                </div>
+              </div>
+            </div>
+            <div class="journey-era journey-era--active" data-year="now" data-stratum="crystal">
+              <div class="journey-era__marker"></div>
+              <div class="journey-era__card">
+                <span class="journey-era__year mono">Now</span>
+                <span class="journey-era__tag mono">Systems</span>
+                <h3>Full-Stack ML</h3>
+                <p>Async infra, LLM agent orchestration, production deployment.</p>
+                <div class="journey-era__minerals">
+                  <span>FastAPI</span><span>Celery</span><span>LLMs</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <svg class="journey-seismic" viewBox="0 0 1000 60" preserveAspectRatio="none" aria-hidden="true">
+            <polyline class="journey-seismic__line" points="0,30 150,30 200,10 250,50 300,20 350,40 400,30 550,30 600,15 650,45 700,30 850,30 900,12 950,48 1000,30" fill="none" stroke="var(--survey)" stroke-width="2" stroke-dasharray="1200" stroke-dashoffset="1200"/>
+          </svg>
+        </div>
+      </div>
+      </div>
+    </section>
+
+    <!-- ── SKILLS ── -->
+    <section class="stratum" id="skills">
+      <div class="stratum__window">
+      <div class="stratum__inner stratum__inner--center">
+        <div class="stratum__label mono">Sensor Matrix · 7200m</div>
+        <h2 class="stratum__title stratum__title--center">Skills</h2>
+        <div class="hex-grid" id="hex-grid" role="list">
+          <div class="hex-cell" data-fill="0.99" data-code="CV" role="listitem">
+            <div class="hex-cell__shape">
+              <svg viewBox="0 0 100 115" class="hex-cell__svg" aria-hidden="true">
+                <polygon class="hex-track" points="50,5 95,30 95,85 50,110 5,85 5,30"/>
+                <polygon class="hex-fill" points="50,5 95,30 95,85 50,110 5,85 5,30"/>
+              </svg>
+              <div class="hex-cell__label">
+                <span class="hex-cell__code mono">CV</span>
+                <span class="hex-cell__name">Computer<br>Vision</span>
+                <span class="hex-cell__conf mono">0.99</span>
+              </div>
+            </div>
+            <div class="hex-cell__detail mono">PyTorch · YOLOv8 · LayerCAM</div>
+          </div>
+          <div class="hex-cell" data-fill="0.97" data-code="GEN">
+            <div class="hex-cell__shape">
+              <svg viewBox="0 0 100 115" class="hex-cell__svg" aria-hidden="true">
+                <polygon class="hex-track" points="50,5 95,30 95,85 50,110 5,85 5,30"/>
+                <polygon class="hex-fill" points="50,5 95,30 95,85 50,110 5,85 5,30"/>
+              </svg>
+              <div class="hex-cell__label">
+                <span class="hex-cell__code mono">GEN</span>
+                <span class="hex-cell__name">Generative<br>AI</span>
+                <span class="hex-cell__conf mono">0.97</span>
+              </div>
+            </div>
+            <div class="hex-cell__detail mono">ONNX · HuggingFace · LLM</div>
+          </div>
+          <div class="hex-cell" data-fill="0.96" data-code="API">
+            <div class="hex-cell__shape">
+              <svg viewBox="0 0 100 115" class="hex-cell__svg" aria-hidden="true">
+                <polygon class="hex-track" points="50,5 95,30 95,85 50,110 5,85 5,30"/>
+                <polygon class="hex-fill" points="50,5 95,30 95,85 50,110 5,85 5,30"/>
+              </svg>
+              <div class="hex-cell__label">
+                <span class="hex-cell__code mono">ARCH</span>
+                <span class="hex-cell__name">Architecture</span>
+                <span class="hex-cell__conf mono">0.96</span>
+              </div>
+            </div>
+            <div class="hex-cell__detail mono">FastAPI · Celery · Docker</div>
+          </div>
+          <div class="hex-cell" data-fill="0.95" data-code="DATA">
+            <div class="hex-cell__shape">
+              <svg viewBox="0 0 100 115" class="hex-cell__svg" aria-hidden="true">
+                <polygon class="hex-track" points="50,5 95,30 95,85 50,110 5,85 5,30"/>
+                <polygon class="hex-fill" points="50,5 95,30 95,85 50,110 5,85 5,30"/>
+              </svg>
+              <div class="hex-cell__label">
+                <span class="hex-cell__code mono">DATA</span>
+                <span class="hex-cell__name">Data<br>Pipelines</span>
+                <span class="hex-cell__conf mono">0.95</span>
+              </div>
+            </div>
+            <div class="hex-cell__detail mono">PostgreSQL · Redis · Mongo</div>
+          </div>
+          <div class="hex-cell" data-fill="0.94" data-code="UI">
+            <div class="hex-cell__shape">
+              <svg viewBox="0 0 100 115" class="hex-cell__svg" aria-hidden="true">
+                <polygon class="hex-track" points="50,5 95,30 95,85 50,110 5,85 5,30"/>
+                <polygon class="hex-fill" points="50,5 95,30 95,85 50,110 5,85 5,30"/>
+              </svg>
+              <div class="hex-cell__label">
+                <span class="hex-cell__code mono">STACK</span>
+                <span class="hex-cell__name">Full<br>Stack</span>
+                <span class="hex-cell__conf mono">0.94</span>
+              </div>
+            </div>
+            <div class="hex-cell__detail mono">React · Next.js · Canvas API</div>
+          </div>
+          <div class="hex-cell" data-fill="0.95" data-code="OPS">
+            <div class="hex-cell__shape">
+              <svg viewBox="0 0 100 115" class="hex-cell__svg" aria-hidden="true">
+                <polygon class="hex-track" points="50,5 95,30 95,85 50,110 5,85 5,30"/>
+                <polygon class="hex-fill" points="50,5 95,30 95,85 50,110 5,85 5,30"/>
+              </svg>
+              <div class="hex-cell__label">
+                <span class="hex-cell__code mono">OPS</span>
+                <span class="hex-cell__name">System<br>Ops</span>
+                <span class="hex-cell__conf mono">0.95</span>
+              </div>
+            </div>
+            <div class="hex-cell__detail mono">Linux · Git · Cloud · CI/CD</div>
+          </div>
+        </div>
+        <canvas class="hex-radar" id="hex-radar" aria-hidden="true" width="600" height="200"></canvas>
+      </div>
+      </div>
+    </section>
+
+    <!-- ── PROOF ── -->
+    <section class="stratum" id="proof">
+      <div class="stratum__window">
+      <div class="stratum__inner stratum__inner--center">
+        <div class="stratum__label mono">Verification · 8400m</div>
+        <h2 class="stratum__title stratum__title--center">Proof</h2>
+        <div class="stat-cluster" id="stat-cluster">
+          <div class="stat-card" data-target="111" data-suffix="+">
+            <div class="stat-card__texture"></div>
+            <div class="stat-card__inner">
+              <div class="stat-card__value mono">
+                <span class="stat-count" data-count="111">0</span>
+                <span class="stat-card__suffix">+</span>
+              </div>
+              <div class="stat-card__label mono">Pull Requests</div>
+              <div class="stat-card__bar"><div class="stat-card__bar-fill"></div></div>
+            </div>
+          </div>
+          <div class="stat-card" data-target="14" data-suffix="">
+            <div class="stat-card__texture"></div>
+            <div class="stat-card__inner">
+              <div class="stat-card__value mono">
+                <span class="stat-count" data-count="14">0</span>
+              </div>
+              <div class="stat-card__label mono">Repositories</div>
+              <div class="stat-card__bar"><div class="stat-card__bar-fill"></div></div>
+            </div>
+          </div>
+          <div class="stat-card" data-target="100" data-suffix="%">
+            <div class="stat-card__texture"></div>
+            <div class="stat-card__inner">
+              <div class="stat-card__value mono">
+                <span class="stat-count" data-count="100">0</span>
+                <span class="stat-card__suffix">%</span>
+              </div>
+              <div class="stat-card__label mono">ONNX Telemetry</div>
+              <div class="stat-card__bar"><div class="stat-card__bar-fill"></div></div>
+            </div>
+          </div>
+        </div>
+        <span class="sr-only">111+ Pull Requests, 14 Repositories, 100% ONNX Telemetry</span>
+        <div class="val-stamp" id="val-stamp">
+          <div class="val-stamp__inner">
+            <div class="val-stamp__text mono">SYSTEM STATUS</div>
+            <div class="val-stamp__status">VERIFIED</div>
+          </div>
+        </div>
+      </div>
+      </div>
+    </section>
+
+    <!-- ── CONTACT ── -->
+    <section class="stratum stratum--dark" id="contact">
+      <div class="stratum__window">
+      <div class="stratum__inner stratum__inner--center">
+        <div class="stratum__label mono">Core · Maximum Depth</div>
+        <h2 class="stratum__title stratum__title--center">Get in Touch</h2>
+        <div class="contact-block">
+          <p class="contact-lead">Open to AI/ML research, internships, and full-stack roles where perception systems matter.</p>
+          <a class="contact-email mono" href="mailto:dhruvgarg.garg123@gmail.com">dhruvgarg.garg123@gmail.com</a>
+          <div class="contact-icons">
+            <a href="https://github.com/DhruvGarg111" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+              <svg width="28" height="28" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+            </a>
+            <a href="https://www.linkedin.com/in/dhruv-garg-6b0954177/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+              <svg width="28" height="28" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+            </a>
+          </div>
+        </div>
+      </div>
+      </div>
+    </section>
+
+  </div><!-- /.strata -->
+
+  <!-- ═══ SCROLL SPACER — drives all animations ═══ -->
+  <div class="scroll-spacer" id="scroll-spacer"></div>
+
+  <!-- ═══ TRANSITION LAYER ═══ -->
+  <div class="transition-layer" id="transition-layer" aria-hidden="true">
+    <div class="transition-fx" id="transition-fx"></div>
+    <svg class="transition-cracks" id="transition-cracks" viewBox="0 0 1920 1080" preserveAspectRatio="none" aria-hidden="true">
+      <path class="crack-path" d="M0,540 L400,520 L600,560 L900,530 L1200,560 L1500,540 L1920,550"/>
+      <path class="crack-path" d="M0,540 L300,500 L500,580 L800,520 L1100,560 L1400,530 L1920,545"/>
+      <path class="crack-path" d="M960,0 L940,300 L980,500 L950,700 L960,1080"/>
     </svg>
+    <canvas class="transition-canvas" id="transition-canvas"></canvas>
+    <div class="transition-glitch" id="transition-glitch"></div>
+    <div class="transition-label mono" id="transition-label">DRILLING TO STRATUM II</div>
+  </div>
 
-    <!-- Ambient Light Pools -->
-    <div class="ambient-blob ambient-blob-1"></div>
-    <div class="ambient-blob ambient-blob-2"></div>
-    <div class="ambient-blob ambient-blob-3"></div>
-
-    <!-- WebGL Edge Fade -->
-    <div class="webgl-edge-fade"></div>
-
-    <!-- Skip to content link for keyboard accessibility -->
-    <a href="#hero" class="skip-nav">Skip to main content</a>
-
-    <!-- WebGL Canvas for Z-axis background and 3D Mechanics -->
-    <canvas id="webgl-canvas" role="img" aria-label="3D neural network visualization">3D neural network visualization</canvas>
-
-    <!-- Top Navigation (Mobile) -->
-    <nav class="fixed top-0 w-full z-50 bg-warm-pebble/80 backdrop-blur-md border-b border-blueprint-line flex justify-between items-center px-gutter py-grid-unit transition-all duration-300 md:hidden overflow-hidden max-w-[100vw]" id="top-nav" aria-label="Mobile navigation">
-        <a class="font-display-lg-mobile text-headline-md-mobile text-deep-slate-green interactive" href="#hero">DHRUV GARG</a>
-        <button class="interactive text-deep-slate-green hover:text-laser-cyan transition-colors duration-300" type="button" aria-label="Open navigation menu" aria-expanded="false" aria-controls="mobile-drawer">
-            <span class="material-symbols-outlined" data-icon="menu">menu</span>
-        </button>
-    </nav>
-
-    <!-- Mobile Navigation Drawer -->
-    <div class="mobile-drawer md:hidden" id="mobile-drawer">
-        <div class="mobile-drawer-backdrop"></div>
-        <div class="mobile-drawer-panel">
-            <button class="mobile-drawer-close" type="button" aria-label="Close navigation menu">
-                <span class="material-symbols-outlined">close</span>
-            </button>
-            <nav aria-label="Mobile drawer navigation">
-                <a class="mobile-drawer-link" href="#hero"><span class="material-symbols-outlined">grid_view</span> INDEX</a>
-                <a class="mobile-drawer-link" href="#projects"><span class="material-symbols-outlined">precision_manufacturing</span> PROJECTS</a>
-                <a class="mobile-drawer-link" href="#journey"><span class="material-symbols-outlined">timeline</span> JOURNEY</a>
-                <a class="mobile-drawer-link" href="#skills"><span class="material-symbols-outlined">architecture</span> SKILLS</a>
-                <a class="mobile-drawer-link" href="#metrics"><span class="material-symbols-outlined">speed</span> METRICS</a>
-                <a class="mobile-drawer-link" href="#contact"><span class="material-symbols-outlined">mail</span> CONTACT</a>
-            </nav>
-        </div>
-    </div>
-
-    <!-- Vernier Scale Scroll Progress HUD (Right Side) -->
-    <div class="vernier-hud hidden md:flex">
-        <div class="vernier-scale" id="vernierScale">
-            <div class="vernier-marker" id="vernierMarker"></div>
-            <div class="vernier-tick major active" data-label="INDEX" style="top: 0%;"></div>
-            <div class="vernier-tick" data-label="PRJ_01" style="top: 15%;"></div>
-            <div class="vernier-tick" data-label="PRJ_02" style="top: 25%;"></div>
-            <div class="vernier-tick" data-label="PRJ_03" style="top: 35%;"></div>
-            <div class="vernier-tick" data-label="PRJ_04" style="top: 45%;"></div>
-            <div class="vernier-tick major" data-label="JOURNEY" style="top: 55%;"></div>
-            <div class="vernier-tick major" data-label="SKILLS" style="top: 67%;"></div>
-            <div class="vernier-tick major" data-label="METRICS" style="top: 83%;"></div>
-            <div class="vernier-tick major" data-label="CONTACT" style="top: 100%;"></div>
-        </div>
-    </div>
-
-    <!-- Side Navigation (Desktop) -->
-    <aside class="hidden md:flex fixed left-0 top-0 h-full w-20 z-40 border-r border-blueprint-line/0 flex-col items-center py-8 text-deep-slate-green transition-all duration-300" style="background: linear-gradient(to right, var(--color-warm-pebble) 60%, transparent 100%);">
-        <!-- Telemetry Status Logo Widget -->
-        <div class="relative w-12 h-12 flex items-center justify-center mb-6">
-            <!-- Rotating outer ring -->
-            <svg class="absolute w-full h-full animate-[spin_12s_linear_infinite] text-laser-cyan/30" viewBox="0 0 100 100">
-                <circle cx="50" cy="50" r="45" stroke="currentColor" stroke-width="1.5" stroke-dasharray="10 15" fill="none"/>
-                <circle cx="50" cy="50" r="35" stroke="currentColor" stroke-width="1" stroke-dasharray="2 4" fill="none"/>
-            </svg>
-            <!-- Counter-rotating inner reticle -->
-            <svg class="absolute w-8 h-8 animate-[spin_6s_linear_infinite_reverse] text-electric-coral/40" viewBox="0 0 100 100">
-                <path d="M 50 10 L 50 90 M 10 50 L 90 50" stroke="currentColor" stroke-width="2" stroke-dasharray="8 8" fill="none"/>
-                <circle cx="50" cy="50" r="20" stroke="currentColor" stroke-width="1.5" fill="none"/>
-            </svg>
-            <!-- Core static node -->
-            <div class="w-2 h-2 bg-deep-slate-green rounded-full"></div>
-        </div>
-
-        <!-- System Coordinates Reading (Vertical Telemetry) -->
-        <div class="writing-vertical font-data-mono text-micro tracking-[0.25em] text-deep-slate-green/60 select-none transform rotate-180 mb-8 whitespace-nowrap uppercase" style="writing-mode: vertical-rl;">
-            SYS_V4.0 // CORE_ACTIVE // [ 34.56.09.22 ]
-        </div>
-
-        <!-- Navigation Slots -->
-        <nav class="flex flex-col items-center space-y-4 font-data-mono text-data-mono w-full px-4" aria-label="Main navigation">
-            <a class="group relative flex flex-col items-center justify-center w-12 h-12 rounded border border-blueprint-line/10 hover:border-blueprint-line/40 text-deep-slate-green/40 hover:text-laser-cyan transition-all duration-300 interactive" href="#hero">
-                <span class="material-symbols-outlined text-lg group-hover:scale-110 transition-transform">grid_view</span>
-                <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-3 bg-current rounded-r opacity-0 group-[.text-laser-cyan]:opacity-100 group-hover:opacity-40 transition-all duration-300 shadow-[0_0_8px_currentColor]"></span>
-                <span class="text-micro uppercase tracking-widest absolute left-full ml-4 top-1/2 -translate-y-1/2 bg-deep-slate-green text-warm-pebble px-2.5 py-1 rounded shadow-lg opacity-0 pointer-events-none group-hover:opacity-100 transition-all duration-300 transform translate-x-[-10px] group-hover:translate-x-0 z-50">INDEX</span>
-            </a>
-            <a class="group relative flex flex-col items-center justify-center w-12 h-12 rounded border border-blueprint-line/10 hover:border-blueprint-line/40 text-deep-slate-green/40 hover:text-laser-cyan transition-all duration-300 interactive" href="#projects">
-                <span class="material-symbols-outlined text-lg group-hover:scale-110 transition-transform">precision_manufacturing</span>
-                <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-3 bg-current rounded-r opacity-0 group-[.text-laser-cyan]:opacity-100 group-hover:opacity-40 transition-all duration-300 shadow-[0_0_8px_currentColor]"></span>
-                <span class="text-micro uppercase tracking-widest absolute left-full ml-4 top-1/2 -translate-y-1/2 bg-deep-slate-green text-warm-pebble px-2.5 py-1 rounded shadow-lg opacity-0 pointer-events-none group-hover:opacity-100 transition-all duration-300 transform translate-x-[-10px] group-hover:translate-x-0 z-50">PROJECTS</span>
-            </a>
-            <a class="group relative flex flex-col items-center justify-center w-12 h-12 rounded border border-blueprint-line/10 hover:border-blueprint-line/40 text-deep-slate-green/40 hover:text-laser-cyan transition-all duration-300 interactive" href="#journey">
-                <span class="material-symbols-outlined text-lg group-hover:scale-110 transition-transform">timeline</span>
-                <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-3 bg-current rounded-r opacity-0 group-[.text-laser-cyan]:opacity-100 group-hover:opacity-40 transition-all duration-300 shadow-[0_0_8px_currentColor]"></span>
-                <span class="text-micro uppercase tracking-widest absolute left-full ml-4 top-1/2 -translate-y-1/2 bg-deep-slate-green text-warm-pebble px-2.5 py-1 rounded shadow-lg opacity-0 pointer-events-none group-hover:opacity-100 transition-all duration-300 transform translate-x-[-10px] group-hover:translate-x-0 z-50">JOURNEY</span>
-            </a>
-            <a class="group relative flex flex-col items-center justify-center w-12 h-12 rounded border border-blueprint-line/10 hover:border-blueprint-line/40 text-deep-slate-green/40 hover:text-laser-cyan transition-all duration-300 interactive" href="#skills">
-                <span class="material-symbols-outlined text-lg group-hover:scale-110 transition-transform">architecture</span>
-                <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-3 bg-current rounded-r opacity-0 group-[.text-laser-cyan]:opacity-100 group-hover:opacity-40 transition-all duration-300 shadow-[0_0_8px_currentColor]"></span>
-                <span class="text-micro uppercase tracking-widest absolute left-full ml-4 top-1/2 -translate-y-1/2 bg-deep-slate-green text-warm-pebble px-2.5 py-1 rounded shadow-lg opacity-0 pointer-events-none group-hover:opacity-100 transition-all duration-300 transform translate-x-[-10px] group-hover:translate-x-0 z-50">SKILLS</span>
-            </a>
-            <a class="group relative flex flex-col items-center justify-center w-12 h-12 rounded border border-blueprint-line/10 hover:border-blueprint-line/40 text-deep-slate-green/40 hover:text-laser-cyan transition-all duration-300 interactive" href="#metrics">
-                <span class="material-symbols-outlined text-lg group-hover:scale-110 transition-transform">speed</span>
-                <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-3 bg-current rounded-r opacity-0 group-[.text-laser-cyan]:opacity-100 group-hover:opacity-40 transition-all duration-300 shadow-[0_0_8px_currentColor]"></span>
-                <span class="text-micro uppercase tracking-widest absolute left-full ml-4 top-1/2 -translate-y-1/2 bg-deep-slate-green text-warm-pebble px-2.5 py-1 rounded shadow-lg opacity-0 pointer-events-none group-hover:opacity-100 transition-all duration-300 transform translate-x-[-10px] group-hover:translate-x-0 z-50">METRICS</span>
-            </a>
-            <a class="group relative flex flex-col items-center justify-center w-12 h-12 rounded border border-blueprint-line/10 hover:border-blueprint-line/40 text-deep-slate-green/40 hover:text-laser-cyan transition-all duration-300 interactive" href="#contact">
-                <span class="material-symbols-outlined text-lg group-hover:scale-110 transition-transform">mail</span>
-                <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-3 bg-current rounded-r opacity-0 group-[.text-laser-cyan]:opacity-100 group-hover:opacity-40 transition-all duration-300 shadow-[0_0_8px_currentColor]"></span>
-                <span class="text-micro uppercase tracking-widest absolute left-full ml-4 top-1/2 -translate-y-1/2 bg-deep-slate-green text-warm-pebble px-2.5 py-1 rounded shadow-lg opacity-0 pointer-events-none group-hover:opacity-100 transition-all duration-300 transform translate-x-[-10px] group-hover:translate-x-0 z-50">CONTACT</span>
-            </a>
-        </nav>
-
-        <!-- Bottom Initialize Comm Action -->
-        <div class="mt-auto w-full flex flex-col items-center space-y-4">
-            <div class="w-8 h-[1px] bg-blueprint-line/20"></div>
-            <button class="writing-vertical font-data-mono text-micro tracking-[0.35em] transform -rotate-180 hover:text-laser-cyan transition-colors duration-300 interactive whitespace-nowrap" type="button" style="writing-mode: vertical-rl;" onclick="scrollToSection('contact')">
-                INITIALIZE_COMM
-            </button>
-        </div>
-    </aside>
-
-    <!-- Scroll Proxy for Z-Axis -->
-    <div class="scroll-proxy"></div>
-
-    <!-- 3D Viewport -->
-    <main class="viewport-3d md:pl-20" role="main">
-        <div class="world-3d">
-
-        <!-- 1. Hero Section -->
-        <section class="scroll-section px-margin-mobile md:px-margin-desktop min-h-screen" id="hero">
-            <div class="z-content relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-gutter items-center w-full max-w-7xl mx-auto pt-16 pb-12 lg:pt-24 lg:pb-20">
-                
-                <!-- Left Column: Copy & Details -->
-                <div class="col-span-1 lg:col-span-7 flex flex-col items-center lg:items-start text-center lg:text-left space-y-4 lg:space-y-8">
-                    <!-- Massive Display Title -->
-                    <h1 class="font-rajdhani font-bold uppercase text-display-hero-mobile lg:text-display-hero flex flex-col items-center lg:items-start leading-[0.85] gap-1 lg:gap-2 w-full reveal-item delay-2 select-none tracking-tight">
-                        <span data-scramble class="text-deep-slate-green">DHRUV</span>
-                        <span data-scramble class="text-electric-coral">GARG</span>
-                    </h1>
-                    
-                    <div class="h-px w-full max-w-md bg-gradient-to-r from-transparent via-laser-cyan/50 to-transparent my-6 reveal-item delay-3"></div>
-
-                    <p class="font-body-lg text-sm sm:text-base lg:text-body-lg max-w-xl text-ink-body mt-2 mb-4 lg:mt-4 lg:mb-6 reveal-item delay-3 border-l-2 border-laser-cyan pl-4 bg-gradient-to-r from-laser-cyan/5 to-transparent py-2">
-                        Building intelligent systems that see, understand, and create. Translating complex research papers into optimized, production-ready code. Precision engineering meets raw mechanical capability.
-                    </p>
-                    
-                    <!-- Primary CTA -->
-                    <a class="interactive btn-spring bg-deep-slate-green text-warm-pebble font-label-caps text-label-caps uppercase tracking-[0.15em] px-6 py-3 lg:px-8 lg:py-4 flex items-center justify-center space-x-4 border border-deep-slate-green relative overflow-hidden group reveal-item delay-4" href="#projects">
-                        <span class="absolute inset-0 w-full h-full bg-gradient-to-r from-laser-cyan/80 to-electric-coral/80 opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-0"></span>
-                        <span class="relative z-10 group-hover:text-deep-slate-green transition-colors duration-500 font-bold">ENTER WORKSPACE</span>
-                        <span class="material-symbols-outlined relative z-10 group-hover:translate-x-2 group-hover:text-deep-slate-green transition-all duration-500" data-icon="arrow_forward">arrow_forward</span>
-                    </a>
-                </div>
-
-                <!-- Right Column: Avatar Illustration -->
-                <div class="col-span-1 lg:col-span-5 flex justify-center relative w-full reveal-item delay-5 group">
-                    <!-- Glow Aura -->
-                    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[110%] h-[110%] max-w-[400px] aspect-square bg-laser-cyan/20 blur-[60px] rounded-full scale-90 group-hover:scale-110 group-hover:bg-electric-coral/20 transition-all duration-1000 z-0"></div>
-                    
-                    <!-- Bounded blueprint frame for the illustration -->
-                    <div class="relative w-full max-w-[220px] sm:max-w-[300px] lg:max-w-[380px] aspect-square bg-warm-pebble/40 border border-blueprint-line/30 rounded-lg p-3 lg:p-6 flex items-center justify-center shadow-lg group z-10">
-                        <!-- Corner Reticles for design grounding -->
-                        <div class="reticle-corner reticle-corner-tl"></div>
-                        <div class="reticle-corner reticle-corner-tr"></div>
-                        <div class="reticle-corner reticle-corner-bl"></div>
-                        <div class="reticle-corner reticle-corner-br"></div>
-                        
-                        <!-- Technical grid background inside the card -->
-                        <div class="absolute inset-0 bg-[radial-gradient(rgba(24,36,32,0.06)_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none opacity-60"></div>
-                        
-                        <!-- The Illustration -->
-                        <img src="assets/img/logo.png" alt="Dhruv Garg Illustration" width="500" height="500" loading="eager" decoding="async" class="w-full h-full object-contain relative z-10 transition-transform duration-500 group-hover:scale-105" />
-                    </div>
-                </div>
-
-            </div>
-            <!-- Floating Particles Container -->
-            <div class="absolute inset-0 overflow-hidden pointer-events-none z-0">
-                <div class="floating-particle w-1 h-1 text-laser-cyan" style="left: 10%; bottom: -10px; --duration: 15s; --max-opacity: 0.5;"></div>
-                <div class="floating-particle w-2 h-2 text-electric-coral" style="left: 25%; bottom: -20px; --duration: 22s; --max-opacity: 0.3; animation-delay: 2s;"></div>
-                <div class="floating-particle w-1.5 h-1.5 text-laser-cyan" style="left: 45%; bottom: -15px; --duration: 18s; --max-opacity: 0.6; animation-delay: 5s;"></div>
-                <div class="floating-particle w-1 h-1 text-deep-slate-green" style="left: 65%; bottom: -5px; --duration: 12s; --max-opacity: 0.4; animation-delay: 1s;"></div>
-                <div class="floating-particle w-2.5 h-2.5 text-laser-cyan" style="left: 80%; bottom: -25px; --duration: 25s; --max-opacity: 0.2; animation-delay: 4s;"></div>
-                <div class="floating-particle w-1 h-1 text-electric-coral" style="left: 90%; bottom: -10px; --duration: 17s; --max-opacity: 0.5; animation-delay: 7s;"></div>
-                
-                <!-- SVG Tech Particles -->
-                <svg class="floating-particle w-4 h-4 text-laser-cyan" style="left: 15%; bottom: -20px; --duration: 20s; --max-opacity: 0.3; animation-delay: 3s;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path></svg>
-                <svg class="floating-particle w-3 h-3 text-electric-coral" style="left: 75%; bottom: -15px; --duration: 24s; --max-opacity: 0.4; animation-delay: 6s;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path></svg>
-            </div>
-            
-            <!-- Metadata Corners -->
-            <div class="absolute bottom-8 left-margin-mobile md:bottom-12 md:left-[160px] font-label-caps text-label-caps text-deep-slate-green/50 hidden md:block z-10">
-                LAT: 28.7041° N<br/>
-                LON: 77.1025° E
-            </div>
-            <div class="absolute bottom-8 right-margin-mobile md:bottom-12 md:right-margin-desktop font-label-caps text-label-caps text-deep-slate-green/50 text-right z-10">
-                SCROLL TO EXPLORE<br/>
-                ↓
-            </div>
-        </section>
-
-        <!-- 2.1 Project 1 -->
-        <section class="scroll-section px-margin-mobile md:px-margin-desktop" id="projects">
-            <div class="z-content grid grid-cols-1 lg:grid-cols-12 gap-gutter items-center project-wrapper w-full max-w-7xl mx-auto">
-                <!-- Editorial Left -->
-                <div class="col-span-1 lg:col-span-5 relative z-10 bg-warm-pebble/85 backdrop-blur-md p-6 rounded-lg border border-deep-slate-green/10 shadow-lg">
-                    <div class="font-data-mono text-data-mono text-laser-cyan mb-4 flex items-center gap-2 reveal-item delay-1">
-                        <span class="w-2 h-2 rounded-full bg-laser-cyan inline-block"></span>
-                        <span>PROJ_01</span>
-                    </div>
-                    <h2 class="font-display-lg-mobile md:text-headline-md text-ink-heading mb-6 leading-tight reveal-item delay-2" data-scramble>SEARCHLIGHT<br>PROTOCOL</h2>
-                    <p class="font-body-lg text-body-lg text-ink-body mb-8 max-w-md reveal-item delay-3">
-                        A novel coarse-to-fine computer vision pipeline designed for efficient small object detection in high-resolution (2K/4K) aerial imagery. Intelligently slices regions of interest, skipping 80%+ of empty backgrounds.
-                    </p>
-                    <div class="flex flex-wrap gap-4 mb-8 reveal-item delay-4">
-                        <span class="font-data-mono text-label-caps px-3 py-1 border border-blueprint-line border-dotted text-ink-body">PYTHON</span>
-                        <span class="font-data-mono text-label-caps px-3 py-1 border border-blueprint-line border-dotted text-ink-body">PYTORCH</span>
-                        <span class="font-data-mono text-label-caps px-3 py-1 border border-blueprint-line border-dotted text-ink-body">LAYERCAM</span>
-                    </div>
-                    <div class="reveal-item delay-5">
-                        <a href="https://github.com/DhruvGarg111/The-Searchlight-Protocol" target="_blank" rel="noopener noreferrer" class="interactive inline-flex btn-spring bg-deep-slate-green text-warm-pebble font-label-caps text-label-caps px-6 py-3 hover:bg-electric-coral transition-colors duration-300">
-                            INSPECT REPOSITORY
-                        </a>
-                    </div>
-                </div>
-                <!-- Exploding Assembly Stage Right -->
-                <div class="col-span-1 lg:col-span-7 relative h-[200px] md:h-[400px] lg:h-[500px] project-card interactive flex items-center justify-center">
-                    <div class="absolute top-4 right-4 font-label-caps text-label-caps text-ink-body/40">Z-DEPTH: 400</div>
-                    <div class="relative w-full h-full max-w-2xl flex items-center justify-center bg-warm-pebble/20 backdrop-blur-sm border border-blueprint-line rounded p-4 reveal-item delay-2">
-                        <div class="reticle-corner reticle-corner-tl"></div>
-                        <div class="reticle-corner reticle-corner-tr"></div>
-                        <div class="reticle-corner reticle-corner-bl"></div>
-                        <div class="reticle-corner reticle-corner-br"></div>
-                        <img src="assets/img/searchlight.svg" alt="Searchlight Protocol" width="2160" height="1080" loading="lazy" decoding="async" class="w-full h-full object-contain drop-shadow-xl z-10 relative" onerror="this.style.display='none'" />
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- 2.2 Project 2 -->
-        <section class="scroll-section px-margin-mobile md:px-margin-desktop" id="projects-2">
-            <div class="z-content grid grid-cols-1 lg:grid-cols-12 gap-gutter items-center project-wrapper w-full max-w-7xl mx-auto">
-                <!-- Stage Left -->
-                <div class="col-span-1 lg:col-span-7 relative h-[200px] md:h-[400px] lg:h-[500px] project-card interactive flex items-center justify-center order-2 lg:order-1">
-                    <div class="absolute top-4 left-4 font-label-caps text-label-caps text-ink-body/40">Z-DEPTH: 800</div>
-                    <div class="relative w-full h-full max-w-2xl flex items-center justify-center bg-warm-pebble/20 backdrop-blur-sm border border-blueprint-line rounded p-4 reveal-item delay-2">
-                        <div class="reticle-corner reticle-corner-tl"></div>
-                        <div class="reticle-corner reticle-corner-tr"></div>
-                        <div class="reticle-corner reticle-corner-bl"></div>
-                        <div class="reticle-corner reticle-corner-br"></div>
-                        <img src="assets/img/pixelqueue.svg" alt="Pixel Queue" width="2160" height="1080" loading="lazy" decoding="async" class="w-full h-full object-contain drop-shadow-xl z-10 relative" onerror="this.style.display='none'" />
-                    </div>
-                </div>
-                <!-- Editorial Right -->
-                <div class="col-span-1 lg:col-span-5 relative z-10 bg-warm-pebble/85 backdrop-blur-md p-6 rounded-lg border border-deep-slate-green/10 shadow-lg order-1 lg:order-2">
-                    <div class="font-data-mono text-data-mono text-electric-coral mb-4 flex items-center gap-2 reveal-item delay-1">
-                        <span class="w-2 h-2 rounded-full bg-electric-coral inline-block"></span>
-                        <span>PROJ_02</span>
-                    </div>
-                    <h2 class="font-display-lg-mobile md:text-headline-md text-ink-heading mb-6 leading-tight reveal-item delay-2" data-scramble>PIXEL<br>QUEUE</h2>
-                    <p class="font-body-lg text-body-lg text-ink-body mb-8 max-w-md reveal-item delay-3">
-                        Vision Intelligence Infrastructure. A high-performance, async control panel for human-in-the-loop AI annotation using decoupled ML microservices and robust task queues.
-                    </p>
-                    <div class="flex flex-wrap gap-4 mb-8 reveal-item delay-4">
-                        <span class="font-data-mono text-label-caps px-3 py-1 border border-blueprint-line border-dotted text-ink-body">REACT</span>
-                        <span class="font-data-mono text-label-caps px-3 py-1 border border-blueprint-line border-dotted text-ink-body">CELERY</span>
-                        <span class="font-data-mono text-label-caps px-3 py-1 border border-blueprint-line border-dotted text-ink-body">POSTGRESQL</span>
-                    </div>
-                    <div class="reveal-item delay-5">
-                        <a href="https://github.com/DhruvGarg111/PixelQueue" target="_blank" rel="noopener noreferrer" class="interactive inline-flex btn-spring bg-deep-slate-green text-warm-pebble font-label-caps text-label-caps px-6 py-3 hover:bg-laser-cyan transition-colors duration-300 hover:text-deep-slate-green">
-                            INSPECT REPOSITORY
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- 2.3 Project 3 -->
-        <section class="scroll-section px-margin-mobile md:px-margin-desktop" id="projects-3">
-            <div class="z-content grid grid-cols-1 lg:grid-cols-12 gap-gutter items-center project-wrapper w-full max-w-7xl mx-auto">
-                <!-- Editorial Left -->
-                <div class="col-span-1 lg:col-span-5 relative z-10 bg-warm-pebble/85 backdrop-blur-md p-6 rounded-lg border border-deep-slate-green/10 shadow-lg">
-                    <div class="font-data-mono text-data-mono text-laser-cyan mb-4 flex items-center gap-2 reveal-item delay-1">
-                        <span class="w-2 h-2 rounded-full bg-laser-cyan inline-block"></span>
-                        <span>PROJ_03</span>
-                    </div>
-                    <h2 class="font-display-lg-mobile md:text-headline-md text-ink-heading mb-6 leading-tight reveal-item delay-2" data-scramble>NEURAL<br>CANVAS</h2>
-                    <p class="font-body-lg text-body-lg text-ink-body mb-8 max-w-md reveal-item delay-3">
-                        Real-time neural style transfer implementation that generates stylized images using a feed-forward CNN trained with perceptual loss via VGG-16.
-                    </p>
-                    <div class="flex flex-wrap gap-4 mb-8 reveal-item delay-4">
-                        <span class="font-data-mono text-label-caps px-3 py-1 border border-blueprint-line border-dotted text-ink-body">PYTORCH</span>
-                        <span class="font-data-mono text-label-caps px-3 py-1 border border-blueprint-line border-dotted text-ink-body">VGG-16</span>
-                        <span class="font-data-mono text-label-caps px-3 py-1 border border-blueprint-line border-dotted text-ink-body">ONNX</span>
-                    </div>
-                    <div class="reveal-item delay-5">
-                        <a href="https://github.com/DhruvGarg111/Neural-Style-Transfer" target="_blank" rel="noopener noreferrer" class="interactive inline-flex btn-spring bg-deep-slate-green text-warm-pebble font-label-caps text-label-caps px-6 py-3 hover:bg-electric-coral transition-colors duration-300">
-                            INSPECT REPOSITORY
-                        </a>
-                    </div>
-                </div>
-                <!-- Exploding Assembly Stage Right -->
-                <div class="col-span-1 lg:col-span-7 relative h-[200px] md:h-[400px] lg:h-[500px] project-card interactive flex items-center justify-center">
-                    <div class="absolute top-4 right-4 font-label-caps text-label-caps text-ink-body/40">Z-DEPTH: 1200</div>
-                    <div class="relative w-full h-full max-w-2xl flex items-center justify-center bg-warm-pebble/20 backdrop-blur-sm border border-blueprint-line rounded p-4 reveal-item delay-2">
-                        <div class="reticle-corner reticle-corner-tl"></div>
-                        <div class="reticle-corner reticle-corner-tr"></div>
-                        <div class="reticle-corner reticle-corner-bl"></div>
-                        <div class="reticle-corner reticle-corner-br"></div>
-                        <img src="assets/img/neural_canvas.svg" alt="Neural Canvas" width="2160" height="1080" loading="lazy" decoding="async" class="w-full h-full object-contain drop-shadow-xl z-10 relative" onerror="this.style.display='none'" />
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- 2.4 Project 4 -->
-        <section class="scroll-section px-margin-mobile md:px-margin-desktop" id="projects-4">
-            <div class="z-content grid grid-cols-1 lg:grid-cols-12 gap-gutter items-center project-wrapper w-full max-w-7xl mx-auto">
-                <!-- Stage Left -->
-                <div class="col-span-1 lg:col-span-7 relative h-[200px] md:h-[400px] lg:h-[500px] project-card interactive flex items-center justify-center order-2 lg:order-1">
-                    <div class="absolute top-4 left-4 font-label-caps text-label-caps text-ink-body/40">Z-DEPTH: 1600</div>
-                    <div class="relative w-full h-full max-w-2xl flex items-center justify-center bg-warm-pebble/20 backdrop-blur-sm border border-blueprint-line rounded p-4 reveal-item delay-2">
-                        <div class="reticle-corner reticle-corner-tl"></div>
-                        <div class="reticle-corner reticle-corner-tr"></div>
-                        <div class="reticle-corner reticle-corner-bl"></div>
-                        <div class="reticle-corner reticle-corner-br"></div>
-                        <img src="assets/img/pygog.svg" alt="pygog CLI" width="2160" height="1080" loading="lazy" decoding="async" class="w-full h-full object-contain drop-shadow-xl z-10 relative" onerror="this.style.display='none'" />
-                    </div>
-                </div>
-                <!-- Editorial Right -->
-                <div class="col-span-1 lg:col-span-5 relative z-10 bg-warm-pebble/85 backdrop-blur-md p-6 rounded-lg border border-deep-slate-green/10 shadow-lg order-1 lg:order-2">
-                    <div class="font-data-mono text-data-mono text-laser-cyan mb-4 flex items-center gap-2 reveal-item delay-1">
-                        <span class="w-2 h-2 rounded-full bg-laser-cyan inline-block"></span>
-                        <span>PROJ_04</span>
-                    </div>
-                    <h2 class="font-display-lg-mobile md:text-headline-md text-ink-heading mb-6 leading-tight reveal-item delay-2" data-scramble>PYGOG<br>CLI</h2>
-                    <p class="font-body-lg text-body-lg text-ink-body mb-8 max-w-md reveal-item delay-3">
-                        Agentic Google Workspace CLI for natural-language task orchestration, intelligent tool routing, and multi-service automation.
-                    </p>
-                    <div class="flex flex-wrap gap-4 mb-8 reveal-item delay-4">
-                        <span class="font-data-mono text-label-caps px-3 py-1 border border-blueprint-line border-dotted text-ink-body">TYPER</span>
-                        <span class="font-data-mono text-label-caps px-3 py-1 border border-blueprint-line border-dotted text-ink-body">LLM AGENTS</span>
-                        <span class="font-data-mono text-label-caps px-3 py-1 border border-blueprint-line border-dotted text-ink-body">OAUTH2</span>
-                    </div>
-                    <div class="reveal-item delay-5">
-                        <a href="https://github.com/DhruvGarg111/py-goog-cli" target="_blank" rel="noopener noreferrer" class="interactive inline-flex btn-spring bg-deep-slate-green text-warm-pebble font-label-caps text-label-caps px-6 py-3 hover:bg-laser-cyan transition-colors duration-300 hover:text-deep-slate-green">
-                            INSPECT REPOSITORY
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- 2.5. Journey Section -->
-        <section class="scroll-section px-margin-mobile md:px-margin-desktop" id="journey">
-            <div class="z-content relative z-10 w-full max-w-7xl mx-auto">
-                <header class="mb-12 text-center">
-                    <div class="font-data-mono text-label-caps text-electric-coral mb-4 flex items-center justify-center gap-2 bg-warm-pebble/80 backdrop-blur-sm inline-block px-2">
-                        <span class="w-2 h-2 bg-electric-coral rounded-full animate-pulse inline-block"></span>
-                        SYSTEM EVOLUTION
-                    </div>
-                    <h2 class="font-display-lg-mobile md:text-display-lg text-ink-heading leading-tight" data-scramble>
-                        JOURNEY SO FAR
-                    </h2>
-                </header>
-
-                <div class="relative">
-                    <!-- Connecting Timeline Line -->
-                    <div class="hidden lg:block absolute top-1/2 left-0 w-full h-[2px] bg-blueprint-line/20 -translate-y-1/2 z-0 overflow-hidden">
-                        <div class="h-full w-full bg-gradient-to-r from-transparent via-laser-cyan to-transparent opacity-50 animate-sweep"></div>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 relative z-10">
-                    <!-- Phase 1 -->
-                    <div class="relative interactive group border border-blueprint-line p-6 bg-warm-pebble/40 backdrop-blur-sm hover:bg-warm-pebble/80 hover:-translate-y-2 hover:shadow-[0_0_20px_rgba(212,148,10,0.15)] hover:border-laser-cyan/40 transition-all duration-300 reveal-item delay-1 overflow-hidden rounded-lg">
-                        <div class="absolute inset-0 pointer-events-none z-0 select-none flex items-end justify-end p-2 opacity-5 group-hover:opacity-10 transition-opacity duration-300">
-                            <span class="text-7xl font-data-mono font-bold text-deep-slate-green leading-none">ML</span>
-                        </div>
-                        <div class="intersection-node top-0 left-0"></div>
-                        <div class="relative z-10">
-                        <div class="font-data-mono text-label-caps text-ink-body/50 mb-2">PHASE_01</div>
-                        <h3 class="font-display-lg-mobile text-headline-md-mobile text-ink-heading mb-4 group-hover:text-laser-cyan transition-colors">Foundation</h3>
-                        <p class="font-body-sm text-ink-body">Built confidence with predictive ML — house price prediction, training loops, and evaluation.</p>
-                        </div>
-                    </div>
-                    
-                    <!-- Phase 2 -->
-                    <div class="relative interactive group border border-blueprint-line p-6 bg-warm-pebble/40 backdrop-blur-sm hover:bg-warm-pebble/80 hover:-translate-y-2 hover:shadow-[0_0_20px_rgba(212,148,10,0.15)] hover:border-laser-cyan/40 transition-all duration-300 reveal-item delay-2 overflow-hidden rounded-lg">
-                        <div class="absolute inset-0 pointer-events-none z-0 select-none flex items-end justify-end p-2 opacity-5 group-hover:opacity-10 transition-opacity duration-300">
-                            <span class="text-7xl font-data-mono font-bold text-deep-slate-green leading-none">CV</span>
-                        </div>
-                        <div class="relative z-10">
-                            <div class="font-data-mono text-label-caps text-ink-body/50 mb-2">PHASE_02</div>
-                            <h3 class="font-display-lg-mobile text-headline-md-mobile text-ink-heading mb-4 group-hover:text-electric-coral transition-colors">Vision</h3>
-                            <p class="font-body-sm text-ink-body">Moved into computer vision — depth estimation and architecture decisions.</p>
-                        </div>
-                    </div>
-
-                    <!-- Phase 3 -->
-                    <div class="relative interactive group border border-blueprint-line p-6 bg-warm-pebble/40 backdrop-blur-sm hover:bg-warm-pebble/80 hover:-translate-y-2 hover:shadow-[0_0_20px_rgba(212,148,10,0.15)] hover:border-laser-cyan/40 transition-all duration-300 reveal-item delay-3 overflow-hidden rounded-lg">
-                        <div class="absolute inset-0 pointer-events-none z-0 select-none flex items-end justify-end p-2 opacity-5 group-hover:opacity-10 transition-opacity duration-300">
-                            <span class="text-7xl font-data-mono font-bold text-deep-slate-green leading-none">GEN</span>
-                        </div>
-                        <div class="relative z-10">
-                            <div class="font-data-mono text-label-caps text-ink-body/50 mb-2">PHASE_03</div>
-                            <h3 class="font-display-lg-mobile text-headline-md-mobile text-ink-heading mb-4 group-hover:text-ink-heading transition-colors">Creative</h3>
-                            <p class="font-body-sm text-ink-body">Explored GAN-based generation — training dynamics and instability.</p>
-                        </div>
-                    </div>
-
-                    <!-- Phase 4 -->
-                    <div class="relative interactive group border border-blueprint-line p-6 bg-warm-pebble/40 backdrop-blur-sm hover:bg-warm-pebble/80 hover:-translate-y-2 hover:shadow-[0_0_20px_rgba(212,148,10,0.15)] hover:border-laser-cyan/40 transition-all duration-300 reveal-item delay-4 overflow-hidden rounded-lg">
-                        <div class="absolute inset-0 pointer-events-none z-0 select-none flex items-end justify-end p-2 opacity-5 group-hover:opacity-10 transition-opacity duration-300">
-                            <span class="text-7xl font-data-mono font-bold text-deep-slate-green leading-none">SYS</span>
-                        </div>
-                        <div class="relative z-10">
-                            <div class="font-data-mono text-label-caps text-ink-body/50 mb-2">PHASE_04</div>
-                            <h3 class="font-display-lg-mobile text-headline-md-mobile text-ink-heading mb-4 group-hover:text-laser-cyan transition-colors">Product</h3>
-                            <p class="font-body-sm text-ink-body">Built Neural Canvas — style transfer shipped to Hugging Face as a tool.</p>
-                        </div>
-                    </div>
-
-                    <!-- Phase 5 -->
-                    <div class="relative interactive group border-2 border-laser-cyan p-6 bg-laser-cyan/5 backdrop-blur-sm hover:bg-laser-cyan/10 hover:-translate-y-2 transition-all duration-300 reveal-item delay-5 overflow-hidden rounded-lg shadow-[0_0_15px_rgba(212,148,10,0.2)]">
-                        <div class="absolute inset-0 border-2 border-laser-cyan rounded-lg animate-[ping_3s_cubic-bezier(0,0,0.2,1)_infinite] opacity-30 pointer-events-none"></div>
-                        <div class="absolute inset-0 pointer-events-none z-0 select-none flex items-end justify-end p-2 opacity-5 group-hover:opacity-10 transition-opacity duration-300">
-                            <span class="text-7xl font-data-mono font-bold text-laser-cyan leading-none">OPS</span>
-                        </div>
-                        <div class="intersection-node bottom-0 right-0"></div>
-                        <div class="relative z-10">
-                            <div class="font-data-mono text-label-caps text-laser-cyan mb-2 flex items-center gap-2"><span class="w-1.5 h-1.5 bg-laser-cyan rounded-full animate-pulse"></span> CURRENT</div>
-                            <h3 class="font-display-lg-mobile text-headline-md-mobile text-ink-heading mb-4 group-hover:text-electric-coral transition-colors">Systems</h3>
-                            <p class="font-body-sm text-ink-body">Investing in full-stack, cloud deployment, and DevOps to build complete AI systems.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            </div>
-        </section>
-
-        <!-- 2.6. Skills Section -->
-        <section class="scroll-section px-margin-mobile md:px-margin-desktop" id="skills">
-            <div class="z-content relative z-10 w-full max-w-6xl mx-auto">
-                <header class="mb-6 text-center relative z-30 bg-warm-pebble/90 backdrop-blur-md py-4 px-6 rounded-lg">
-                    <div class="font-data-mono text-label-caps text-laser-cyan mb-2 flex items-center justify-center gap-2 inline-block px-2">
-                        <span class="w-2 h-2 bg-laser-cyan rounded-full animate-pulse inline-block"></span>
-                        INTELLIGENCE TOOLKIT
-                    </div>
-                    <h2 class="font-display-lg-mobile md:text-headline-md text-ink-heading leading-none" data-scramble>
-                        SKILLS & STACK
-                    </h2>
-                    <p class="font-body-sm text-body-sm text-ink-body mt-2 max-w-xl mx-auto">
-                        A dynamic, high-fidelity conceptual blueprint of my engineering stack and domain expertise.
-                    </p>
-                </header>
-
-                <!-- Orbital Typographic Constellation -->
-                <div class="orbital-viewport w-full h-[420px] relative flex items-center justify-center select-none z-20" id="skills-orbital">
-                    
-                    <!-- Circular Glassmorphic Backdrop for grounding and readability -->
-                    <div class="absolute w-[95%] h-[90%] max-w-[850px] max-h-[380px] rounded-[50%/50%] bg-warm-pebble/50 backdrop-blur-[8px] border border-blueprint-line/40 shadow-[inset_0_0_25px_rgba(24,36,32,0.04),0_10px_35px_rgba(24,36,32,0.02)] pointer-events-none z-0"></div>
-
-                    <!-- Fixed Crosshair Overlay -->
-                    <div class="absolute inset-0 pointer-events-none flex items-center justify-center z-10 text-deep-slate-green opacity-40">
-                        <svg class="w-full h-full max-w-[800px] min-w-[300px]" viewBox="0 0 800 800" xmlns="http://www.w3.org/2000/svg">
-                            <!-- Delicate radial lines -->
-                            <circle cx="400" cy="400" r="150" fill="none" stroke="currentColor" stroke-width="0.5" stroke-dasharray="4 8"/>
-                            <circle cx="400" cy="400" r="280" fill="none" stroke="currentColor" stroke-width="0.25"/>
-                            <circle cx="400" cy="400" r="350" fill="none" stroke="currentColor" stroke-width="0.1" stroke-dasharray="2 4"/>
-                            <!-- Crosshairs -->
-                            <line x1="400" y1="0" x2="400" y2="800" stroke="currentColor" stroke-width="0.25"/>
-                            <line x1="0" y1="400" x2="800" y2="400" stroke="currentColor" stroke-width="0.25"/>
-                            <!-- Targeting reticle center -->
-                            <circle cx="400" cy="400" r="3" fill="currentColor"/>
-                            <circle cx="400" cy="400" r="12" fill="none" stroke="#9B3422" stroke-width="1" stroke-dasharray="2 2"/>
-                        </svg>
-                    </div>
-
-                    <!-- The 3D Rotating Cluster -->
-                    <div id="orbital-cluster" class="orbital-cluster w-full h-full absolute top-0 left-0" style="transform-style: preserve-3d;">
-                        <!-- 3D Orbit Path -->
-                        <div class="absolute top-1/2 left-1/2 w-[680px] h-[680px] -translate-x-1/2 -translate-y-1/2 hidden md:block" style="transform: rotateX(90deg);">
-                            <svg class="w-full h-full animate-[spin_20s_linear_infinite]" viewBox="0 0 680 680" overflow="visible">
-                                <circle cx="340" cy="340" r="340" fill="none" stroke="rgba(212,148,10,0.3)" stroke-width="1" stroke-dasharray="4 12" />
-                                <circle cx="340" cy="340" r="336" fill="none" stroke="rgba(212,148,10,0.1)" stroke-width="4" />
-                            </svg>
-                        </div>
-                        
-                        <!-- Node 1 -->
-                        <div class="orbit-node absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center w-[80vw] max-w-[600px] bg-warm-pebble/40 backdrop-blur-md border border-blueprint-line/50 shadow-[0_10px_30px_rgba(24,36,32,0.1)] rounded-2xl p-6 transition-all duration-300" data-angle="0">
-                            <h3 class="orbit-title font-display-lg text-2xl md:text-5xl lg:text-6xl uppercase tracking-tighter text-ink-primary">Computer Vision</h3>
-                            <div class="orbit-detail flex items-center justify-center gap-4 mt-2">
-                                <span class="h-[1px] w-8 bg-electric-coral"></span>
-                                <p class="font-data-mono text-micro-alt md:text-xs tracking-[0.2em] uppercase text-ink-heading font-semibold">YOLOv8 // PyTorch // Custom CNN Arch.</p>
-                                <span class="h-[1px] w-8 bg-electric-coral"></span>
-                            </div>
-                        </div>
-                        
-                        <!-- Node 2 -->
-                        <div class="orbit-node absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center w-[80vw] max-w-[600px] bg-warm-pebble/40 backdrop-blur-md border border-blueprint-line/50 shadow-[0_10px_30px_rgba(24,36,32,0.1)] rounded-2xl p-6 transition-all duration-300" data-angle="60">
-                            <h3 class="orbit-title font-display-lg text-2xl md:text-5xl lg:text-6xl uppercase tracking-tighter text-ink-primary">Architecture</h3>
-                            <div class="orbit-detail flex items-center justify-center gap-4 mt-2">
-                                <span class="h-[1px] w-8 bg-laser-cyan"></span>
-                                <p class="font-data-mono text-micro-alt md:text-xs tracking-[0.2em] uppercase text-ink-heading font-semibold">FastAPI // Docker // K8s // Github</p>
-                                <span class="h-[1px] w-8 bg-laser-cyan"></span>
-                            </div>
-                        </div>
-                        
-                        <!-- Node 3 -->
-                        <div class="orbit-node absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center w-[80vw] max-w-[600px] bg-warm-pebble/40 backdrop-blur-md border border-blueprint-line/50 shadow-[0_10px_30px_rgba(24,36,32,0.1)] rounded-2xl p-6 transition-all duration-300" data-angle="120">
-                            <h3 class="orbit-title font-display-lg text-2xl md:text-5xl lg:text-6xl uppercase tracking-tighter text-ink-primary">Generative AI</h3>
-                            <div class="orbit-detail flex items-center justify-center gap-4 mt-2">
-                                <span class="h-[1px] w-8 bg-electric-coral"></span>
-                                <p class="font-data-mono text-micro-alt md:text-xs tracking-[0.2em] uppercase text-ink-heading font-semibold">LLMs // LangChain // CLI Agents // MCP Integration</p>
-                                <span class="h-[1px] w-8 bg-electric-coral"></span>
-                            </div>
-                        </div>
-
-                        <!-- Node 4 -->
-                        <div class="orbit-node absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center w-[80vw] max-w-[600px] bg-warm-pebble/40 backdrop-blur-md border border-blueprint-line/50 shadow-[0_10px_30px_rgba(24,36,32,0.1)] rounded-2xl p-6 transition-all duration-300" data-angle="180">
-                            <h3 class="orbit-title font-display-lg text-2xl md:text-5xl lg:text-6xl uppercase tracking-tighter text-ink-primary">Data Pipelines</h3>
-                            <div class="orbit-detail flex items-center justify-center gap-4 mt-2">
-                                <span class="h-[1px] w-8 bg-laser-cyan"></span>
-                                <p class="font-data-mono text-micro-alt md:text-xs tracking-[0.2em] uppercase text-ink-heading font-semibold">PostgreSQL // MongoDB // MySQL</p>
-                                <span class="h-[1px] w-8 bg-laser-cyan"></span>
-                            </div>
-                        </div>
-
-                        <!-- Node 5 -->
-                        <div class="orbit-node absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center w-[80vw] max-w-[600px] bg-warm-pebble/40 backdrop-blur-md border border-blueprint-line/50 shadow-[0_10px_30px_rgba(24,36,32,0.1)] rounded-2xl p-6 transition-all duration-300" data-angle="240">
-                            <h3 class="orbit-title font-display-lg text-2xl md:text-5xl lg:text-6xl uppercase tracking-tighter text-ink-primary">Full Stack</h3>
-                            <div class="orbit-detail flex items-center justify-center gap-4 mt-2">
-                                <span class="h-[1px] w-8 bg-electric-coral"></span>
-                                <p class="font-data-mono text-micro-alt md:text-xs tracking-[0.2em] uppercase text-ink-heading font-semibold">React // NextJS // Tailwind // Express</p>
-                                <span class="h-[1px] w-8 bg-electric-coral"></span>
-                            </div>
-                        </div>
-
-                        <!-- Node 6 -->
-                        <div class="orbit-node absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center w-[80vw] max-w-[600px] bg-warm-pebble/40 backdrop-blur-md border border-blueprint-line/50 shadow-[0_10px_30px_rgba(24,36,32,0.1)] rounded-2xl p-6 transition-all duration-300" data-angle="300">
-                            <h3 class="orbit-title font-display-lg text-2xl md:text-5xl lg:text-6xl uppercase tracking-tighter text-ink-primary">System Ops</h3>
-                            <div class="orbit-detail flex items-center justify-center gap-4 mt-2">
-                                <span class="h-[1px] w-8 bg-laser-cyan"></span>
-                                <p class="font-data-mono text-micro-alt md:text-xs tracking-[0.2em] uppercase text-ink-heading font-semibold">Linux // Git // CI/CD // Cloud</p>
-                                <span class="h-[1px] w-8 bg-laser-cyan"></span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-        </section>
-
-        <!-- 3. Metrics/Tolerance Section -->
-        <section class="scroll-section px-margin-mobile md:px-margin-desktop" id="metrics">
-            <div class="z-content w-full max-w-6xl relative mx-auto">
-                <header class="mb-8 text-center">
-                    <div class="font-data-mono text-label-caps text-laser-cyan mb-4 flex items-center gap-2 bg-warm-pebble/80 backdrop-blur-sm inline-block px-2">
-                        <span class="w-2 h-2 bg-laser-cyan rounded-full animate-pulse inline-block"></span>
-                        SYSTEM TELEMETRY
-                    </div>
-                    <h2 class="font-display-lg-mobile md:text-display-lg text-ink-heading max-w-4xl leading-tight" data-scramble>
-                        METRICS & TELEMETRY
-                    </h2>
-                </header>
-
-                <div class="flex items-center gap-4 mb-8">
-                    <div class="h-[1px] flex-grow bg-blueprint-line"></div>
-                    <h3 class="font-label-caps text-label-caps uppercase tracking-[0.15em] text-ink-body bg-warm-pebble px-4 border border-blueprint-line rounded-full">Telemetry Terminals</h3>
-                    <div class="h-[1px] flex-grow bg-blueprint-line"></div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 relative z-10">
-                    <!-- Terminal 1 -->
-                    <div class="relative odometer-container odometer-shadow p-6 interactive reveal-item delay-1 bg-warm-pebble/40 backdrop-blur-sm border border-blueprint-line hover:border-laser-cyan/50 hover:-translate-y-2 hover:shadow-[0_10px_30px_rgba(212,148,10,0.15)] transition-all duration-300 rounded-lg overflow-hidden group">
-                        <div class="absolute inset-0 bg-[linear-gradient(to_bottom,transparent,rgba(212,148,10,0.1),transparent)] bg-[length:100%_200%] animate-[scan-line-sweep_3s_linear_infinite] opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
-                        <div class="intersection-node top-0 left-0"></div>
-                        <div class="intersection-node top-0 right-0"></div>
-                        <div class="intersection-node bottom-0 left-0"></div>
-                        <div class="intersection-node bottom-0 right-0"></div>
-                        <div class="font-data-mono text-label-caps text-ink-body/60 mb-8 border-b border-blueprint-line border-dotted pb-2 flex justify-between">
-                            <span>SYS.01</span>
-                            <span class="material-symbols-outlined text-sm">code</span>
-                        </div>
-                        <div class="font-display-lg-mobile text-headline-md-mobile text-ink-heading mb-2 flex items-baseline gap-1">
-                            <span class="metric-number odometer" data-value="150">150</span>
-                            <span class="text-laser-cyan">+</span>
-                        </div>
-                        <div class="font-body-sm text-body-sm text-ink-body relative z-10">Open Source PRs Merged</div>
-                    </div>
-
-                    <!-- Terminal 2 -->
-                    <div class="relative odometer-container odometer-shadow p-6 interactive reveal-item delay-2 bg-warm-pebble/40 backdrop-blur-sm border border-blueprint-line hover:border-electric-coral/50 hover:-translate-y-2 hover:shadow-[0_10px_30px_rgba(155,52,34,0.15)] transition-all duration-300 rounded-lg overflow-hidden group">
-                        <div class="absolute inset-0 bg-[linear-gradient(to_bottom,transparent,rgba(155,52,34,0.1),transparent)] bg-[length:100%_200%] animate-[scan-line-sweep_3s_linear_infinite] opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
-                        <div class="intersection-node top-0 left-0"></div>
-                        <div class="intersection-node top-0 right-0"></div>
-                        <div class="intersection-node bottom-0 left-0"></div>
-                        <div class="intersection-node bottom-0 right-0"></div>
-                        <div class="font-data-mono text-label-caps text-ink-body/60 mb-8 border-b border-blueprint-line border-dotted pb-2 flex justify-between">
-                            <span>SYS.02</span>
-                            <span class="material-symbols-outlined text-sm text-laser-cyan">bolt</span>
-                        </div>
-                        <div class="font-display-lg-mobile text-headline-md-mobile text-ink-heading mb-2 flex items-baseline gap-1">
-                            <span class="metric-number odometer" data-value="1730">1730</span>
-                            <span class="text-electric-coral">+</span>
-                        </div>
-                        <div class="font-body-sm text-body-sm text-ink-body relative z-10">LeetCode Rating</div>
-                    </div>
-
-                    <!-- Terminal 3 -->
-                    <div class="relative odometer-container odometer-shadow p-6 interactive reveal-item delay-3 bg-deep-slate-green text-warm-pebble border border-deep-slate-green hover:border-laser-cyan/50 hover:-translate-y-2 hover:shadow-[0_10px_30px_rgba(212,148,10,0.2)] transition-all duration-300 rounded-lg overflow-hidden group">
-                        <div class="absolute inset-0 bg-[linear-gradient(to_bottom,transparent,rgba(212,148,10,0.15),transparent)] bg-[length:100%_200%] animate-[scan-line-sweep_3s_linear_infinite] opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
-                        <div class="intersection-node top-0 left-0 bg-warm-pebble"></div>
-                        <div class="intersection-node top-0 right-0 bg-warm-pebble"></div>
-                        <div class="intersection-node bottom-0 left-0 bg-warm-pebble"></div>
-                        <div class="intersection-node bottom-0 right-0 bg-warm-pebble"></div>
-                        <div class="font-data-mono text-label-caps text-warm-pebble/60 mb-8 border-b border-warm-pebble/20 border-dotted pb-2 flex justify-between">
-                            <span>SYS.03</span>
-                            <span class="material-symbols-outlined text-sm text-laser-cyan">deployed_code</span>
-                        </div>
-                        <div class="font-display-lg-mobile text-headline-md-mobile text-warm-pebble mb-2 flex items-baseline gap-1">
-                            <span class="metric-number odometer" data-value="15">15</span>
-                        </div>
-                        <div class="font-body-sm text-body-sm text-warm-pebble/80 relative z-10">Active Repositories</div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- 4. Contact Section -->
-        <section class="scroll-section px-margin-mobile md:px-margin-desktop" id="contact">
-            <div class="z-content w-full max-w-6xl relative mx-auto">
-                <!-- Grid Nodes for emphasis -->
-                <div class="intersection-node top-0 left-0"></div>
-                <div class="intersection-node top-0 right-0"></div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-12 gap-8 relative z-10">
-                    <!-- Left Column: Context / Archive -->
-                    <div class="md:col-span-6 flex flex-col justify-center space-y-8 relative pl-gutter border-l border-blueprint-line bg-warm-pebble/50 backdrop-blur-sm reveal-item delay-1">
-                        <div class="font-data-mono text-label-caps text-laser-cyan flex items-center gap-3 bg-laser-cyan/5 border border-laser-cyan/20 px-4 py-2 rounded-sm w-max shadow-[0_0_15px_rgba(212,148,10,0.1)]">
-                            <span class="relative flex h-2.5 w-2.5">
-                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-laser-cyan opacity-75"></span>
-                                <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-laser-cyan"></span>
-                            </span>
-                            [ SYSTEM STATUS: ONLINE ]
-                        </div>
-                        <h2 class="font-display-lg-mobile text-display-lg-mobile md:text-headline-md xl:text-display-accent text-ink-primary leading-none" data-scramble>
-                            Init<br/>Message
-                        </h2>
-                        <p class="font-body-sm text-body-sm text-ink-body max-w-sm">
-                            I ship PyTorch models to production. Looking for meaningful AI and Full stack internships and research work where I can do that at scale.
-                        </p>
-                        <div class="mt-8">
-                            <div class="font-label-caps text-label-caps mb-4 uppercase tracking-[0.15em] text-ink-body">Archive Comm Link</div>
-                            <a href="mailto:dhruvgarg.garg123@gmail.com" class="group font-data-mono text-data-mono border border-blueprint-line p-4 rounded inline-flex items-center gap-2 bg-warm-pebble/80 hover:bg-laser-cyan/10 hover:border-laser-cyan backdrop-blur-sm shadow-[4px_4px_0px_0px_rgba(24,36,32,1)] hover:shadow-[6px_6px_0px_0px_rgba(212,148,10,0.4)] hover:-translate-y-1 transition-all duration-300 interactive relative overflow-hidden">
-                                <span class="absolute inset-0 w-full h-full bg-gradient-to-r from-laser-cyan/20 to-transparent -translate-x-full group-hover:animate-[sweep-right_1.5s_ease-in-out_infinite]"></span>
-                                <span class="text-laser-cyan animate-pulse group-hover:animate-none">&gt;</span> 
-                                <span class="relative z-10 text-ink-body group-hover:text-deep-slate-green transition-colors">dhruvgarg.garg123@gmail.com</span>
-                            </a>
-                        </div>
-                        <div class="flex gap-4 items-center">
-                            <a href="https://github.com/DhruvGarg111" target="_blank" rel="noopener noreferrer" class="text-ink-body hover:text-electric-coral transition-colors interactive" aria-label="GitHub">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/></svg>
-                            </a>
-                            <a href="https://www.linkedin.com/in/dhruv-garg-6b0954177/" target="_blank" rel="noopener noreferrer" class="text-ink-body hover:text-electric-coral transition-colors interactive" aria-label="LinkedIn">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
-                            </a>
-                        </div>
-                    </div>
-                    
-                    <!-- Right Column: Form -->
-                    <div class="md:col-span-6 bg-warm-pebble/80 backdrop-blur-md p-8 rounded relative z-20 border border-blueprint-line shadow-[8px_8px_0px_0px_#182420] hover:shadow-[12px_12px_0px_0px_#182420] hover:-translate-y-1 hover:-translate-x-1 transition-all duration-300 reveal-item delay-3 group">
-                        <!-- Blueprint Corner Reticles -->
-                        <div class="reticle-corner reticle-corner-tl opacity-50 group-hover:opacity-100 transition-opacity"></div>
-                        <div class="reticle-corner reticle-corner-tr opacity-50 group-hover:opacity-100 transition-opacity"></div>
-                        <div class="reticle-corner reticle-corner-bl opacity-50 group-hover:opacity-100 transition-opacity"></div>
-                        <div class="reticle-corner reticle-corner-br opacity-50 group-hover:opacity-100 transition-opacity"></div>
-                        <form class="space-y-8 font-data-mono text-data-mono" action="https://formspree.io/f/xdkoqpvr" method="POST">
-                            <!-- Honeypot field for spam protection -->
-                            <input type="text" name="_gotcha" style="display:none" tabindex="-1" autocomplete="off">
-                            <div class="relative group">
-                                <label class="block font-label-caps text-label-caps text-ink-body mb-1" for="id_vector">ID Vector (Name)</label>
-                                <input class="input-underline w-full bg-transparent text-ink-body py-2 focus:ring-0 interactive" id="id_vector" name="name" placeholder="Enter designation..." type="text" autocomplete="name" required/>
-                            </div>
-                            <div class="relative group">
-                                <label class="block font-label-caps text-label-caps text-ink-body mb-1" for="comm_channel">Comm Channel (Email)</label>
-                                <input class="input-underline w-full bg-transparent text-ink-body py-2 focus:ring-0 interactive" id="comm_channel" name="email" placeholder="user@domain.com" type="email" autocomplete="email" required/>
-                            </div>
-                            <div class="relative group">
-                                <label class="block font-label-caps text-label-caps text-ink-body mb-1" for="payload">Payload Data (Message)</label>
-                                <textarea class="input-underline w-full bg-transparent text-ink-body py-2 focus:ring-0 interactive resize-none" id="payload" name="message" placeholder="Transmit requirements here..." rows="4" required></textarea>
-                            </div>
-                            <div class="pt-4 flex justify-end">
-                                <button class="magnetic-btn interactive group" type="submit">
-                                    <span class="magnetic-inner bg-deep-slate-green text-warm-pebble font-label-caps text-label-caps px-8 py-4 group-hover:bg-electric-coral group-hover:text-warm-pebble transition-colors duration-300 shadow-[2px_2px_0px_0px_rgba(24,36,32,0.15)] flex items-center gap-2">
-                                        TRANSMIT <span class="material-symbols-outlined text-sm">send</span>
-                                    </span>
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-                <div class="intersection-node bottom-0 left-0"></div>
-                <div class="intersection-node bottom-0 right-0"></div>
-            </div>
-        </section>
-
-        <!-- Removed footer/top bar element -->
-
-        </div> <!-- end world-3d -->
-    </main> <!-- end viewport-3d -->
-
-    <!-- Mobile Experience Toast -->
-    <div class="md:hidden fixed bottom-4 left-4 right-4 z-50 bg-deep-slate-green/90 backdrop-blur-md text-warm-pebble font-data-mono text-xs p-3 rounded shadow-lg border border-laser-cyan/30 flex items-center justify-center text-center opacity-90 pointer-events-none transition-opacity duration-1000" id="mobile-toast">
-        <span class="flex items-center justify-center gap-2">
-            <span class="material-symbols-outlined text-base text-laser-cyan">desktop_windows</span>
-            View on PC for best experience
-        </span>
-    </div>
-
-    <script src="assets/js/script.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js" integrity="sha384-CI3ELBVUz9XQO+97x6nwMDPosPR5XvsxW2ua7N1Xeygeh1IxtgqtCkGfQY9WWdHu" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/gsap@3.12.7/dist/gsap.min.js" integrity="sha384-pEQB1h4Zmn9xhS6jotzltHSIQq6N0Oh3BXkCNOH5LKI81R2NRbb9efarAJYw9gTY" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/gsap@3.12.7/dist/ScrollTrigger.min.js" integrity="sha384-TgZ1GoXcDnrw/czNfaiSZSFV1zgIRv8aQOevBA8ppS4SkNONmzYfjARpXsDfdnUE" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/gsap@3.12.7/dist/MotionPathPlugin.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/@mojs/core@1.7.1/dist/mo.umd.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/splitting@1.1.0/dist/splitting.min.js"></script>
+  <script defer src="assets/js/neural-background.js?v=2"></script>
+  <script defer src="assets/js/fluid-cursor.js?v=2"></script>
+  <script defer src="assets/js/script.js?v=2"></script>
 </body>
 </html>
