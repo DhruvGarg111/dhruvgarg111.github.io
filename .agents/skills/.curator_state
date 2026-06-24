@@ -1,0 +1,9 @@
+{
+  "last_report_path": "/home/dhruvgarg/.hermes/logs/curator/20260511-091852",
+  "last_run_at": "2026-05-11T09:18:52.141050+00:00",
+  "last_run_duration_seconds": 2.678598,
+  "last_run_summary": "auto: no changes; llm: skipped (no candidates)",
+  "last_run_summary_shown_at": "2026-05-11T09:18:52.141050+00:00",
+  "paused": false,
+  "run_count": 2
+}

@@ -836,26 +836,30 @@
       sectionTimelines.journey = tl;
     })();
 
-    /* ── Skills: hex grid activation ── */
+    /* ── Skills: card grid activation ── */
     (function () {
-      var cells = $$('.hex-cell');
-      if (!cells.length) return;
+      var cards = $$('.skill-card');
+      if (!cards.length) return;
 
-      cells.forEach(function (cell) {
-        var fill = parseFloat(cell.getAttribute('data-fill')) || 0;
-        cell.style.setProperty('--fill', fill);
+      /* Set CSS --fill var so the bar animation knows the target width */
+      cards.forEach(function (card) {
+        var fill = parseFloat(card.getAttribute('data-fill')) || 0;
+        card.style.setProperty('--fill', fill);
       });
 
       var tl = gsap.timeline({ paused: true });
 
-      cells.forEach(function (cell, i) {
-        var pos = 0.05 + i * 0.14;
-        tl.fromTo(cell,
-          { opacity: 0, scale: 0.7, y: 20 },
-          { opacity: 1, scale: 1, y: 0, duration: 0.2, ease: 'back.out(1.8)' },
+      cards.forEach(function (card, i) {
+        var pos = 0.05 + i * 0.13;
+        tl.fromTo(card,
+          { opacity: 0, y: 20, scale: 0.94 },
+          { opacity: 1, y: 0, scale: 1, duration: 0.22, ease: 'back.out(1.5)' },
           pos
         );
-        tl.call(function () { cell.classList.add('is-filled'); }, null, pos + 0.1);
+        tl.call(function () {
+          card.classList.add('is-active');
+          card.classList.add('is-filled');
+        }, null, pos + 0.08);
       });
 
       tl.totalDuration(1);
@@ -1199,8 +1203,10 @@
     $$('.tline').forEach(function (l) { l.classList.add('is-typed'); l.style.opacity = '1'; l.style.transform = 'none'; });
     $$('.journey-era').forEach(function (e) { e.classList.add('is-cracked'); e.style.opacity = '1'; e.style.transform = 'none'; });
     $$('.journey-era__card').forEach(function (c) { c.style.clipPath = 'none'; });
-    $$('.hex-cell').forEach(function (c) {
-      c.classList.add('is-filled');
+    $$('.skill-card').forEach(function (c) {
+      var fill = parseFloat(c.getAttribute('data-fill')) || 0;
+      c.style.setProperty('--fill', fill);
+      c.classList.add('is-active', 'is-filled');
       c.style.opacity = '1';
       c.style.transform = 'none';
     });
@@ -1306,7 +1312,7 @@
       });
       $$('.tline').forEach(function (l) { l.style.opacity = '1'; l.style.transform = 'none'; });
       $$('.journey-era').forEach(function (e) { e.style.opacity = '1'; e.style.transform = 'none'; });
-      $$('.hex-cell').forEach(function (c) { c.style.opacity = '1'; c.style.transform = 'none'; });
+      $$('.skill-card').forEach(function (c) { c.style.opacity = '1'; c.style.transform = 'none'; });
       $$('.stat-card').forEach(function (c) { c.style.opacity = '1'; c.style.transform = 'none'; });
       $$('.pipe-card').forEach(function (c) { c.style.opacity = '1'; c.style.transform = 'none'; });
       return;

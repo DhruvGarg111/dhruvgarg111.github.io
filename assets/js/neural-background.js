@@ -136,6 +136,15 @@
   /* COLORS & SHARED GEOMETRY                                  */
   /* ═════════════════════════════════════════════════════════ */
 
+  /* Color palette matched to design system tokens */
+  var colorPalette = {
+    cyan:   new THREE.Color(0x6CB4C4),   // slate-blue-light
+    blue:   new THREE.Color(0x3D72A4),   // datum blue
+    orange: new THREE.Color(0xC45C26),   // survey terracotta
+    coral:  new THREE.Color(0xE87428),   // warm coral
+    yellow: new THREE.Color(0xE8B86D),   // gold accent
+  };
+
   var sphereGeo = new THREE.SphereGeometry(0.16, 8, 8);
   var pulseGeo = new THREE.SphereGeometry(0.11, 6, 6);
   var boxGeoBase = new THREE.BoxGeometry(0.12, 1.0, 1.0);
@@ -161,19 +170,24 @@
     { type: 'sheet', z: -15, size: 2.8, color: 'yellow' },
   ];
 
-  /* Collect node positions per layer for synapses */
+  /* Collect node positions per layer for synapses + per-instance colors */
   var layers = [];
   var allSpherePositions = [];
+  var allSphereColors = [];
   var allBoxPositions = [];
+  var allBoxColors = [];
   var allBoxScales = [];
   var allHaloData = [];
+  var allHaloColors = [];
 
   layerDefs.forEach(function (def) {
     var nodes = [];
+    var col = colorPalette[def.color] || colorPalette.blue;
 
     /* Halo ring */
     var haloR = def.type === 'ring' ? def.radius * 1.4 : (def.size || 1) * 1.4;
     allHaloData.push({ radius: haloR, z: def.z });
+    allHaloColors.push(col);
 
     if (def.type === 'grid') {
       var sy = -((def.rows - 1) * def.spacing) / 2;
@@ -182,8 +196,9 @@
         for (var c = 0; c < def.cols; c++) {
           var pos = new THREE.Vector3(sx + c * def.spacing, sy + r * def.spacing, def.z);
           allBoxPositions.push(pos);
+          allBoxColors.push(col);
           allBoxScales.push(new THREE.Vector3(1, def.size, def.size));
-          nodes.push({ position: pos });
+          nodes.push({ position: pos, color: col });
         }
       }
     } else if (def.type === 'ring') {
@@ -191,13 +206,15 @@
         var angle = (i / def.count) * Math.PI * 2;
         var p = new THREE.Vector3(Math.cos(angle) * def.radius, Math.sin(angle) * def.radius, def.z);
         allSpherePositions.push(p);
-        nodes.push({ position: p });
+        allSphereColors.push(col);
+        nodes.push({ position: p, color: col });
       }
     } else if (def.type === 'sheet') {
       var sp = new THREE.Vector3(0, 0, def.z);
       allBoxPositions.push(sp);
+      allBoxColors.push(col);
       allBoxScales.push(new THREE.Vector3(1, def.size, def.size));
-      nodes.push({ position: sp });
+      nodes.push({ position: sp, color: col });
     }
 
     layers.push({ def: def, nodes: nodes });
@@ -209,56 +226,68 @@
 
   var dummy = new THREE.Object3D();
 
-  /* Sphere nodes (InstancedMesh) */
+  /* Sphere nodes (InstancedMesh) — white base so setColorAt works correctly */
   var sphereCount = allSpherePositions.length;
-  var sphereMat = new THREE.MeshBasicMaterial({ color: 0x3D72A4, transparent: true, opacity: 0.8, depthWrite: false, fog: true });
+  var sphereMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.82, depthWrite: false, fog: true });
   var sphereInstanced = new THREE.InstancedMesh(sphereGeo, sphereMat, sphereCount);
   allSpherePositions.forEach(function (pos, i) {
     dummy.position.copy(pos);
     dummy.updateMatrix();
     sphereInstanced.setMatrixAt(i, dummy.matrix);
+    sphereInstanced.setColorAt(i, allSphereColors[i]);
   });
   sphereInstanced.instanceMatrix.needsUpdate = true;
+  if (sphereInstanced.instanceColor) sphereInstanced.instanceColor.needsUpdate = true;
   networkGroup.add(sphereInstanced);
 
-  /* Box nodes (InstancedMesh) */
+  /* Box nodes (InstancedMesh) — white base so setColorAt works correctly */
   var boxCount = allBoxPositions.length;
-  var boxMat = new THREE.MeshBasicMaterial({ color: 0x3D72A4, transparent: true, opacity: 0.55, depthWrite: false, fog: true });
+  var boxMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.6, depthWrite: false, fog: true });
   var boxInstanced = new THREE.InstancedMesh(boxGeoBase, boxMat, boxCount);
   allBoxPositions.forEach(function (pos, i) {
     dummy.position.copy(pos);
     dummy.scale.copy(allBoxScales[i]);
     dummy.updateMatrix();
     boxInstanced.setMatrixAt(i, dummy.matrix);
+    boxInstanced.setColorAt(i, allBoxColors[i]);
   });
   boxInstanced.instanceMatrix.needsUpdate = true;
+  if (boxInstanced.instanceColor) boxInstanced.instanceColor.needsUpdate = true;
   networkGroup.add(boxInstanced);
 
-  /* Halo rings (InstancedMesh) */
+  /* Halo rings (InstancedMesh) — white base so setColorAt works correctly */
   var haloCount = allHaloData.length;
   var haloGeo = new THREE.RingGeometry(1, 1.04, 32); // unit ring, scaled per instance
-  var haloMat = new THREE.MeshBasicMaterial({ color: 0x3D72A4, transparent: true, opacity: 0.6, depthWrite: false, fog: true, side: THREE.DoubleSide });
+  var haloMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.55, depthWrite: false, fog: true, side: THREE.DoubleSide });
   var haloInstanced = new THREE.InstancedMesh(haloGeo, haloMat, haloCount);
   allHaloData.forEach(function (h, i) {
     dummy.position.set(0, 0, h.z);
     dummy.scale.set(h.radius, h.radius, 1);
     dummy.updateMatrix();
     haloInstanced.setMatrixAt(i, dummy.matrix);
+    haloInstanced.setColorAt(i, allHaloColors[i]);
   });
   haloInstanced.instanceMatrix.needsUpdate = true;
+  if (haloInstanced.instanceColor) haloInstanced.instanceColor.needsUpdate = true;
   networkGroup.add(haloInstanced);
 
   /* ═════════════════════════════════════════════════════════ */
   /* MERGED SYNAPSES — single LineSegments draw call            */
   /* ═════════════════════════════════════════════════════════ */
 
+  /* Synapses — vertex-colored gradients between layer colors */
   var synapsePoints = [];
+  var synapseColors = [];
   for (var li = 0; li < layers.length - 1; li++) {
+    var c1 = layers[li].def.color ? colorPalette[layers[li].def.color] : colorPalette.blue;
+    var c2 = layers[li + 1].def.color ? colorPalette[layers[li + 1].def.color] : colorPalette.blue;
     layers[li].nodes.forEach(function (n1) {
       layers[li + 1].nodes.forEach(function (n2) {
         if (n1.position.distanceTo(n2.position) > 6.0) return;
         synapsePoints.push(n1.position.x, n1.position.y, n1.position.z);
+        synapseColors.push(c1.r, c1.g, c1.b);
         synapsePoints.push(n2.position.x, n2.position.y, n2.position.z);
+        synapseColors.push(c2.r, c2.g, c2.b);
       });
     });
   }
@@ -266,35 +295,46 @@
   if (synapsePoints.length > 0) {
     var synapseGeo = new THREE.BufferGeometry();
     synapseGeo.setAttribute('position', new THREE.Float32BufferAttribute(synapsePoints, 3));
+    synapseGeo.setAttribute('color', new THREE.Float32BufferAttribute(synapseColors, 3));
     var synapseLine = new THREE.LineSegments(synapseGeo,
-      new THREE.LineBasicMaterial({ color: 0x756D5C, transparent: true, opacity: 0.38, fog: true })
+      new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.36, fog: true })
     );
     networkGroup.add(synapseLine);
   }
 
-  /* Skip arcs — merge into one */
+  /* Skip arcs — color-coded by source layer */
   var arcPoints = [];
+  var arcColors = [];
   [[0, 9, 3], [1, 8, 2.5], [2, 7, 2.8], [3, 6, 2]].forEach(function (a) {
     var from = layers[a[0]].nodes;
     var to = layers[a[1]].nodes;
     var n1 = from[Math.floor(from.length / 2)];
     var n2 = to[Math.floor(to.length / 2)];
     if (!n1 || !n2) return;
+    var ac1 = colorPalette[layers[a[0]].def.color] || colorPalette.blue;
+    var ac2 = colorPalette[layers[a[1]].def.color] || colorPalette.blue;
     var mid = new THREE.Vector3().addVectors(n1.position, n2.position).multiplyScalar(0.5);
     mid.x += a[2]; mid.y += a[2];
     var curve = new THREE.CatmullRomCurve3([n1.position.clone(), mid, n2.position.clone()]);
     var pts = curve.getPoints(20);
     for (var k = 0; k < pts.length - 1; k++) {
+      var t = k / (pts.length - 2);
+      var cr = ac1.r + (ac2.r - ac1.r) * t;
+      var cg = ac1.g + (ac2.g - ac1.g) * t;
+      var cb = ac1.b + (ac2.b - ac1.b) * t;
       arcPoints.push(pts[k].x, pts[k].y, pts[k].z);
+      arcColors.push(cr, cg, cb);
       arcPoints.push(pts[k + 1].x, pts[k + 1].y, pts[k + 1].z);
+      arcColors.push(cr, cg, cb);
     }
   });
 
   if (arcPoints.length > 0) {
     var arcGeo = new THREE.BufferGeometry();
     arcGeo.setAttribute('position', new THREE.Float32BufferAttribute(arcPoints, 3));
+    arcGeo.setAttribute('color', new THREE.Float32BufferAttribute(arcColors, 3));
     networkGroup.add(new THREE.LineSegments(arcGeo,
-      new THREE.LineBasicMaterial({ color: 0x3D72A4, transparent: true, opacity: 0.55, fog: true })
+      new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.52, fog: true })
     ));
   }
 
@@ -303,7 +343,9 @@
   /* ═════════════════════════════════════════════════════════ */
 
   var maxPulses = isLowEnd ? 8 : 18;
-  var pulseMat = new THREE.MeshBasicMaterial({ color: 0xD0381B, transparent: true, opacity: 0.85, depthWrite: false, fog: true });
+  var paletteValues = Object.values(colorPalette);
+  /* White base so setColorAt can apply palette colors per pulse */
+  var pulseMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.9, depthWrite: false, fog: true });
   var pulseInstanced = new THREE.InstancedMesh(pulseGeo, pulseMat, maxPulses);
   var pulses = [];
 
@@ -311,8 +353,11 @@
     var startLayer = Math.floor(Math.random() * (layers.length - 1));
     var sn = layers[startLayer].nodes[Math.floor(Math.random() * layers[startLayer].nodes.length)];
     var tn = layers[startLayer + 1].nodes[Math.floor(Math.random() * layers[startLayer + 1].nodes.length)];
+    var pulseColor = colorPalette[layers[startLayer].def.color] || paletteValues[pi % paletteValues.length];
+    pulseInstanced.setColorAt(pi, pulseColor);
     pulses.push({ layer: startLayer, src: sn, tgt: tn, prog: Math.random(), speed: 0.005 + Math.random() * 0.008 });
   }
+  if (pulseInstanced.instanceColor) pulseInstanced.instanceColor.needsUpdate = true;
   networkGroup.add(pulseInstanced);
 
   /* ═════════════════════════════════════════════════════════ */
@@ -402,6 +447,15 @@
       darkness = Math.max(darkness, Math.min(1, (progress - 0.93) / 0.04));
     }
     scene.fog.color.lerpColors(fogColorLight, fogColorDark, darkness);
+
+    /* Boost node opacity during dark sections so colored nodes glow through
+       the semi-transparent dark panels (darkness: 0=light, 1=dark section) */
+    var baseSpOp = 0.82;
+    var baseBxOp = 0.60;
+    var baseHaOp = 0.55;
+    sphereMat.opacity = baseSpOp + (1.0 - baseSpOp) * darkness * 0.7;
+    boxMat.opacity    = baseBxOp + (1.0 - baseBxOp) * darkness * 0.6;
+    haloMat.opacity   = baseHaOp + (1.0 - baseHaOp) * darkness * 0.5;
   }
 
   /* ═════════════════════════════════════════════════════════ */
