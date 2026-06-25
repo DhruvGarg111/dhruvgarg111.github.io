@@ -841,25 +841,29 @@
       var cards = $$('.skill-card');
       if (!cards.length) return;
 
-      /* Set CSS --fill var so the bar animation knows the target width */
-      cards.forEach(function (card) {
-        var fill = parseFloat(card.getAttribute('data-fill')) || 0;
-        card.style.setProperty('--fill', fill);
-      });
-
       var tl = gsap.timeline({ paused: true });
 
       cards.forEach(function (card, i) {
-        var pos = 0.05 + i * 0.13;
+        var pos = 0.04 + i * 0.11;
         tl.fromTo(card,
-          { opacity: 0, y: 20, scale: 0.94 },
-          { opacity: 1, y: 0, scale: 1, duration: 0.22, ease: 'back.out(1.5)' },
+          { opacity: 0, y: 18, scale: 0.96 },
+          { opacity: 1, y: 0, scale: 1, duration: 0.28, ease: 'back.out(1.4)' },
           pos
         );
         tl.call(function () {
           card.classList.add('is-active');
-          card.classList.add('is-filled');
-        }, null, pos + 0.08);
+          /* stagger chips inside */
+          var chips = card.querySelectorAll('.skill-tag');
+          chips.forEach(function (chip, ci) {
+            chip.style.opacity = '0';
+            chip.style.transform = 'translateY(6px)';
+            setTimeout(function () {
+              chip.style.transition = 'opacity 0.22s ease, transform 0.22s ease';
+              chip.style.opacity = '1';
+              chip.style.transform = 'none';
+            }, ci * 45);
+          });
+        }, null, pos + 0.06);
       });
 
       tl.totalDuration(1);
@@ -1204,11 +1208,10 @@
     $$('.journey-era').forEach(function (e) { e.classList.add('is-cracked'); e.style.opacity = '1'; e.style.transform = 'none'; });
     $$('.journey-era__card').forEach(function (c) { c.style.clipPath = 'none'; });
     $$('.skill-card').forEach(function (c) {
-      var fill = parseFloat(c.getAttribute('data-fill')) || 0;
-      c.style.setProperty('--fill', fill);
-      c.classList.add('is-active', 'is-filled');
+      c.classList.add('is-active');
       c.style.opacity = '1';
       c.style.transform = 'none';
+      c.querySelectorAll('.skill-tag').forEach(function (t) { t.style.opacity = '1'; t.style.transform = 'none'; });
     });
     $$('.stat-card').forEach(function (c) {
       c.classList.add('is-visible', 'is-filled');
