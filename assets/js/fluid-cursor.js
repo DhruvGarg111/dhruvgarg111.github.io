@@ -49,6 +49,24 @@
   // Track coordinates of the cursor to draw technical survey crosshair
   var cursorTarget = { x: 0, y: 0, currentX: 0, currentY: 0, rotation: 0, size: 20 };
 
+  // The hero flow panel has its own cursor reticle; recede over it so the two
+  // don't fight. We don't disappear — just stop spawning and dim the crosshair.
+  var heroPanel = document.getElementById('hero-image-wrap');
+  var heroSection = document.getElementById('hero');
+  var heroRect = null;
+  function refreshHeroRect() {
+    // Only track the panel while the hero is actually visible up top — otherwise
+    // its faded/scaled ghost mid-page would dim the tracer over other sections.
+    if (heroPanel && heroSection && parseFloat(getComputedStyle(heroSection).opacity || '1') > 0.6) {
+      heroRect = heroPanel.getBoundingClientRect();
+    } else {
+      heroRect = null;
+    }
+  }
+  function overHeroPanel(x, y) {
+    return !!heroRect && x >= heroRect.left && x <= heroRect.right && y >= heroRect.top && y <= heroRect.bottom;
+  }
+
   function resizeCanvas() {
     resizeRafId = 0;
     var w = window.innerWidth;
@@ -59,6 +77,7 @@
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     width = w;
     height = h;
+    refreshHeroRect();
   }
 
   function scheduleResizeCanvas() {
@@ -139,7 +158,7 @@
 
       // Draw relative coordinates text next to node
       if (this.hasLabel && pct > 0.3) {
-        ctx.font = '500 8.5px "JetBrains Mono", monospace';
+        ctx.font = '500 8.5px "Martian Mono", ui-monospace, monospace';
         ctx.fillStyle = isDark ? 'rgba(244, 240, 232, 0.85)' : 'rgba(26, 43, 60, 0.75)';
         ctx.globalAlpha = (pct - 0.3) / 0.7 * 0.95;
         ctx.fillText(this.label, this.x + 6, this.y + 2.5);
@@ -186,8 +205,8 @@
     mouse.speed = dist;
     mouse.angle = Math.atan2(dy, dx);
     
-    // Spawn nodes during movement
-    if (dist > 2) {
+    // Spawn nodes during movement (but not over the hero panel — it leads there)
+    if (dist > 2 && !overHeroPanel(mouse.x, mouse.y)) {
       var vx = dx * 0.15;
       var vy = dy * 0.15;
 
@@ -336,9 +355,11 @@
     
     // Draw technical surveyor target bracket corners [ ]
     var isDark = document.body.classList.contains('is-dark');
+    // Recede over the hero panel so its own reticle leads (slight, not gone).
+    var dim = overHeroPanel(cursorTarget.currentX, cursorTarget.currentY) ? 0.3 : 1.0;
     ctx.strokeStyle = isDark ? 'rgba(250, 168, 35, 0.95)' : 'rgba(196, 92, 38, 0.9)'; // Gold on dark, Terracotta on light
     ctx.lineWidth = 2.0;
-    ctx.globalAlpha = 1.0;
+    ctx.globalAlpha = dim;
     
     var size = cursorTarget.size;
     var len = 5;
@@ -436,6 +457,15 @@
   }
 
   window.addEventListener('resize', scheduleResizeCanvas, { passive: true });
+
+  // Keep the hero-panel rect fresh as the page scrolls (the panel transforms).
+  var heroRectRaf = 0;
+  window.addEventListener('scroll', function () {
+    if (!heroRectRaf) {
+      heroRectRaf = requestAnimationFrame(function () { heroRectRaf = 0; refreshHeroRect(); });
+    }
+  }, { passive: true });
+
   resizeCanvas();
 
   document.addEventListener('visibilitychange', function () {

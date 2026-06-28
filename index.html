@@ -20,9 +20,9 @@
   <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Barlow+Condensed:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
-  <noscript><link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Barlow+Condensed:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"></noscript>
-  <link rel="stylesheet" href="assets/css/style.css?v=2">
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Hanken+Grotesque:wght@400;500;600;700&family=Martian+Mono:wght@400;500;600&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Hanken+Grotesque:wght@400;500;600;700&family=Martian+Mono:wght@400;500;600&display=swap" rel="stylesheet"></noscript>
+  <link rel="stylesheet" href="assets/css/style.css?v=4">
 </head>
 <body>
   <div class="loader" id="loader" aria-label="Loading" role="status">
@@ -74,22 +74,6 @@
     </div>
   </div>
 
-  <!-- ═══ VELOCITY HUD ═══ -->
-  <div class="velocity-hud" id="velocity-hud" aria-hidden="true">
-    <div class="hud-row">
-      <span class="hud-label">DEPTH</span>
-      <span class="hud-value" id="hud-depth">0m</span>
-    </div>
-    <div class="hud-row">
-      <span class="hud-label">STRATUM</span>
-      <span class="hud-value" id="hud-stratum">SURFACE</span>
-    </div>
-    <div class="hud-row">
-      <span class="hud-label">DRILL SPEED</span>
-      <span class="hud-value" id="hud-speed">0.00</span>
-    </div>
-  </div>
-
   <!-- ═══ STACK TRACE (bottom bar) ═══ -->
   <div class="stack-trace" id="stack-trace">
     <span class="st-seg is-active" data-seg="perception">perception/searchlight</span>
@@ -108,12 +92,11 @@
     <section class="stratum is-active" id="hero">
       <div class="stratum__inner hero-layout">
         <div class="hero__left">
-          <p class="hero__status mono">COARSE PASS — FULL FRAME</p>
-          <h1 class="hero__name" id="hero-name" aria-label="Dhruv Garg">
-            <span class="hero__word" data-word="DHRUV">
+          <h1 class="hero__name" aria-label="Dhruv Garg">
+            <span class="hero__word">
               <span class="hero__char">D</span><span class="hero__char">H</span><span class="hero__char">R</span><span class="hero__char">U</span><span class="hero__char">V</span>
             </span>
-            <span class="hero__word hero__word--accent" data-word="GARG">
+            <span class="hero__word hero__word--accent">
               <span class="hero__char">G</span><span class="hero__char">A</span><span class="hero__char">R</span><span class="hero__char">G</span>
             </span>
           </h1>
@@ -121,25 +104,16 @@
           <p class="hero__tagline">
             I ship <strong>PyTorch models</strong> to <strong>production</strong> —
             computer vision, generative systems, and the full stack around them.
-            <strong>4 production systems</strong>. Scroll to drill.
           </p>
-          <p class="hero__coords mono">28.7041° N · 77.1025° E</p>
-          <div class="hero__legend mono" aria-label="Portfolio signal summary">
-            <span><strong>04</strong> shipped systems</span>
-            <span><strong>CV</strong> inference</span>
-            <span><strong>LLM</strong> agents</span>
-          </div>
         </div>
         <div class="hero__right">
           <div class="hero__image-wrap" id="hero-image-wrap">
-            <picture>
-              <source srcset="assets/img/hero-aerial-400.webp 400w, assets/img/hero-aerial-800.webp 800w, assets/img/hero-aerial-1200.webp 1200w" sizes="(min-width: 900px) 380px, 85vw" type="image/webp">
-              <img class="hero__image" src="assets/img/hero-aerial-800.jpg" alt="Aerial survey field" width="800" height="800" fetchpriority="high" decoding="async">
-            </picture>
-            <div class="hero__scan-beam" id="hero-scan"></div>
+            <canvas class="hero__flow" id="hero-flow" role="img" aria-label="A live generative vector field — thousands of particles drifting through curl noise. Move the cursor over the panel to bend the flow into a swirl."></canvas>
+            <div class="hero__scanline" aria-hidden="true"></div>
             <div class="survey-brackets"></div>
           </div>
         </div>
+
         <div class="hero__scroll-cue" id="hero-scroll-cue">
           <span class="mono">SCROLL TO DRILL</span>
           <svg width="16" height="24" viewBox="0 0 16 24" aria-hidden="true" focusable="false"><path d="M8 4v16M2 14l6 6 6-6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -378,92 +352,65 @@
       <div class="stratum__window">
       <div class="stratum__inner stratum__inner--center">
         <div class="stratum__label mono">Sensor Matrix · 7200m</div>
-        <h2 class="stratum__title stratum__title--center">Skills</h2>
-        <div class="skills-matrix" id="skills-matrix" role="list">
+        <h2 class="stratum__title stratum__title--center">Capabilities</h2>
+        <p class="capability-log__note mono">Every capability below is bound to a system I shipped — not a self-rating.</p>
+        <div class="capability-log" id="capability-log" role="list">
 
-          <div class="skill-card skill-card--cv" role="listitem" tabindex="0">
-            <div class="skill-card__badge mono">CV</div>
-            <div class="skill-card__body">
-              <h3 class="skill-card__name">Computer Vision</h3>
-              <div class="skill-card__subskills">
-                <span class="skill-tag">PyTorch</span>
-                <span class="skill-tag">YOLOv8</span>
-                <span class="skill-tag">LayerCAM</span>
-                <span class="skill-tag">OpenCV</span>
-                <span class="skill-tag">ONNX Export</span>
-              </div>
+          <article class="capability capability--perception" role="listitem" tabindex="0">
+            <div class="capability__index mono"><span>01</span></div>
+            <div class="capability__main">
+              <header class="capability__head">
+                <h3 class="capability__domain">Perception</h3>
+                <a class="capability__proof mono" href="https://github.com/DhruvGarg111/The-Searchlight-Protocol" target="_blank" rel="noopener noreferrer">Proven in Searchlight Protocol →</a>
+              </header>
+              <p class="capability__line">Coarse-to-fine detection of small objects in high-resolution aerial imagery — slicing regions of interest and skipping 80%+ of empty background before fine inference.</p>
+              <ul class="capability__tools mono">
+                <li>PyTorch</li><li>YOLOv8</li><li>LayerCAM</li><li>OpenCV</li><li>ONNX</li>
+              </ul>
             </div>
-          </div>
+          </article>
 
-          <div class="skill-card skill-card--gen" role="listitem" tabindex="0">
-            <div class="skill-card__badge mono">GEN</div>
-            <div class="skill-card__body">
-              <h3 class="skill-card__name">Generative AI</h3>
-              <div class="skill-card__subskills">
-                <span class="skill-tag">HuggingFace</span>
-                <span class="skill-tag">LLM Agents</span>
-                <span class="skill-tag">GANs</span>
-                <span class="skill-tag">Diffusion</span>
-                <span class="skill-tag">ONNX</span>
-              </div>
+          <article class="capability capability--generation" role="listitem" tabindex="0">
+            <div class="capability__index mono"><span>02</span></div>
+            <div class="capability__main">
+              <header class="capability__head">
+                <h3 class="capability__domain">Generation</h3>
+                <a class="capability__proof mono" href="https://github.com/DhruvGarg111/Neural-Style-Transfer" target="_blank" rel="noopener noreferrer">Proven in Neural Canvas →</a>
+              </header>
+              <p class="capability__line">Feed-forward neural style transfer trained against a VGG-16 perceptual loss, exported to ONNX and shipped as a live demo on Hugging Face.</p>
+              <ul class="capability__tools mono">
+                <li>PyTorch</li><li>VGG-16</li><li>ONNX</li><li>Hugging Face</li><li>GANs</li>
+              </ul>
             </div>
-          </div>
+          </article>
 
-          <div class="skill-card skill-card--arch" role="listitem" tabindex="0">
-            <div class="skill-card__badge mono">ARCH</div>
-            <div class="skill-card__body">
-              <h3 class="skill-card__name">ML Architecture</h3>
-              <div class="skill-card__subskills">
-                <span class="skill-tag">FastAPI</span>
-                <span class="skill-tag">Celery</span>
-                <span class="skill-tag">Docker</span>
-                <span class="skill-tag">Redis</span>
-                <span class="skill-tag">REST APIs</span>
-              </div>
+          <article class="capability capability--infra" role="listitem" tabindex="0">
+            <div class="capability__index mono"><span>03</span></div>
+            <div class="capability__main">
+              <header class="capability__head">
+                <h3 class="capability__domain">Infrastructure</h3>
+                <a class="capability__proof mono" href="https://github.com/DhruvGarg111/PixelQueue" target="_blank" rel="noopener noreferrer">Proven in PixelQueue →</a>
+              </header>
+              <p class="capability__line">Async, human-in-the-loop annotation at scale: Celery workers behind a FastAPI gateway, a Redis broker, a PostgreSQL store, and a React-Konva labeling canvas.</p>
+              <ul class="capability__tools mono">
+                <li>FastAPI</li><li>Celery</li><li>Redis</li><li>PostgreSQL</li><li>Docker</li>
+              </ul>
             </div>
-          </div>
+          </article>
 
-          <div class="skill-card skill-card--data" role="listitem" tabindex="0">
-            <div class="skill-card__badge mono">DATA</div>
-            <div class="skill-card__body">
-              <h3 class="skill-card__name">Data Pipelines</h3>
-              <div class="skill-card__subskills">
-                <span class="skill-tag">PostgreSQL</span>
-                <span class="skill-tag">Redis</span>
-                <span class="skill-tag">MongoDB</span>
-                <span class="skill-tag">ETL</span>
-                <span class="skill-tag">Vector DBs</span>
-              </div>
+          <article class="capability capability--agents" role="listitem" tabindex="0">
+            <div class="capability__index mono"><span>04</span></div>
+            <div class="capability__main">
+              <header class="capability__head">
+                <h3 class="capability__domain">Agents</h3>
+                <a class="capability__proof mono" href="https://github.com/DhruvGarg111/py-goog-cli" target="_blank" rel="noopener noreferrer">Proven in PyGOG CLI →</a>
+              </header>
+              <p class="capability__line">Natural-language intent parsed into authenticated tool calls, orchestrated across Google Workspace — Calendar, Gmail, and Drive — from a single command line.</p>
+              <ul class="capability__tools mono">
+                <li>Typer</li><li>LLM Agents</li><li>OAuth2</li><li>Function Calling</li>
+              </ul>
             </div>
-          </div>
-
-          <div class="skill-card skill-card--stack" role="listitem" tabindex="0">
-            <div class="skill-card__badge mono">STACK</div>
-            <div class="skill-card__body">
-              <h3 class="skill-card__name">Full Stack</h3>
-              <div class="skill-card__subskills">
-                <span class="skill-tag">React</span>
-                <span class="skill-tag">Next.js</span>
-                <span class="skill-tag">Canvas API</span>
-                <span class="skill-tag">Konva</span>
-                <span class="skill-tag">Three.js</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="skill-card skill-card--ops" role="listitem" tabindex="0">
-            <div class="skill-card__badge mono">OPS</div>
-            <div class="skill-card__body">
-              <h3 class="skill-card__name">System Ops</h3>
-              <div class="skill-card__subskills">
-                <span class="skill-tag">Linux</span>
-                <span class="skill-tag">Git</span>
-                <span class="skill-tag">CI/CD</span>
-                <span class="skill-tag">Cloud Deploy</span>
-                <span class="skill-tag">Nginx</span>
-              </div>
-            </div>
-          </div>
+          </article>
 
         </div>
       </div>
@@ -498,25 +445,18 @@
               <div class="stat-card__bar"><div class="stat-card__bar-fill"></div></div>
             </div>
           </div>
-          <div class="stat-card" data-target="100" data-suffix="%">
+          <div class="stat-card" data-target="4" data-suffix="">
             <div class="stat-card__texture"></div>
             <div class="stat-card__inner">
               <div class="stat-card__value mono">
-                <span class="stat-count" data-count="100">0</span>
-                <span class="stat-card__suffix">%</span>
+                <span class="stat-count" data-count="4">0</span>
               </div>
-              <div class="stat-card__label mono">ONNX Telemetry</div>
+              <div class="stat-card__label mono">Shipped Systems</div>
               <div class="stat-card__bar"><div class="stat-card__bar-fill"></div></div>
             </div>
           </div>
         </div>
-        <span class="sr-only">111+ Pull Requests, 14 Repositories, 100% ONNX Telemetry</span>
-        <div class="val-stamp" id="val-stamp">
-          <div class="val-stamp__inner">
-            <div class="val-stamp__text mono">SYSTEM STATUS</div>
-            <div class="val-stamp__status">VERIFIED</div>
-          </div>
-        </div>
+        <span class="sr-only">111+ Pull Requests, 14 Repositories, 4 Shipped Systems</span>
       </div>
       </div>
     </section>
@@ -562,13 +502,13 @@
   </div>
 
   <script defer src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js" integrity="sha384-CI3ELBVUz9XQO+97x6nwMDPosPR5XvsxW2ua7N1Xeygeh1IxtgqtCkGfQY9WWdHu" crossorigin="anonymous"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/gsap@3.12.7/dist/gsap.min.js" integrity="sha384-pEQB1h4Zmn9xhS6jotzltHSIQq6N0Oh3BXkCNOH5LKI81R2NRbb9efarAJYw9gTY" crossorigin="anonymous"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/gsap@3.12.7/dist/ScrollTrigger.min.js" integrity="sha384-TgZ1GoXcDnrw/czNfaiSZSFV1zgIRv8aQOevBA8ppS4SkNONmzYfjARpXsDfdnUE" crossorigin="anonymous"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/gsap@3.12.7/dist/MotionPathPlugin.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js" crossorigin="anonymous"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/@mojs/core@1.7.1/dist/mo.umd.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/splitting@1.1.0/dist/splitting.min.js"></script>
   <script defer src="assets/js/neural-background.js?v=2"></script>
-  <script defer src="assets/js/fluid-cursor.js?v=2"></script>
-  <script defer src="assets/js/script.js?v=2"></script>
+  <script defer src="assets/js/fluid-cursor.js?v=3"></script>
+  <script defer src="assets/js/hero-flow.js?v=6"></script>
+  <script defer src="assets/js/script.js?v=4"></script>
 </body>
 </html>

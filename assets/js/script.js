@@ -1,40 +1,40 @@
 /**
- * Ground Truth v7 — Z-Axis Depth Drill Engine
+ * Ground Truth v7 â€” Z-Axis Depth Drill Engine
  *
  * One master ScrollTrigger on a 1000vh spacer drives everything:
- *   scroll progress 0-1 → camera depth position
- *                        → section visibility (fixed overlays)
- *                        → per-section GSAP timelines
- *                        → atmospheric shifts (fog, dark mode)
- *                        → HUD data
+ *   scroll progress 0-1 â†’ camera depth position
+ *                        â†’ section visibility (fixed overlays)
+ *                        â†’ per-section GSAP timelines
+ *                        â†’ atmospheric shifts (fog, dark mode)
+ *                        â†’ depth-gauge fill
  */
 ;(function () {
   'use strict';
 
-  /* ─── Feature Detection ─── */
+  /* â”€â”€â”€ Feature Detection â”€â”€â”€ */
   var rmQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
   var prefersRM = rmQuery.matches;
   try { rmQuery.addEventListener('change', function (e) { prefersRM = e.matches; }); } catch (e) { /* Safari < 14 */ }
   var isDesktop = window.matchMedia('(min-width: 768px)').matches;
 
-  /* ─── Shortcuts ─── */
+  /* â”€â”€â”€ Shortcuts â”€â”€â”€ */
   function $(s, r) { return (r || document).querySelector(s); }
   function $$(s, r) { return Array.from((r || document).querySelectorAll(s)); }
   function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
   function lerp(a, b, t) { return a + (b - a) * t; }
   function mapRange(v, inLo, inHi, outLo, outHi) { return outLo + ((v - inLo) / (inHi - inLo)) * (outHi - outLo); }
 
-  /* ─── Section Definitions ─── */
+  /* â”€â”€â”€ Section Definitions â”€â”€â”€ */
   var SECTIONS = [
-    { id: 'hero',           start: 0.00, end: 0.10, label: 'SURFACE', depth: '0m',     dark: false, seg: null },
-    { id: 'perception',     start: 0.10, end: 0.22, label: '1200m',   depth: '1200m',  dark: false, seg: 'perception' },
-    { id: 'training',       start: 0.22, end: 0.35, label: '2400m',   depth: '2400m',  dark: true,  seg: 'training' },
-    { id: 'infrastructure', start: 0.35, end: 0.48, label: '3600m',   depth: '3600m',  dark: false, seg: 'infra' },
-    { id: 'interface',      start: 0.48, end: 0.60, label: '4800m',   depth: '4800m',  dark: true,  seg: 'interface' },
-    { id: 'journey',        start: 0.60, end: 0.72, label: '6000m',   depth: '6000m',  dark: false, seg: null },
-    { id: 'skills',         start: 0.72, end: 0.83, label: '7200m',   depth: '7200m',  dark: false, seg: null },
-    { id: 'proof',          start: 0.83, end: 0.93, label: '8400m',   depth: '8400m',  dark: false, seg: null },
-    { id: 'contact',        start: 0.93, end: 1.00, label: 'CORE',    depth: '9000m',  dark: true,  seg: null },
+    { id: 'hero',           start: 0.00, end: 0.10, dark: false, seg: null },
+    { id: 'perception',     start: 0.10, end: 0.22, dark: false, seg: 'perception' },
+    { id: 'training',       start: 0.22, end: 0.35, dark: true,  seg: 'training' },
+    { id: 'infrastructure', start: 0.35, end: 0.48, dark: false, seg: 'infra' },
+    { id: 'interface',      start: 0.48, end: 0.60, dark: true,  seg: 'interface' },
+    { id: 'journey',        start: 0.60, end: 0.72, dark: false, seg: null },
+    { id: 'skills',         start: 0.72, end: 0.83, dark: false, seg: null },
+    { id: 'proof',          start: 0.83, end: 0.93, dark: false, seg: null },
+    { id: 'contact',        start: 0.93, end: 1.00, dark: true,  seg: null },
   ];
 
   var currentSection = -1;
@@ -42,22 +42,19 @@
   var lastScrollY = 0;
   var sectionTimelines = {};
   var triggeredSections = new Set();
-  var sectionVisible = new Array(9).fill(false);
+  var sectionVisible = new Array(SECTIONS.length).fill(false);
   var isDragging = false;
   var scrollTriggerInstance = null;
 
-  /* ─── Element Cache ─── */
+  /* â”€â”€â”€ Element Cache â”€â”€â”€ */
   var els = {};
-  var sectionEls = []; /* cached section DOM nodes — avoids getElementById per tick */
-  var prevHud = { depth: '', speed: '', fill: '' }; /* dirty-checking for HUD */
+  var sectionEls = []; /* cached section DOM nodes â€” avoids getElementById per tick */
+  var prevHud = { fill: '' }; /* dirty-checking for depth-gauge fill */
 
   function cacheElements() {
     els.depthFill = $('#depth-fill');
     els.depthMarker = $('#depth-marker');
     els.depthGaugeTrack = $('#depth-gauge-track');
-    els.hudDepth = $('#hud-depth');
-    els.hudStratum = $('#hud-stratum');
-    els.hudSpeed = $('#hud-speed');
     els.fogVignette = $('#fog-vignette');
     els.heroScrollCue = $('#hero-scroll-cue');
     els.stSegs = $$('.st-seg');
@@ -69,9 +66,9 @@
     });
   }
 
-  /* ═════════════════════════════════════════════════════════ */
-  /* SECTION VISIBILITY — z-axis depth transforms              */
-  /* ═════════════════════════════════════════════════════════ */
+  /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+  /* SECTION VISIBILITY â€” z-axis depth transforms              */
+  /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
   function updateSections(progress) {
     var newSection = -1;
@@ -86,15 +83,15 @@
       var rangeEnd = idx === SECTIONS.length - 1 ? sec.end : sec.end + overlapMargin;
 
       if (progress >= rangeStart && progress <= rangeEnd) {
-        /* ── This section is in range ── */
+        /* â”€â”€ This section is in range â”€â”€ */
         sectionVisible[idx] = true;
         if (progress >= sec.start && progress <= sec.end) newSection = idx;
         var local = clamp((progress - sec.start) / (sec.end - sec.start), 0, 1);
 
         /* z-depth envelope:
-           local 0.0-0.12 → entering (from deep)
-           local 0.12-0.88 → active (at camera depth)
-           local 0.88-1.0 → exiting (past camera)
+           local 0.0-0.12 â†’ entering (from deep)
+           local 0.12-0.88 â†’ active (at camera depth)
+           local 0.88-1.0 â†’ exiting (past camera)
            EXCEPT hero (idx=0) which starts fully visible */
         var enterEnd = idx === 0 ? 0 : 0.08;
         var exitStart = idx === SECTIONS.length - 1 ? 1.0 : 0.92;
@@ -119,7 +116,7 @@
           rx = lerp(0, -2.5, eased2);
           ry = 0;
         } else {
-          /* Active — fully present */
+          /* Active â€” fully present */
           z = 0; sc = 1; op = 1; rx = 0; ry = 0;
         }
 
@@ -134,7 +131,7 @@
         }
 
       } else {
-        /* ── Out of range — skip if already hidden ── */
+        /* â”€â”€ Out of range â€” skip if already hidden â”€â”€ */
         if (!sectionVisible[idx]) return;
         sectionVisible[idx] = false;
         el.classList.remove('is-active');
@@ -148,7 +145,7 @@
       }
     });
 
-    /* ── Section change ── */
+    /* â”€â”€ Section change â”€â”€ */
     if (newSection !== currentSection) {
       currentSection = newSection;
       if (newSection >= 0 && !triggeredSections.has(newSection)) {
@@ -180,15 +177,13 @@
           lbl.classList.toggle('is-active', lbl.dataset.section === sec.id);
         });
 
-        /* HUD stratum */
-        if (els.hudStratum) els.hudStratum.textContent = sec.label;
       }
     }
   }
 
-  /* ═════════════════════════════════════════════════════════ */
-  /* TRANSITION EFFECTS — section-specific enter animations    */
-  /* ═════════════════════════════════════════════════════════ */
+  /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+  /* TRANSITION EFFECTS â€” section-specific enter animations    */
+  /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
   /* Read CSS variable as string for mo.js color values */
   function cssVar(name) {
@@ -253,7 +248,7 @@
       onComplete: function () { clearFx(); }
     });
 
-    /* ── idx 1: Perception — Surface Penetration ── */
+    /* â”€â”€ idx 1: Perception â€” Surface Penetration â”€â”€ */
     if (idx === 1) {
       tl.set(layer, { opacity: 1, background: 'transparent' });
       tl.fromTo(layer,
@@ -290,7 +285,7 @@
       tl.to(layer, { clipPath: 'inset(50% 0 50% 0)', duration: 0.22, ease: 'power3.in' }, 0.35);
       tl.set(layer, { opacity: 0, clipPath: 'inset(50% 0 50% 0)' });
 
-    /* ── idx 2: Training — Stratum Fracture ── */
+    /* â”€â”€ idx 2: Training â€” Stratum Fracture â”€â”€ */
     } else if (idx === 2) {
       tl.set(layer, { opacity: 0, background: 'oklch(12% 0.03 250)' });
       tl.to(layer, { opacity: 0.85, duration: 0.12, ease: 'power4.in' });
@@ -327,7 +322,7 @@
 
       tl.to(layer, { opacity: 0, duration: 0.25, ease: 'power3.out' }, 0.3);
 
-    /* ── idx 3: Infrastructure — Core Extraction ── */
+    /* â”€â”€ idx 3: Infrastructure â€” Core Extraction â”€â”€ */
     } else if (idx === 3) {
       tl.set(layer, { opacity: 1, background: 'transparent' });
       tl.fromTo(layer,
@@ -370,7 +365,7 @@
       tl.to(layer, { clipPath: 'inset(50% 0 50% 0)', duration: 0.22, ease: 'power3.in' }, 0.35);
       tl.set(layer, { opacity: 0, clipPath: 'inset(50% 0 50% 0)' });
 
-    /* ── idx 4: Interface — Tectonic Shift ── */
+    /* â”€â”€ idx 4: Interface â€” Tectonic Shift â”€â”€ */
     } else if (idx === 4) {
       tl.set(layer, { opacity: 0, background: 'oklch(12% 0.03 250)' });
       tl.to(layer, { opacity: 0.85, duration: 0.12, ease: 'power4.in' });
@@ -405,7 +400,7 @@
 
       tl.to(layer, { opacity: 0, duration: 0.25, ease: 'power3.out' }, 0.3);
 
-    /* ── idx 5: Journey — Borehole Descent ── */
+    /* â”€â”€ idx 5: Journey â€” Borehole Descent â”€â”€ */
     } else if (idx === 5) {
       tl.set(layer, { opacity: 1, background: 'transparent' });
       tl.fromTo(layer,
@@ -448,7 +443,7 @@
 
       tl.to(layer, { clipPath: 'circle(120% at 50% 50%)', opacity: 0, duration: 0.2, ease: 'power2.in' }, 0.32);
 
-    /* ── idx 6: Skills — Mineral Bloom ── */
+    /* â”€â”€ idx 6: Skills â€” Mineral Bloom â”€â”€ */
     } else if (idx === 6) {
       tl.set(layer, { opacity: 1, background: 'transparent' });
       tl.fromTo(layer,
@@ -485,7 +480,7 @@
 
       tl.to(layer, { clipPath: 'circle(120% at 50% 50%)', opacity: 0, duration: 0.2, ease: 'power2.in' }, 0.32);
 
-    /* ── idx 7: Proof — Verification Pulse ── */
+    /* â”€â”€ idx 7: Proof â€” Verification Pulse â”€â”€ */
     } else if (idx === 7) {
       tl.set(layer, { opacity: 1, background: 'transparent' });
       tl.fromTo(layer,
@@ -531,7 +526,7 @@
 
       tl.to(layer, { clipPath: 'circle(120% at 50% 50%)', opacity: 0, duration: 0.2, ease: 'power2.in' }, 0.32);
 
-    /* ── idx 8: Contact — Core Breach ── */
+    /* â”€â”€ idx 8: Contact â€” Core Breach â”€â”€ */
     } else if (idx === 8) {
       tl.set(layer, { opacity: 1, background: 'radial-gradient(circle at center, oklch(18% 0.04 250) 0%, transparent 70%)' });
       tl.fromTo(layer,
@@ -582,35 +577,16 @@
     /* idx === 0: no transition (initial load) */
   }
 
-  /* ═════════════════════════════════════════════════════════ */
+  /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
   /* HUD UPDATES                                               */
-  /* ═════════════════════════════════════════════════════════ */
+  /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
-  /* Smoothed velocity for display */
+  /* Smoothed velocity â€” drives fog intensity */
   var displayVelocity = 0;
   var velocityRafId = 0;
 
-  function updateSpeedDisplay() {
-    var speedStr = Math.abs(displayVelocity).toFixed(2);
-    if (els.hudSpeed && speedStr !== prevHud.speed) {
-      els.hudSpeed.textContent = speedStr;
-      prevHud.speed = speedStr;
-    }
-  }
-
   function updateHud(progress) {
-    /* Depth reading — only update DOM when value changes */
-    var depthStr = Math.round(progress * 9000) + 'm';
-    if (els.hudDepth && depthStr !== prevHud.depth) {
-      els.hudDepth.textContent = depthStr;
-      prevHud.depth = depthStr;
-    }
-
-    updateSpeedDisplay();
-
-    /* Drill speed — only update DOM when value changes */
-
-    /* Depth gauge position — only update when pct changes */
+    /* Depth gauge position â€” only update when pct changes */
     var pct = (progress * 100).toFixed(1);
     if (pct !== prevHud.fill) {
       if (els.depthFill) els.depthFill.style.height = pct + '%';
@@ -619,9 +595,9 @@
     }
   }
 
-  /* ═════════════════════════════════════════════════════════ */
-  /* FOG INTENSITY — reactive to scroll velocity               */
-  /* ═════════════════════════════════════════════════════════ */
+  /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+  /* FOG INTENSITY â€” reactive to scroll velocity               */
+  /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
   function updateFogVelocity(speed) {
     if (!els.fogVignette) return;
@@ -630,9 +606,9 @@
     els.fogVignette.style.opacity = intensity.toFixed(3);
   }
 
-  /* ═════════════════════════════════════════════════════════ */
-  /* HERO — 3D letter scatter/assemble on load                 */
-  /* ═════════════════════════════════════════════════════════ */
+  /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+  /* HERO â€” 3D letter scatter/assemble on load                 */
+  /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
   function initHero() {
     var chars = $$('.hero__char');
@@ -640,7 +616,6 @@
 
     if (prefersRM) {
       chars.forEach(function (c) { c.style.opacity = '1'; });
-      document.documentElement.style.setProperty('--hero-blur', '4px');
       return;
     }
 
@@ -663,22 +638,17 @@
       duration: 1.0,
       ease: 'power4.out',
       stagger: { each: 0.04, from: 'random' },
-      delay: 0.3,
-      onComplete: function () {
-        initHeroScan();
-      }
+      delay: 0.3
     });
 
     /* Tagline stagger */
-    var tagline = $('.hero__tagline');
     var role = $('.hero__role');
-    var coords = $('.hero__coords');
-    var status = $('.hero__status');
-    [status, role, tagline, coords].forEach(function (el, i) {
+    var tagline = $('.hero__tagline');
+    [role, tagline].forEach(function (el, i) {
       if (!el) return;
       gsap.fromTo(el,
         { y: 20, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.6, ease: 'power3.out', delay: 0.8 + i * 0.1 }
+        { y: 0, opacity: 1, duration: 0.6, ease: 'power3.out', delay: 0.9 + i * 0.1 }
       );
     });
 
@@ -692,35 +662,9 @@
     }
   }
 
-  /* ─── Hero Scan Beam ─── */
-  function initHeroScan() {
-    var scan = $('#hero-scan');
-    var heroImg = $('.hero__image');
-    if (!scan || prefersRM) {
-      if (heroImg) heroImg.style.filter = 'blur(4px) saturate(0.8)';
-      return;
-    }
-
-    var wrap = $('.hero__image-wrap');
-    var h = wrap ? wrap.offsetHeight : 380;
-
-    gsap.set(scan, { opacity: 0.9, y: 0 });
-    gsap.to(scan, {
-      y: h,
-      duration: 1.8,
-      ease: 'power2.inOut',
-      onComplete: function () {
-        if (heroImg) {
-          gsap.to(heroImg, { filter: 'blur(4px) saturate(0.85)', duration: 0.6, ease: 'power2.out' });
-        }
-        gsap.to(scan, { opacity: 0, duration: 0.3 });
-      }
-    });
-  }
-
-  /* ═════════════════════════════════════════════════════════ */
+  /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
   /* PER-SECTION TIMELINES                                     */
-  /* ═════════════════════════════════════════════════════════ */
+  /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
   /* All timelines are paused and progress-driven by scroll.
      local progress 0 = section just entered, 1 = about to exit.
@@ -729,7 +673,7 @@
   function buildSectionTimelines() {
     if (typeof gsap === 'undefined') return;
 
-    /* ── Perception: ROI crop animation ── */
+    /* â”€â”€ Perception: ROI crop animation â”€â”€ */
     (function () {
       var sharp = $('.aerial-stage__sharp');
       var roi = $('.aerial-stage__roi');
@@ -750,7 +694,7 @@
       sectionTimelines.perception = tl;
     })();
 
-    /* ── Training: seam wipe ── */
+    /* â”€â”€ Training: seam wipe â”€â”€ */
     (function () {
       var styleLayer = $('.seam-stage__style');
       var divider = $('#seam-divider');
@@ -768,7 +712,7 @@
       sectionTimelines.training = tl;
     })();
 
-    /* ── Infrastructure: pipeline build ── */
+    /* â”€â”€ Infrastructure: pipeline build â”€â”€ */
     (function () {
       var cards = $$('#pipeline .pipe-card');
       var connectors = $$('#pipeline .pipe-connector svg line');
@@ -793,7 +737,7 @@
       sectionTimelines.infrastructure = tl;
     })();
 
-    /* ── Interface: terminal typing ── */
+    /* â”€â”€ Interface: terminal typing â”€â”€ */
     (function () {
       var lines = $$('#terminal .tline');
       if (lines.length === 0) return;
@@ -811,7 +755,7 @@
       sectionTimelines.interface = tl;
     })();
 
-    /* ── Journey: horizontal timeline reveal ── */
+    /* â”€â”€ Journey: horizontal timeline reveal â”€â”€ */
     (function () {
       var eras = $$('.journey-era');
       var seismicLine = document.querySelector('.journey-seismic__line');
@@ -836,24 +780,24 @@
       sectionTimelines.journey = tl;
     })();
 
-    /* ── Skills: card grid activation ── */
+    /* â”€â”€ Capabilities: core-sample log reveal â”€â”€ */
     (function () {
-      var cards = $$('.skill-card');
-      if (!cards.length) return;
+      var rows = $$('.capability');
+      if (!rows.length) return;
 
       var tl = gsap.timeline({ paused: true });
 
-      cards.forEach(function (card, i) {
-        var pos = 0.04 + i * 0.11;
-        tl.fromTo(card,
-          { opacity: 0, y: 18, scale: 0.96 },
-          { opacity: 1, y: 0, scale: 1, duration: 0.28, ease: 'back.out(1.4)' },
+      rows.forEach(function (row, i) {
+        var pos = 0.06 + i * 0.18;
+        tl.fromTo(row,
+          { opacity: 0, y: 18 },
+          { opacity: 1, y: 0, duration: 0.3, ease: 'power3.out' },
           pos
         );
         tl.call(function () {
-          card.classList.add('is-active');
-          /* stagger chips inside */
-          var chips = card.querySelectorAll('.skill-tag');
+          row.classList.add('is-active');
+          /* stagger tool chips inside */
+          var chips = row.querySelectorAll('.capability__tools li');
           chips.forEach(function (chip, ci) {
             chip.style.opacity = '0';
             chip.style.transform = 'translateY(6px)';
@@ -861,7 +805,7 @@
               chip.style.transition = 'opacity 0.22s ease, transform 0.22s ease';
               chip.style.opacity = '1';
               chip.style.transform = 'none';
-            }, ci * 45);
+            }, ci * 40);
           });
         }, null, pos + 0.06);
       });
@@ -870,10 +814,9 @@
       sectionTimelines.skills = tl;
     })();
 
-    /* ── Proof: stat cards cinematic reveal ── */
+    /* â”€â”€ Proof: stat cards cinematic reveal â”€â”€ */
     (function () {
       var cards = $$('.stat-card');
-      var stamp = $('#val-stamp');
       if (!cards.length) return;
       var tl = gsap.timeline({ paused: true });
 
@@ -899,19 +842,11 @@
         }
       });
 
-      if (stamp) {
-        tl.fromTo(stamp,
-          { opacity: 0, scale: 3.5, rotation: -12 },
-          { opacity: 0.95, scale: 1, rotation: -6, duration: 0.18, ease: 'back.out(3)' },
-          0.8
-        );
-      }
-
       tl.totalDuration(1);
       sectionTimelines.proof = tl;
     })();
 
-    /* ── Contact: fade in ── */
+    /* â”€â”€ Contact: fade in â”€â”€ */
     (function () {
       var block = $('.contact-block');
       if (!block) return;
@@ -926,9 +861,9 @@
   }
 
 
-  /* ═════════════════════════════════════════════════════════ */
-  /* DEPTH GAUGE — click & drag navigation                    */
-  /* ═════════════════════════════════════════════════════════ */
+  /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+  /* DEPTH GAUGE â€” click & drag navigation                    */
+  /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
   function initDepthGaugeDrag() {
     var track = els.depthGaugeTrack;
@@ -959,7 +894,7 @@
       track.setAttribute('aria-valuenow', Math.round(progress * 100));
     }
 
-    /* ── Click on track (jump to position) ── */
+    /* â”€â”€ Click on track (jump to position) â”€â”€ */
     track.addEventListener('mousedown', function (e) {
       /* Only respond to left click */
       if (e.button !== 0) return;
@@ -975,7 +910,7 @@
       e.preventDefault();
     });
 
-    /* ── Drag move (document-level) ── */
+    /* â”€â”€ Drag move (document-level) â”€â”€ */
     function onDragMove(e) {
       if (!isDragging) return;
       e.preventDefault();
@@ -988,7 +923,7 @@
       scrollToProgress(progress);
     }
 
-    /* ── Drag end (document-level) ── */
+    /* â”€â”€ Drag end (document-level) â”€â”€ */
     function onDragEnd() {
       if (!isDragging) return;
       isDragging = false;
@@ -1002,7 +937,7 @@
     document.addEventListener('mousemove', onDragMove);
     document.addEventListener('mouseup', onDragEnd);
 
-    /* ── Touch support ── */
+    /* â”€â”€ Touch support â”€â”€ */
     track.addEventListener('touchstart', function (e) {
       isDragging = true;
       marker.classList.add('is-dragging');
@@ -1018,7 +953,7 @@
     document.addEventListener('touchmove', onDragMove, { passive: false });
     document.addEventListener('touchend', onDragEnd);
 
-    /* ── Click on labels (jump to section) ── */
+    /* â”€â”€ Click on labels (jump to section) â”€â”€ */
     els.depthLabels.forEach(function (lbl) {
       lbl.addEventListener('click', function () {
         var sectionId = lbl.dataset.section;
@@ -1043,7 +978,7 @@
       });
     });
 
-    /* ── Keyboard support on track ── */
+    /* â”€â”€ Keyboard support on track â”€â”€ */
     track.addEventListener('keydown', function (e) {
       var key = e.key;
       if (key !== 'ArrowUp' && key !== 'ArrowDown' && key !== 'Home' && key !== 'End') return;
@@ -1064,9 +999,9 @@
     });
   }
 
-  /* ═════════════════════════════════════════════════════════ */
+  /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
   /* KEYBOARD NAV                                              */
-  /* ═════════════════════════════════════════════════════════ */
+  /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
   function initKeyboard() {
     if (!isDesktop) return;
@@ -1085,9 +1020,9 @@
     });
   }
 
-  /* ═════════════════════════════════════════════════════════ */
+  /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
   /* SCROLL CUE HIDE                                           */
-  /* ═════════════════════════════════════════════════════════ */
+  /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
   function updateScrollCue(progress) {
     if (!els.heroScrollCue) return;
@@ -1100,9 +1035,9 @@
     }
   }
 
-  /* ═════════════════════════════════════════════════════════ */
+  /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
   /* MASTER SCROLL TRIGGER                                     */
-  /* ═════════════════════════════════════════════════════════ */
+  /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
   function initScrollEngine() {
     if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined' || !isDesktop) return;
@@ -1122,7 +1057,7 @@
       onUpdate: function (self) {
         lastProgress = self.progress;
 
-        /* Skip during depth gauge drag — drag handler updates directly */
+        /* Skip during depth gauge drag â€” drag handler updates directly */
         if (isDragging) return;
 
         /* Velocity tracking */
@@ -1134,6 +1069,11 @@
         updateSections(lastProgress);
         updateHud(lastProgress);
         updateScrollCue(lastProgress);
+
+        /* Keep the slider's reported value in sync for assistive tech */
+        if (els.depthGaugeTrack) {
+          els.depthGaugeTrack.setAttribute('aria-valuenow', Math.round(lastProgress * 100));
+        }
 
         /* Pass to neural background */
         if (window.__neuralSetProgress) {
@@ -1147,13 +1087,12 @@
       }
     });
 
-    /* Velocity decay loop — stops when idle to save CPU */
+    /* Velocity decay loop â€” stops when idle to save CPU */
     function velocityTick() {
       scrollVelocity *= 0.92;
       if (Math.abs(scrollVelocity) < 0.005) scrollVelocity = 0;
       displayVelocity += (scrollVelocity - displayVelocity) * 0.15;
       if (Math.abs(displayVelocity) < 0.01) displayVelocity = 0;
-      updateSpeedDisplay();
       if (displayVelocity !== 0) {
         updateFogVelocity(displayVelocity);
       }
@@ -1186,9 +1125,9 @@
     window.addEventListener('pagehide', stopVelocityTick, { once: true });
   }
 
-  /* ═════════════════════════════════════════════════════════ */
+  /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
   /* MOBILE FALLBACK                                           */
-  /* ═════════════════════════════════════════════════════════ */
+  /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
   function initMobile() {
     if (isDesktop) return;
@@ -1207,11 +1146,11 @@
     $$('.tline').forEach(function (l) { l.classList.add('is-typed'); l.style.opacity = '1'; l.style.transform = 'none'; });
     $$('.journey-era').forEach(function (e) { e.classList.add('is-cracked'); e.style.opacity = '1'; e.style.transform = 'none'; });
     $$('.journey-era__card').forEach(function (c) { c.style.clipPath = 'none'; });
-    $$('.skill-card').forEach(function (c) {
+    $$('.capability').forEach(function (c) {
       c.classList.add('is-active');
       c.style.opacity = '1';
       c.style.transform = 'none';
-      c.querySelectorAll('.skill-tag').forEach(function (t) { t.style.opacity = '1'; t.style.transform = 'none'; });
+      c.querySelectorAll('.capability__tools li').forEach(function (t) { t.style.opacity = '1'; t.style.transform = 'none'; });
     });
     $$('.stat-card').forEach(function (c) {
       c.classList.add('is-visible', 'is-filled');
@@ -1223,18 +1162,11 @@
     /* Set counters */
     $$('.stat-count').forEach(function (el) { el.textContent = el.getAttribute('data-count'); });
 
-    /* Show stamp */
-    var stamp = $('#val-stamp');
-    if (stamp) { stamp.style.opacity = '0.9'; stamp.style.transform = 'scale(1) rotate(-6deg)'; }
-
-    /* Reveal hero image */
-    var heroImg = $('.hero__image');
-    if (heroImg) heroImg.style.filter = 'blur(4px) saturate(0.85)';
   }
 
-  /* ═════════════════════════════════════════════════════════ */
+  /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
   /* BOOT                                                      */
-  /* ═════════════════════════════════════════════════════════ */
+  /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
   function boot() {
     cacheElements();
@@ -1242,9 +1174,6 @@
 
     if (typeof gsap !== 'undefined') {
       gsap.defaults({ overwrite: 'auto' });
-      if (typeof MotionPathPlugin !== 'undefined') {
-        gsap.registerPlugin(MotionPathPlugin);
-      }
     }
 
     initHero();
@@ -1263,9 +1192,9 @@
     }
   }
 
-  /* ═════════════════════════════════════════════════════════ */
+  /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
   /* LOADING SCREEN                                            */
-  /* ═════════════════════════════════════════════════════════ */
+  /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
   function initLoader() {
     var loader = document.getElementById('loader');
@@ -1309,20 +1238,26 @@
 
     if (typeof gsap === 'undefined') {
       document.body.classList.add('is-ready');
+      cacheElements();
       /* Static fallback */
       $$('.stratum').forEach(function (s) {
         s.style.opacity = '1'; s.style.transform = 'none'; s.classList.add('is-active');
       });
       $$('.tline').forEach(function (l) { l.style.opacity = '1'; l.style.transform = 'none'; });
       $$('.journey-era').forEach(function (e) { e.style.opacity = '1'; e.style.transform = 'none'; });
-      $$('.skill-card').forEach(function (c) { c.style.opacity = '1'; c.style.transform = 'none'; });
+      $$('.capability').forEach(function (c) { c.classList.add('is-active'); c.style.opacity = '1'; c.style.transform = 'none'; });
       $$('.stat-card').forEach(function (c) { c.style.opacity = '1'; c.style.transform = 'none'; });
       $$('.pipe-card').forEach(function (c) { c.style.opacity = '1'; c.style.transform = 'none'; });
       return;
     }
 
+    /* Boot once fonts settle, but never block on a slow/stalled font load:
+       race against a timeout so content can't get stuck behind the loader. */
     var fontsReady = document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve();
-    fontsReady.then(boot);
+    var booted = false;
+    var bootOnce = function () { if (!booted) { booted = true; boot(); } };
+    fontsReady.then(bootOnce);
+    setTimeout(bootOnce, 1500);
   }
 
   if (document.readyState === 'loading') {
