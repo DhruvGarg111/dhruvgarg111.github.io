@@ -61,6 +61,7 @@
   var time = 0;
   var running = false;
   var rafId = 0;
+  var useGsapTicker = !!(window.gsap && window.gsap.ticker);
   var visible = true;
   var sampleFlash = 0; // frames remaining on the "SAMPLE" HUD state
 
@@ -334,17 +335,22 @@
     drawReticle();
     drawHud();
 
-    rafId = requestAnimationFrame(frame);
+    if (!useGsapTicker) rafId = requestAnimationFrame(frame);
   }
 
   function startLoop() {
     if (running || reduceMotion || !visible || document.hidden) { return; }
     running = true;
-    rafId = requestAnimationFrame(frame);
+    if (useGsapTicker) {
+      window.gsap.ticker.add(frame);
+    } else {
+      rafId = requestAnimationFrame(frame);
+    }
   }
 
   function stopLoop() {
     running = false;
+    if (useGsapTicker) { window.gsap.ticker.remove(frame); }
     if (rafId) { cancelAnimationFrame(rafId); rafId = 0; }
   }
 
@@ -449,4 +455,14 @@
   if (!reduceMotion) {
     startLoop();
   }
+
+  window.addEventListener('pagehide', function () {
+    stopLoop();
+    if (resizeRaf) {
+      cancelAnimationFrame(resizeRaf);
+      resizeRaf = 0;
+    }
+    if (ro) ro.disconnect();
+    if (io) io.disconnect();
+  }, { once: true });
 })();

@@ -389,6 +389,7 @@
   var viewW = window.innerWidth;
   var viewH = window.innerHeight;
   var resizeRafId = 0;
+  var disposed = false;
 
   window.__neuralSetProgress = function (p) { targetProgress = Math.max(0, Math.min(1, p)); };
 
@@ -411,7 +412,7 @@
     var ph = 2 * Math.tan(fov / 2);
     smokeMesh.scale.set(ph * camera.aspect, ph, 1);
     renderer.setSize(viewW, viewH, false);
-    renderer.setPixelRatio(isLowEnd ? 1 : Math.min(window.devicePixelRatio || 1, 1.5));
+    renderer.setPixelRatio(isLowEnd ? 1 : Math.min(window.devicePixelRatio || 1, 2));
   }
 
   function scheduleResize() {
@@ -464,12 +465,14 @@
 
   var running = false;
   var rafId = 0;
+  var useGsapTicker = !!(window.gsap && window.gsap.ticker);
   var lastRender = 0;
   var frameInterval = isLowEnd ? 33 : 16;
 
   function tick(now) {
     if (!running) return;
-    rafId = requestAnimationFrame(tick);
+    if (useGsapTicker) now *= 1000;
+    if (!useGsapTicker) rafId = requestAnimationFrame(tick);
     if (now - lastRender < frameInterval) return;
     lastRender = now;
 
@@ -539,15 +542,45 @@
     renderer.render(scene, camera);
   }
 
-  function start() { if (running) return; running = true; lastRender = 0; rafId = requestAnimationFrame(tick); }
-  function stop() { running = false; if (rafId) { cancelAnimationFrame(rafId); rafId = 0; } }
+  function start() {
+    if (running || disposed) return;
+    running = true;
+    lastRender = 0;
+    if (useGsapTicker) window.gsap.ticker.add(tick);
+    else rafId = requestAnimationFrame(tick);
+  }
+  function stop() {
+    running = false;
+    if (useGsapTicker) window.gsap.ticker.remove(tick);
+    if (rafId) { cancelAnimationFrame(rafId); rafId = 0; }
+  }
+  function disposeObject(obj) {
+    if (!obj) return;
+    if (obj.geometry && obj.geometry.dispose) obj.geometry.dispose();
+    if (obj.material) {
+      var materials = Array.isArray(obj.material) ? obj.material : [obj.material];
+      materials.forEach(function (mat) {
+        if (!mat) return;
+        Object.keys(mat).forEach(function (key) {
+          var value = mat[key];
+          if (value && value.isTexture && value.dispose) value.dispose();
+        });
+        if (mat.dispose) mat.dispose();
+      });
+    }
+  }
   function dispose() {
+    if (disposed) return;
+    disposed = true;
     stop();
     if (resizeRafId) {
       cancelAnimationFrame(resizeRafId);
       resizeRafId = 0;
     }
+    window.removeEventListener('resize', scheduleResize);
+    scene.traverse(disposeObject);
     renderer.dispose();
+    if (window.__neuralSetProgress) window.__neuralSetProgress = function () {};
   }
 
   /* ═════════════════════════════════════════════════════════ */

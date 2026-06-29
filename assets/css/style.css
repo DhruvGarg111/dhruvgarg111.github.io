@@ -139,8 +139,10 @@ button, input, textarea { font: inherit; color: inherit; }
   height: 100%;
   background: linear-gradient(90deg, var(--survey), var(--validated));
   border-radius: 999px;
-  width: 0%;
-  transition: width 0.05s linear;
+  width: 100%;
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.05s linear;
 }
 
 /* ═══════════════════════════════════════════════════════════ */
@@ -233,30 +235,33 @@ body { scrollbar-width: thin; scrollbar-color: rgba(26, 43, 60, 0.12) transparen
 
 .depth-gauge__fill {
   position: absolute; top: 0; left: 0; width: 100%;
-  height: 0%;
+  height: 100%;
   background: linear-gradient(180deg, var(--survey) 0%, var(--validated) 100%);
   border-radius: 2px;
-  transition: height 0.15s ease;
+  transform: scaleY(0);
+  transform-origin: top center;
+  transition: transform 0.15s ease;
   pointer-events: none;
   z-index: 2;
 }
 
 .depth-gauge__marker {
-  position: absolute; left: 50%; top: 0%;
+  --depth-offset: 0px;
+  position: absolute; left: 50%; top: 0;
   width: 12px; height: 12px;
   background: var(--survey);
   border: 2px solid var(--paper);
   border-radius: 50%;
-  transform: translate(-50%, -50%);
+  transform: translate3d(-50%, calc(var(--depth-offset) - 50%), 0);
   box-shadow: 0 0 0 4px oklch(58% 0.18 42 / 0.08), 0 0 18px var(--survey-glow);
-  transition: top 0.15s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
   cursor: grab;
   z-index: 3;
   touch-action: none;
 }
 
 .depth-gauge__marker:hover {
-  transform: translate(-50%, -50%) scale(1.3);
+  transform: translate3d(-50%, calc(var(--depth-offset) - 50%), 0) scale(1.3);
   box-shadow: 0 0 0 6px oklch(58% 0.18 42 / 0.14), 0 0 24px var(--survey-glow);
 }
 
@@ -264,7 +269,7 @@ body { scrollbar-width: thin; scrollbar-color: rgba(26, 43, 60, 0.12) transparen
 .depth-gauge__marker.is-dragging:hover {
   cursor: grabbing;
   transition: none;
-  transform: translate(-50%, -50%) scale(1.35);
+  transform: translate3d(-50%, calc(var(--depth-offset) - 50%), 0) scale(1.35);
   box-shadow: 0 0 0 8px oklch(58% 0.18 42 / 0.18), 0 0 28px var(--survey-glow);
 }
 
@@ -721,7 +726,7 @@ body.is-dark .st-arrow { color: rgba(244, 240, 232, 0.15); }
 .aerial-stage__sharp { z-index: 2; clip-path: inset(28% 32% 38% 30%); }
 
 .aerial-stage__roi {
-  position: absolute; z-index: 3; pointer-events: none;
+  position: absolute; inset: 0; z-index: 3; pointer-events: none;
   border: 2px solid var(--survey);
   box-shadow: 0 0 10px var(--survey-glow);
   transform-origin: top left;
@@ -1257,7 +1262,6 @@ body.is-dark .st-arrow { color: rgba(244, 240, 232, 0.15); }
 }
 .transition-label .char {
   display: inline-block;
-  will-change: transform, opacity;
 }
 
 /* ═══════════════════════════════════════════════════════════ */

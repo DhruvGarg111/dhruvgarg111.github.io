@@ -42,6 +42,7 @@
   var lastTime = performance.now();
   var running = false;
   var rafId = 0;
+  var useGsapTicker = !!(window.gsap && window.gsap.ticker);
   var width = window.innerWidth;
   var height = window.innerHeight;
   var resizeRafId = 0;
@@ -71,7 +72,7 @@
     resizeRafId = 0;
     var w = window.innerWidth;
     var h = window.innerHeight;
-    var dpr = window.devicePixelRatio || 1;
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
     canvas.width = w * dpr;
     canvas.height = h * dpr;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -188,7 +189,11 @@
     if (!running) {
       running = true;
       lastTime = performance.now();
-      rafId = requestAnimationFrame(updateFrame);
+      if (useGsapTicker) {
+        window.gsap.ticker.add(updateFrame);
+      } else {
+        rafId = requestAnimationFrame(updateFrame);
+      }
     }
   }
 
@@ -406,13 +411,15 @@
     mouse.speed *= 0.9;
   }
 
-  function updateFrame() {
+  function updateFrame(tickerTime, deltaTime) {
     if (!running) {
       return;
     }
     
     var now = performance.now();
-    var dt = (now - lastTime) / 16.666;
+    var dt = useGsapTicker && typeof deltaTime === 'number'
+      ? deltaTime / 16.666
+      : (now - lastTime) / 16.666;
     lastTime = now;
     
     // Clear canvas using cached dimensions
@@ -445,11 +452,16 @@
       return;
     }
 
-    rafId = requestAnimationFrame(updateFrame);
+    if (!useGsapTicker) {
+      rafId = requestAnimationFrame(updateFrame);
+    }
   }
 
   function stop() {
     running = false;
+    if (useGsapTicker) {
+      window.gsap.ticker.remove(updateFrame);
+    }
     if (rafId) {
       cancelAnimationFrame(rafId);
       rafId = 0;
@@ -471,8 +483,7 @@
   document.addEventListener('visibilitychange', function () {
     if (document.hidden) {
       stop();
-    } else {
-      // Resume only if there is reason to run (or start initially to settle)
+    } else if (particles.length || mouse.active) {
       ensureRunning();
     }
   });
@@ -482,6 +493,10 @@
     if (resizeRafId) {
       cancelAnimationFrame(resizeRafId);
       resizeRafId = 0;
+    }
+    if (heroRectRaf) {
+      cancelAnimationFrame(heroRectRaf);
+      heroRectRaf = 0;
     }
   }, { once: true });
 })();
