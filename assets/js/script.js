@@ -34,7 +34,7 @@
     { id: 'journey',        start: 0.60, end: 0.72, dark: false, seg: null },
     { id: 'skills',         start: 0.72, end: 0.83, dark: false, seg: null },
     { id: 'proof',          start: 0.83, end: 0.93, dark: false, seg: null },
-    { id: 'contact',        start: 0.93, end: 1.00, dark: true,  seg: null },
+    { id: 'contact',        start: 0.93, end: 1.00, dark: false, seg: null },
   ];
 
   var currentSection = -1;
@@ -875,10 +875,10 @@
 
     /* ── Contact: fade in ── */
     (function () {
-      var block = $('.contact-block');
-      if (!block) return;
+      var card = $('.contact-card');
+      if (!card) return;
       var tl = gsap.timeline({ paused: true });
-      tl.fromTo(block,
+      tl.fromTo(card,
         { opacity: 0, y: 30 },
         { opacity: 1, y: 0, duration: 0.5, ease: 'power3.out' }
       );

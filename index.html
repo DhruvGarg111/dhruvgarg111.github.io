@@ -22,7 +22,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preload" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Hanken+Grotesque:wght@400;500;600;700&family=Martian+Mono:wght@400;500;600&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
   <noscript><link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Hanken+Grotesque:wght@400;500;600;700&family=Martian+Mono:wght@400;500;600&display=swap" rel="stylesheet"></noscript>
-  <link rel="stylesheet" href="assets/css/style.css?v=4">
+  <link rel="stylesheet" href="assets/css/style.css?v=9">
 </head>
 <body>
   <div class="loader" id="loader" aria-label="Loading" role="status">
@@ -463,24 +463,33 @@
     </section>
 
     <!-- ── CONTACT ── -->
-    <section class="stratum stratum--dark" id="contact">
-      <div class="stratum__window">
-      <div class="stratum__inner stratum__inner--center">
-        <div class="stratum__label mono">Core · Maximum Depth</div>
-        <h2 class="stratum__title stratum__title--center">Get in Touch</h2>
-        <div class="contact-block">
-          <p class="contact-lead">Open to AI/ML research, internships, and full-stack roles where perception systems matter.</p>
-          <a class="contact-email mono" href="mailto:dhruvgarg.garg123@gmail.com">dhruvgarg.garg123@gmail.com</a>
-          <div class="contact-icons">
-            <a href="https://github.com/DhruvGarg111" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
-              <svg width="28" height="28" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
-            </a>
-            <a href="https://www.linkedin.com/in/dhruv-garg-6b0954177/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
-              <svg width="28" height="28" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
-            </a>
+    <section class="stratum" id="contact">
+      <div class="contact-card" id="contact-card">
+        <!-- Corner dots (decorative, like the reference) -->
+        <span class="contact-card__dot contact-card__dot--tl"></span>
+        <span class="contact-card__dot contact-card__dot--tr"></span>
+        <span class="contact-card__dot contact-card__dot--bl"></span>
+        <span class="contact-card__dot contact-card__dot--br"></span>
+
+        <!-- Top row: title left, copyright right -->
+        <div class="contact-card__top">
+          <div class="contact-card__top-left">
+            <h2 class="contact-card__title">Get in Touch</h2>
+            <a class="contact-card__email mono" href="mailto:dhruvgarg.garg123@gmail.com">dhruvgarg.garg123@gmail.com ↗</a>
+          </div>
+          <div class="contact-card__top-right mono">
+            <span>© 2026 Dhruv Garg</span>
           </div>
         </div>
-      </div>
+
+        <!-- Bottom row: tagline left, socials right -->
+        <div class="contact-card__bottom">
+          <p class="contact-card__lead">Open to AI/ML research, internships,<br>and full-stack roles where perception systems matter.</p>
+          <nav class="contact-card__socials mono">
+            <a href="https://github.com/DhruvGarg111" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
+            <a href="https://www.linkedin.com/in/dhruv-garg-6b0954177/" target="_blank" rel="noopener noreferrer">LinkedIn ↗</a>
+          </nav>
+        </div>
       </div>
     </section>
 
