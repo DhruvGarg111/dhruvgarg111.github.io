@@ -8,15 +8,43 @@
     <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Hanken+Grotesque:wght@400;500;600;700&family=Martian+Mono:wght@400;500;600&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Hanken+Grotesque:wght@400;500;600;700&family=Martian+Mono:wght@400;500;600&display=swap" rel="stylesheet"></noscript>
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Martian+Mono:wght@400;500;600&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Martian+Mono:wght@400;500;600&display=swap" rel="stylesheet"></noscript>
+    <link rel="preload" href="assets/fonts/aldrich.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="assets/fonts/Switzer-Regular.woff2" as="font" type="font/woff2" crossorigin>
     <style>
+        @font-face {
+            font-family: 'Aldrich';
+            src: url('assets/fonts/aldrich.woff2') format('woff2');
+            font-weight: 400;
+            font-style: normal;
+            font-display: swap;
+        }
+        @font-face {
+            font-family: 'Switzer';
+            src: url('assets/fonts/Switzer-Regular.woff2') format('woff2');
+            font-weight: 400;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        :root {
+            --paper: #EDE7DA;
+            --ink: #1A2B3C;
+            --ink-soft: rgba(26, 43, 60, 0.72);
+            --survey: #C45C26;
+            --panel: rgba(244, 240, 232, 0.72);
+            --heading-primary: #C4581B;
+            --heading-accent: #60702F;
+        }
+        @supports (color: oklch(50% 0.1 50)) {
         :root {
             --paper: oklch(94% 0.018 82);
             --ink: oklch(24% 0.044 248);
             --ink-soft: oklch(24% 0.044 248 / 0.72);
             --survey: oklch(58% 0.18 42);
             --panel: oklch(96% 0.014 82 / 0.72);
+        }
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
@@ -27,33 +55,49 @@
             align-items: center;
             justify-content: center;
             padding: 2rem;
-            font-family: "Hanken Grotesque", system-ui, sans-serif;
+            font-family: "Switzer", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
             background-color: var(--paper);
             background-image:
-                linear-gradient(90deg, oklch(24% 0.044 248 / 0.035) 1px, transparent 1px),
-                linear-gradient(0deg, oklch(24% 0.044 248 / 0.03) 1px, transparent 1px);
+                linear-gradient(90deg, rgba(26, 43, 60, 0.035) 1px, transparent 1px),
+                linear-gradient(0deg, rgba(26, 43, 60, 0.03) 1px, transparent 1px);
             background-size: 72px 72px;
             color: var(--ink);
             text-align: center;
         }
+        @supports (color: oklch(50% 0.1 50)) {
+            body {
+                background-image:
+                    linear-gradient(90deg, oklch(24% 0.044 248 / 0.035) 1px, transparent 1px),
+                    linear-gradient(0deg, oklch(24% 0.044 248 / 0.03) 1px, transparent 1px);
+            }
+        }
         main {
             max-width: 34rem;
             padding: 2rem;
-            border: 1px solid oklch(24% 0.044 248 / 0.1);
+            border: 1px solid rgba(26, 43, 60, 0.1);
             border-radius: 6px;
             background: var(--panel);
-            box-shadow: 0 20px 62px oklch(24% 0.044 248 / 0.1);
+            box-shadow: 0 20px 62px rgba(26, 43, 60, 0.1);
+        }
+        @supports (color: oklch(50% 0.1 50)) {
+            main {
+                border-color: oklch(24% 0.044 248 / 0.1);
+                box-shadow: 0 20px 62px oklch(24% 0.044 248 / 0.1);
+            }
         }
         .eyebrow {
             font-family: "Martian Mono", ui-monospace, monospace;
             font-size: 0.62rem;
             letter-spacing: 0.14em;
             text-transform: uppercase;
-            color: oklch(24% 0.044 248 / 0.52);
+            color: rgba(26, 43, 60, 0.52);
             margin-bottom: 0.85rem;
         }
+        @supports (color: oklch(50% 0.1 50)) {
+            .eyebrow { color: oklch(24% 0.044 248 / 0.52); }
+        }
         h1 {
-            font-family: "Bricolage Grotesque", system-ui, sans-serif;
+            font-family: "Aldrich", ui-monospace, "SFMono-Regular", monospace;
             font-size: 3rem;
             line-height: 0.95;
             font-weight: 800;
@@ -80,7 +124,7 @@
 <body>
     <main>
         <div class="eyebrow">404 · survey anomaly</div>
-        <h1>Depth not found</h1>
+        <h1><span style="color: var(--heading-primary);">Depth not</span> <span style="color: var(--heading-accent);">found</span></h1>
         <p>This stratum doesn't exist. Return to the surface to continue the field survey.</p>
         <p><a href="/">Back to Ground Truth</a></p>
     </main>

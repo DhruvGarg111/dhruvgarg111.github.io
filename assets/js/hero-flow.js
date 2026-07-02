@@ -41,17 +41,17 @@
     pulseForce: 3.4,     // outward kick imparted by a sample pulse
     maxPulses: 4,
 
-    // Survey palette — brightened from the site's oklch design tokens
+    // Survey palette — brightened from the site's design tokens
     // so it glows on the dark navy panel. Terracotta leads (brand).
     palette: [
-      'oklch(70% 0.175 42)',   // --survey  terracotta (brand)
-      'oklch(81% 0.150 74)',   // warm amber / gold
-      'oklch(75% 0.130 175)',  // --validated teal
-      'oklch(73% 0.115 245)'   // --datum slate-blue
+      '#E87428', // --survey terracotta (brand)
+      '#E8B86D', // warm amber / gold
+      '#75C4A4', // --validated teal
+      '#82B2E4'  // --datum slate-blue
     ],
     paletteWeights: [42, 27, 17, 14], // brand-forward distribution
-    active: 'oklch(78% 0.190 46)',    // hot terracotta near the cursor
-    instrument: 'oklch(74% 0.175 44)' // reticle / pulse / HUD accent
+    active: '#FF8243',    // hot terracotta near the cursor
+    instrument: '#E87428' // reticle / pulse / HUD accent
   };
 
   var W = 0, H = 0;
@@ -299,14 +299,14 @@
 
     // telemetry line
     ctx.font = '500 7.5px "Martian Mono", ui-monospace, monospace';
-    ctx.fillStyle = 'oklch(86% 0.03 80)';
+    ctx.fillStyle = '#D9D0BC';
     ctx.globalAlpha = 0.6;
     ctx.fillText('θ ' + deg.toFixed(0) + '°  |v| ' + mag.toFixed(2), rx, 33);
 
     // field-strength micro-bar
     var bw = 54, bh = 2.5, bx = rx - bw, by = 39;
     ctx.globalAlpha = 0.22;
-    ctx.fillStyle = 'oklch(86% 0.03 80)';
+    ctx.fillStyle = '#D9D0BC';
     ctx.fillRect(bx, by, bw, bh);
     ctx.globalAlpha = 0.85;
     ctx.fillStyle = config.instrument;

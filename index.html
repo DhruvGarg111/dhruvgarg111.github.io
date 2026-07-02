@@ -20,8 +20,11 @@
   <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Hanken+Grotesque:wght@400;500;600;700&family=Martian+Mono:wght@400;500;600&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
-  <noscript><link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Hanken+Grotesque:wght@400;500;600;700&family=Martian+Mono:wght@400;500;600&display=swap" rel="stylesheet"></noscript>
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Martian+Mono:wght@400;500;600&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Martian+Mono:wght@400;500;600&display=swap" rel="stylesheet"></noscript>
+  <link rel="preload" href="assets/fonts/aldrich.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/Switzer-Regular.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/Switzer-Medium.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="assets/css/style.css?v=9">
 </head>
 <body>
@@ -47,6 +50,7 @@
   </div>
 
   <a class="skip-link" href="#hero">Skip to content</a>
+  <div class="sr-only" aria-live="polite" aria-atomic="true" id="section-announcer"></div>
 
   <!-- ═══ ATMOSPHERIC LAYERS ═══ -->
   <canvas id="neural-bg-canvas" aria-hidden="true"></canvas>
@@ -129,7 +133,7 @@
         <div class="stratum__grid">
           <div class="stratum__copy">
             <p class="stratum__id mono">SP-01 · Searchlight Protocol</p>
-            <h2 class="stratum__title">Coarse-to-Fine<br>Detection</h2>
+            <h2 class="stratum__title"><span class="heading-primary">Coarse-to-Fine</span><br><span class="heading-accent">Detection</span></h2>
             <p class="stratum__desc">Pipeline for small-object detection in high-resolution aerial imagery. Intelligently slices regions of interest, skipping 80%+ of empty background before fine inference.</p>
             <div class="stratum__tags"><span>Python</span><span>PyTorch</span><span>LayerCAM</span></div>
             <a class="stratum__link" href="https://github.com/DhruvGarg111/The-Searchlight-Protocol" target="_blank" rel="noopener noreferrer">View repository →</a>
@@ -173,7 +177,7 @@
           </div>
           <div class="stratum__copy">
             <p class="stratum__id mono">NC-03 · Neural Canvas</p>
-            <h2 class="stratum__title">Perceptual<br>Style Transfer</h2>
+            <h2 class="stratum__title"><span class="heading-primary">Perceptual</span><br><span class="heading-accent">Style Transfer</span></h2>
             <p class="stratum__desc">Feed-forward neural style transfer with perceptual loss via VGG-16 — shipped to Hugging Face with ONNX export.</p>
             <div class="stratum__tags"><span>PyTorch</span><span>VGG-16</span><span>ONNX</span></div>
             <a class="stratum__link" href="https://github.com/DhruvGarg111/Neural-Style-Transfer" target="_blank" rel="noopener noreferrer">View repository →</a>
@@ -191,7 +195,7 @@
         <div class="stratum__grid">
           <div class="stratum__copy">
             <p class="stratum__id mono">PQ-02 · PixelQueue</p>
-            <h2 class="stratum__title">Async Annotation<br>Infrastructure</h2>
+            <h2 class="stratum__title"><span class="heading-primary">Async Annotation</span><br><span class="heading-accent">Infrastructure</span></h2>
             <p class="stratum__desc">React-Konva canvas, FastAPI, Celery workers, Redis broker, and PostgreSQL for human-in-the-loop vision pipelines.</p>
             <div class="stratum__tags"><span>React</span><span>Celery</span><span>PostgreSQL</span><span>FastAPI</span></div>
             <a class="stratum__link" href="https://github.com/DhruvGarg111/PixelQueue" target="_blank" rel="noopener noreferrer">View repository →</a>
@@ -260,7 +264,7 @@
           </div>
           <div class="stratum__copy">
             <p class="stratum__id mono">PG-04 · PyGOG CLI</p>
-            <h2 class="stratum__title">Agentic<br>Workspace CLI</h2>
+            <h2 class="stratum__title"><span class="heading-primary">Agentic</span><br><span class="heading-accent">Workspace CLI</span></h2>
             <p class="stratum__desc">Natural language in, tool routing out. An agentic Google Workspace CLI that parses intent and orchestrates across Calendar, Gmail, Drive.</p>
             <div class="stratum__tags"><span>Typer</span><span>LLM Agents</span><span>OAuth2</span></div>
             <a class="stratum__link" href="https://github.com/DhruvGarg111/py-goog-cli" target="_blank" rel="noopener noreferrer">View repository →</a>
@@ -474,7 +478,7 @@
         <!-- Top row: title left, copyright right -->
         <div class="contact-card__top">
           <div class="contact-card__top-left">
-            <h2 class="contact-card__title">Get in Touch</h2>
+            <h2 class="contact-card__title"><span class="heading-primary">Get in</span> <span class="heading-accent">Touch</span></h2>
             <a class="contact-card__email mono" href="mailto:dhruvgarg.garg123@gmail.com">dhruvgarg.garg123@gmail.com ↗</a>
           </div>
           <div class="contact-card__top-right mono">

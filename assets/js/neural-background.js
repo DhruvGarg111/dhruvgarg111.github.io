@@ -4,7 +4,7 @@
  * Uses InstancedMesh + merged geometries to reduce draw calls from ~220 to ~10.
  * Camera on CatmullRomCurve3 driven by scroll progress.
  *
- * Exposed: window.__neuralSetProgress(0-1)
+ * Exposed: window.__neuralSetProgress(0-1, section)
  */
 ;(function () {
   'use strict';
@@ -386,12 +386,34 @@
   var shaderMouse = new THREE.Vector2(0.5, 0.5);
   var scrollProgress = 0;
   var targetProgress = 0;
+  var sectionManifest = Array.isArray(window.__groundTruthSections) ? window.__groundTruthSections : [];
+  var activeSection = null;
   var viewW = window.innerWidth;
   var viewH = window.innerHeight;
   var resizeRafId = 0;
   var disposed = false;
 
-  window.__neuralSetProgress = function (p) { targetProgress = Math.max(0, Math.min(1, p)); };
+  function normalizeSection(sec) {
+    if (!sec) return null;
+    return {
+      id: sec.id,
+      start: Number(sec.start),
+      end: Number(sec.end),
+      atmosphereDark: !!sec.atmosphereDark,
+      dark: !!sec.dark,
+    };
+  }
+
+  window.__neuralSetSections = function (sections) {
+    sectionManifest = Array.isArray(sections)
+      ? sections.map(normalizeSection).filter(Boolean)
+      : [];
+  };
+
+  window.__neuralSetProgress = function (p, section) {
+    targetProgress = Math.max(0, Math.min(1, p));
+    if (section) activeSection = normalizeSection(section);
+  };
 
   function bindInput() {
     window.addEventListener('mousemove', function (e) {
@@ -428,24 +450,25 @@
   var fogColorLight = new THREE.Color(paperColor);
   var fogColorDark = new THREE.Color(0x121A26);
 
+  function sectionDarkness(section, progress, fade) {
+    if (!section || !(section.atmosphereDark || section.dark)) return 0;
+    var start = Number.isFinite(section.start) ? section.start : 0;
+    var end = Number.isFinite(section.end) ? section.end : 1;
+    if (progress < start - fade || progress > end + fade) return 0;
+    if (start > 0 && progress < start + fade) return Math.max(0, Math.min(1, (progress - (start - fade)) / (fade * 2)));
+    if (end < 1 && progress > end - fade) return Math.max(0, Math.min(1, ((end + fade) - progress) / (fade * 2)));
+    return 1;
+  }
+
   function updateAtmosphere(progress) {
     var darkness = 0;
-    if (progress > 0.24 && progress < 0.38) {
-      var t = 0;
-      if (progress < 0.28) t = (progress - 0.24) / 0.04;
-      else if (progress > 0.34) t = 1 - (progress - 0.34) / 0.04;
-      else t = 1;
-      darkness = Math.max(darkness, Math.max(0, Math.min(1, t)));
-    }
-    if (progress > 0.52 && progress < 0.65) {
-      var t2 = 0;
-      if (progress < 0.56) t2 = (progress - 0.52) / 0.04;
-      else if (progress > 0.61) t2 = 1 - (progress - 0.61) / 0.04;
-      else t2 = 1;
-      darkness = Math.max(darkness, Math.max(0, Math.min(1, t2)));
-    }
-    if (progress > 0.93) {
-      darkness = Math.max(darkness, Math.min(1, (progress - 0.93) / 0.04));
+    var fade = 0.025;
+    if (sectionManifest.length) {
+      sectionManifest.forEach(function (section) {
+        darkness = Math.max(darkness, sectionDarkness(section, progress, fade));
+      });
+    } else {
+      darkness = Math.max(darkness, sectionDarkness(activeSection, progress, fade));
     }
     scene.fog.color.lerpColors(fogColorLight, fogColorDark, darkness);
 
@@ -581,6 +604,7 @@
     scene.traverse(disposeObject);
     renderer.dispose();
     if (window.__neuralSetProgress) window.__neuralSetProgress = function () {};
+    if (window.__neuralSetSections) window.__neuralSetSections = function () {};
   }
 
   /* ═════════════════════════════════════════════════════════ */

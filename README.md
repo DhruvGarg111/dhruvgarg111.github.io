@@ -12,12 +12,15 @@ python -m http.server 8780
 
 Open http://127.0.0.1:8780/
 
-## Asset pipeline
+## Asset notes
 
-Regenerate hero WebP/JPEG variants, OG card, and compressed logo:
+The contact background keeps `assets/img/footer.jpg` as the source image and serves optimized runtime variants:
+
+- `assets/img/footer-1920.webp`
+- `assets/img/footer-1920.jpg`
+
+Regenerate those variants with Pillow:
 
 ```bash
-python scripts/build_assets.py
+python -c "from PIL import Image; from pathlib import Path; im=Image.open('assets/img/footer.jpg').convert('RGB'); im.thumbnail((1920, 1920), Image.Resampling.LANCZOS); im.save('assets/img/footer-1920.webp', 'WEBP', quality=74, method=6); im.save('assets/img/footer-1920.jpg', 'JPEG', quality=76, optimize=True, progressive=True)"
 ```
-
-Place a higher-resolution aerial source at the path in `scripts/build_assets.py` (`SESSION_SRC` or `portfolio_audit/ground-truth-hero.png`) before rebuilding.

@@ -11,6 +11,11 @@
     return;
   }
 
+  var isCoarsePhone = window.matchMedia('(max-width: 767px) and (pointer: coarse)').matches;
+  if (isCoarsePhone) {
+    return;
+  }
+
   var ctx = canvas.getContext('2d');
   if (!ctx) {
     return;
@@ -46,6 +51,7 @@
   var width = window.innerWidth;
   var height = window.innerHeight;
   var resizeRafId = 0;
+  var frameTheme = null;
 
   // Track coordinates of the cursor to draw technical survey crosshair
   var cursorTarget = { x: 0, y: 0, currentX: 0, currentY: 0, rotation: 0, size: 20 };
@@ -66,6 +72,19 @@
   }
   function overHeroPanel(x, y) {
     return !!heroRect && x >= heroRect.left && x <= heroRect.right && y >= heroRect.top && y <= heroRect.bottom;
+  }
+
+  function readTheme() {
+    var isDark = document.body.classList.contains('is-dark');
+    return {
+      isDark: isDark,
+      palette: isDark ? config.darkPalette : config.palette,
+      bbox: isDark ? config.darkPalette[2] : config.palette[2],
+      label: isDark ? 'rgba(244, 240, 232, 0.85)' : 'rgba(26, 43, 60, 0.75)',
+      connection: isDark ? 'rgba(244, 240, 232, 0.45)' : 'rgba(117, 109, 92, 0.52)',
+      cursor: isDark ? 'rgba(250, 168, 35, 0.95)' : 'rgba(196, 92, 38, 0.9)',
+      cursorCore: isDark ? 'rgba(244, 240, 232, 0.8)' : 'rgba(26, 43, 60, 0.8)'
+    };
   }
 
   function resizeCanvas() {
@@ -133,18 +152,18 @@
     return true;
   };
 
-  Particle.prototype.draw = function (now) {
+  Particle.prototype.draw = function (now, theme) {
     var age = now - this.birth;
     var pct = 1.0 - (age / this.life);
     var opacity = pct * 0.95; // Brighter opacity
-    var isDark = document.body.classList.contains('is-dark');
+    theme = theme || readTheme();
 
     ctx.save();
     if (this.type === 'bbox') {
       // Draw technical dashed detection bounding box
       ctx.translate(this.x, this.y);
       ctx.rotate(this.angle);
-      ctx.strokeStyle = isDark ? config.darkPalette[2] : config.palette[2]; // Terracotta Orange (Bright vs Normal)
+      ctx.strokeStyle = theme.bbox; // Terracotta Orange (Bright vs Normal)
       ctx.lineWidth = 1.5;
       ctx.globalAlpha = opacity * 1.0;
       ctx.setLineDash([2, 3]);
@@ -160,7 +179,7 @@
       // Draw relative coordinates text next to node
       if (this.hasLabel && pct > 0.3) {
         ctx.font = '500 8.5px "Martian Mono", ui-monospace, monospace';
-        ctx.fillStyle = isDark ? 'rgba(244, 240, 232, 0.85)' : 'rgba(26, 43, 60, 0.75)';
+        ctx.fillStyle = theme.label;
         ctx.globalAlpha = (pct - 0.3) / 0.7 * 0.95;
         ctx.fillText(this.label, this.x + 6, this.y + 2.5);
       }
@@ -169,8 +188,8 @@
   };
 
   function spawnParticles(x, y, count, force) {
-    var isDark = document.body.classList.contains('is-dark');
-    var palette = isDark ? config.darkPalette : config.palette;
+    var theme = frameTheme || readTheme();
+    var palette = theme.palette;
     for (var i = 0; i < count; i++) {
       var angle = Math.random() * Math.PI * 2;
       var speed = Math.random() * force;
@@ -215,8 +234,8 @@
       var vx = dx * 0.15;
       var vy = dy * 0.15;
 
-      var isDark = document.body.classList.contains('is-dark');
-      var palette = isDark ? config.darkPalette : config.palette;
+      var theme = frameTheme || readTheme();
+      var palette = theme.palette;
       var color = palette[Math.floor(Math.random() * palette.length)];
       
       // Spawn standard node
@@ -224,7 +243,7 @@
       
       // If moving rapidly, spawn a bounding box
       if (dist > 15 && Math.random() < 0.25) {
-        particles.push(new Particle(mouse.x, mouse.y, vx * 0.4, vy * 0.4, isDark ? config.darkPalette[2] : config.palette[2], 'bbox'));
+        particles.push(new Particle(mouse.x, mouse.y, vx * 0.4, vy * 0.4, theme.bbox, 'bbox'));
       }
       
       if (particles.length > config.maxParticles) {
@@ -271,8 +290,8 @@
     var dist = Math.sqrt(dx * dx + dy * dy);
     
     if (dist > 3) {
-      var isDark = document.body.classList.contains('is-dark');
-      var palette = isDark ? config.darkPalette : config.palette;
+      var theme = frameTheme || readTheme();
+      var palette = theme.palette;
       var color = palette[Math.floor(Math.random() * palette.length)];
       particles.push(new Particle(mouse.x, mouse.y, dx * 0.12, dy * 0.12, color, 'node'));
       if (particles.length > config.maxParticles) {
@@ -303,9 +322,9 @@
   window.addEventListener('touchend', handleTouchEnd, { passive: true });
   document.addEventListener('mouseleave', handleMouseLeave);
 
-  function drawConnections(now) {
+  function drawConnections(now, theme) {
     ctx.lineWidth = 1.0;
-    var isDark = document.body.classList.contains('is-dark');
+    theme = theme || readTheme();
     var minDist = config.connectionDist * config.connectionDist;
     var maxJ, connCount;
     
@@ -328,7 +347,7 @@
           var d = Math.sqrt(dist);
           var distPct = 1.0 - (d / config.connectionDist);
           
-          ctx.strokeStyle = isDark ? 'rgba(244, 240, 232, 0.45)' : 'rgba(117, 109, 92, 0.52)';
+          ctx.strokeStyle = theme.connection;
           ctx.globalAlpha = distPct * Math.min(pctI, pctJ) * 0.58;
           ctx.beginPath();
           ctx.moveTo(pi.x, pi.y);
@@ -341,10 +360,11 @@
     }
   }
 
-  function drawCursor(dt) {
+  function drawCursor(dt, theme) {
     if (!mouse.active) {
       return;
     }
+    theme = theme || readTheme();
 
     // Interpolate surveyor target position for smoothness
     var lerpFactor = 0.18;
@@ -359,10 +379,9 @@
     ctx.rotate(cursorTarget.rotation);
     
     // Draw technical surveyor target bracket corners [ ]
-    var isDark = document.body.classList.contains('is-dark');
     // Recede over the hero panel so its own reticle leads (slight, not gone).
     var dim = overHeroPanel(cursorTarget.currentX, cursorTarget.currentY) ? 0.3 : 1.0;
-    ctx.strokeStyle = isDark ? 'rgba(250, 168, 35, 0.95)' : 'rgba(196, 92, 38, 0.9)'; // Gold on dark, Terracotta on light
+    ctx.strokeStyle = theme.cursor; // Gold on dark, Terracotta on light
     ctx.lineWidth = 2.0;
     ctx.globalAlpha = dim;
     
@@ -401,7 +420,7 @@
     ctx.beginPath();
     ctx.moveTo(-4, 0); ctx.lineTo(4, 0);
     ctx.moveTo(0, -4); ctx.lineTo(0, 4);
-    ctx.strokeStyle = isDark ? 'rgba(244, 240, 232, 0.8)' : 'rgba(26, 43, 60, 0.8)'; // Light cream on dark, dark ink on light
+    ctx.strokeStyle = theme.cursorCore; // Light cream on dark, dark ink on light
     ctx.lineWidth = 1.2;
     ctx.stroke();
     
@@ -424,23 +443,25 @@
     
     // Clear canvas using cached dimensions
     ctx.clearRect(0, 0, width, height);
+    var theme = readTheme();
+    frameTheme = theme;
 
     // Update and draw particles
     var liveCount = 0;
     for (var i = 0; i < particles.length; i++) {
       var particle = particles[i];
       if (particle.update(dt, now)) {
-        particle.draw(now);
+        particle.draw(now, theme);
         particles[liveCount++] = particle;
       }
     }
     particles.length = liveCount;
 
     // Draw connecting lines
-    drawConnections(now);
+    drawConnections(now, theme);
 
     // Draw technical crosshair cursor
-    drawCursor(dt);
+    drawCursor(dt, theme);
 
     // Idle detection: check if there are no particles and cursor has settled
     var settled = Math.abs(cursorTarget.currentX - cursorTarget.x) < 0.25 &&
@@ -448,10 +469,12 @@
 
     if (particles.length === 0 && (!mouse.active || settled)) {
       ctx.clearRect(0, 0, width, height); // Clear final artifacts
+      frameTheme = null;
       stop();
       return;
     }
 
+    frameTheme = null;
     if (!useGsapTicker) {
       rafId = requestAnimationFrame(updateFrame);
     }
