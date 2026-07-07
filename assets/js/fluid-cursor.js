@@ -74,9 +74,15 @@
     return !!heroRect && x >= heroRect.left && x <= heroRect.right && y >= heroRect.top && y <= heroRect.bottom;
   }
 
+  /* Theme is constant until body.is-dark toggles — cache it instead of
+     rebuilding an 8-field object every frame/spawn. Consumers only read it. */
+  var themeCache = null;
+  var themeCacheDark = null;
   function readTheme() {
     var isDark = document.body.classList.contains('is-dark');
-    return {
+    if (themeCache && themeCacheDark === isDark) return themeCache;
+    themeCacheDark = isDark;
+    themeCache = {
       isDark: isDark,
       palette: isDark ? config.darkPalette : config.palette,
       bbox: isDark ? config.darkPalette[2] : config.palette[2],
@@ -85,6 +91,7 @@
       cursor: isDark ? 'rgba(250, 168, 35, 0.95)' : 'rgba(196, 92, 38, 0.9)',
       cursorCore: isDark ? 'rgba(244, 240, 232, 0.8)' : 'rgba(26, 43, 60, 0.8)'
     };
+    return themeCache;
   }
 
   function resizeCanvas() {

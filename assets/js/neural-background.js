@@ -435,6 +435,8 @@
     smokeMesh.scale.set(ph * camera.aspect, ph, 1);
     renderer.setSize(viewW, viewH, false);
     renderer.setPixelRatio(isLowEnd ? 1 : Math.min(window.devicePixelRatio || 1, 2));
+    /* uRes only changes on resize — set it here, not every frame in tick() */
+    smokeMat.uniforms.uRes.value.set(viewW, viewH);
   }
 
   function scheduleResize() {
@@ -560,7 +562,6 @@
     smokeMat.uniforms.uTime.value = now * 0.001;
     smokeMat.uniforms.uMouse.value.copy(shaderMouse);
     smokeMat.uniforms.uScroll.value = scrollProgress;
-    smokeMat.uniforms.uRes.value.set(viewW, viewH);
 
     renderer.render(scene, camera);
   }

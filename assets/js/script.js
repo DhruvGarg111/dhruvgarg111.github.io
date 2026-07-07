@@ -704,6 +704,23 @@
   var displayVelocity = 0;
   var velocityRafId = 0;
 
+  /* Depth-gauge track height is `60vh` (capped) — constant except on viewport
+     resize, which doesn't cross the reload breakpoint. Cache it so updateHud()
+     (hot scroll path) never forces a synchronous reflow reading clientHeight. */
+  var depthTrackH = 0;
+  function measureDepthTrack() {
+    depthTrackH = els.depthGaugeTrack ? els.depthGaugeTrack.clientHeight : 0;
+  }
+  var depthResizeRaf = 0;
+  function scheduleDepthMeasure() {
+    if (!depthResizeRaf) {
+      depthResizeRaf = requestAnimationFrame(function () {
+        depthResizeRaf = 0;
+        measureDepthTrack();
+      });
+    }
+  }
+
   function updateHud(progress) {
     /* Depth gauge position — only update when pct changes */
     var pct = (progress * 100).toFixed(1);
@@ -711,8 +728,7 @@
       var normalized = (progress || 0).toFixed(4);
       if (els.depthFill) els.depthFill.style.transform = 'scaleY(' + normalized + ')';
       if (els.depthMarker) {
-        var trackH = els.depthGaugeTrack ? els.depthGaugeTrack.clientHeight : 0;
-        els.depthMarker.style.setProperty('--depth-offset', (trackH * progress).toFixed(1) + 'px');
+        els.depthMarker.style.setProperty('--depth-offset', (depthTrackH * progress).toFixed(1) + 'px');
       }
       prevHud.fill = pct;
     }
@@ -1320,6 +1336,8 @@
       buildSectionTimelines();
       initScrollEngine();
       initDepthGaugeDrag();
+      measureDepthTrack();
+      window.addEventListener('resize', scheduleDepthMeasure, { passive: true });
       /* Set initial state */
       updateSections(0);
       updateHud(0);
