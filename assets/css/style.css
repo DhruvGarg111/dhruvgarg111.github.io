@@ -49,17 +49,17 @@
 }
 
 :root {
-  --heading-primary: #C4581B;
-  --heading-accent: #60702F;
+  --heading-primary: #B04B19;
+  --heading-accent: #556429;
   --paper: #EDE7DA;
   --paper-deep: #DDD3C0;
   --ink: #1A2B3C;
   --ink-soft: #5F6870;
   --ink-faint: rgba(26, 43, 60, 0.34);
-  --survey: #C45C26;
-  --survey-text: #8F3A10;
-  --survey-glow: rgba(196, 92, 38, 0.34);
-  --validated: #2F6B5E;
+  --survey: #B24F20;
+  --survey-text: #85350E;
+  --survey-glow: rgba(178, 79, 32, 0.34);
+  --validated: #2A6054;
   --datum: #3D72A4;
   --depth-line: rgba(26, 43, 60, 0.12);
   --dark-bg: rgba(18, 26, 38, 0.72);
@@ -104,18 +104,18 @@
   --black-40: rgba(12, 18, 27, 0.40);
   --black-50: rgba(12, 18, 27, 0.50);
   --black-58: rgba(12, 18, 27, 0.58);
-  --survey-08: rgba(196, 92, 38, 0.08);
-  --survey-12: rgba(196, 92, 38, 0.12);
-  --survey-14: rgba(196, 92, 38, 0.14);
-  --survey-18: rgba(196, 92, 38, 0.18);
-  --cap-perception: #C45C26;
+  --survey-08: rgba(178, 79, 32, 0.08);
+  --survey-12: rgba(178, 79, 32, 0.12);
+  --survey-14: rgba(178, 79, 32, 0.14);
+  --survey-18: rgba(178, 79, 32, 0.18);
+  --cap-perception: #B24F20;
   --cap-generation: #B88530;
   --cap-infra: #3D72A4;
-  --cap-agents: #2F6B5E;
-  --cap-fill: rgba(196, 92, 38, 0.07);
-  --cap-glow: rgba(196, 92, 38, 0.60);
-  --cap-border: rgba(196, 92, 38, 0.55);
-  --survey-dotted: rgba(196, 92, 38, 0.70);
+  --cap-agents: #2A6054;
+  --cap-fill: rgba(178, 79, 32, 0.07);
+  --cap-glow: rgba(178, 79, 32, 0.60);
+  --cap-border: rgba(178, 79, 32, 0.55);
+  --survey-dotted: rgba(178, 79, 32, 0.70);
   --hero-role: #3C6176;
   --hero-panel-top: #1C2938;
   --hero-panel-bottom: #121A26;
@@ -349,7 +349,22 @@ button, input, textarea { font: inherit; color: inherit; }
   position: fixed; inset: 0; width: 100%; height: 100%;
   z-index: var(--z-neural); display: block;
   pointer-events: none;
-  transition: filter 0.6s ease;
+  /* Perf: no `transition: filter` — animating a CSS filter over a full-screen
+     WebGL canvas forces a repeated filter-effect composite pass for its whole
+     duration. The dark-mode look is applied by neural-background.js baking a
+     `darkness` uniform into the shader instead, so the filter below only needs
+     to snap (still present as a light fallback tint, not animated).
+     three.js now loads lazily (see index.html), so this canvas sits empty for
+     a moment after first paint — a single one-shot opacity transition (not a
+     per-frame cost) lets it fade in instead of popping in once its script
+     lands, gated by the .has-neural-depth class neural-background.js adds
+     right before its first render. */
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+
+body.has-neural-depth #neural-bg-canvas {
+  opacity: 1;
 }
 
 body.is-dark #neural-bg-canvas {
@@ -365,9 +380,20 @@ body.is-dark #neural-bg-canvas {
 
 .paper-grain {
   position: fixed; inset: 0; z-index: var(--z-grain);
-  pointer-events: none; opacity: 0.2;
+  pointer-events: none;
+  /* Perf: was opacity 0.2 + mix-blend-mode: multiply. Blend modes force a
+     full-screen composite pass every time anything beneath moves. Dropped
+     the blend mode and lowered opacity to compensate visually (normal
+     blending over the paper tone reads close to the multiplied grain). */
+  opacity: 0.14;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
-  mix-blend-mode: multiply;
+}
+
+/* Perf: on the lowest device tier (see the tier-detection script in
+   index.html <head>), drop the grain layer entirely rather than just
+   keeping it cheap — one less full-viewport composited layer. */
+html.tier-low .paper-grain {
+  display: none;
 }
 
 #fluid-canvas {
@@ -506,35 +532,6 @@ body.is-dark .depth-gauge__label { color: rgba(244, 240, 232, 0.3); }
 body.is-dark .depth-gauge__label.is-active { color: var(--survey); }
 
 /* ═══════════════════════════════════════════════════════════ */
-/* STACK TRACE (bottom bar)                                   */
-/* ═══════════════════════════════════════════════════════════ */
-
-.stack-trace {
-  position: fixed; bottom: 0; left: 0; right: 0;
-  z-index: 35; padding: 0.62rem 2rem;
-  font-family: var(--font-mono);
-  font-size: 0.65rem;
-  background: rgba(237, 231, 218, 0.94);
-  border-top: 1px solid var(--ink-08);
-  box-shadow: 0 -10px 34px var(--ink-06);
-  text-align: center;
-  transition: background-color 0.5s ease, color 0.5s ease;
-}
-
-.st-seg { color: var(--ink-faint); transition: color 0.3s ease, font-weight 0.3s ease; }
-.st-seg.is-active { color: var(--validated); font-weight: 600; }
-.st-arrow { color: var(--ink-22); margin: 0 0.4em; }
-
-body.is-dark .stack-trace {
-  background: rgba(29, 41, 56, 0.92);
-  border-top-color: var(--cream-08);
-  box-shadow: 0 -10px 34px var(--black-24);
-}
-body.is-dark .st-seg { color: rgba(244, 240, 232, 0.35); }
-body.is-dark .st-seg.is-active { color: var(--dark-ink); }
-body.is-dark .st-arrow { color: rgba(244, 240, 232, 0.15); }
-
-/* ═══════════════════════════════════════════════════════════ */
 /* STRATA — fixed overlay content layer                       */
 /* ═══════════════════════════════════════════════════════════ */
 
@@ -560,14 +557,23 @@ body.is-dark .st-arrow { color: rgba(244, 240, 232, 0.15); }
 
 .stratum.is-active {
   pointer-events: auto;
+}
+
+/* will-change is applied only while a section is transiently entering/exiting
+   (via .is-transiting, toggled in JS) so the browser isn't holding a promoted
+   GPU layer for every currently-active section simultaneously — see script.js
+   updateSections(). Perf: avoids stacking many composited layers at once. */
+.stratum.is-transiting {
   will-change: transform, opacity;
 }
 
 .stratum--dark {
   color: var(--dark-ink);
+  /* Perf: flat fill at the original alpha instead of backdrop-filter:
+     blur(12px). A live blur over a full-viewport fixed layer recomposites
+     every frame; dropping just the blur (keeping the original 0.65 alpha)
+     costs nothing per-frame without darkening the section. */
   background: rgba(18, 26, 38, 0.65);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
   border-radius: 8px;
 }
 
@@ -616,10 +622,12 @@ body.is-dark .st-arrow { color: rgba(244, 240, 232, 0.15); }
 }
 
 .stratum--dark .stratum__window {
+  /* Perf: was var(--dark-bg) (0.72 alpha) + backdrop-filter: blur(8px) — a
+     second stacked live blur on top of the section-level one above. Just
+     drop the blur and keep the original translucent variable so the panel
+     still reads as a distinct "window", with zero per-frame compositing cost. */
   background: var(--dark-bg);
   border-color: var(--cream-10);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
   box-shadow:
     0 0 0 1px var(--cream-04),
     0 32px 80px var(--black-38),
@@ -1406,10 +1414,13 @@ body.is-dark .st-arrow { color: rgba(244, 240, 232, 0.15); }
   flex-direction: column;
   justify-content: space-between;
   background: url('../img/footer-1920.jpg') center bottom / cover no-repeat;
+  /* Perf: was image-set(...) 2x → footer.jpg (1.8 MB). The 1920px source is
+     already high enough resolution to look sharp scaled down on retina
+     displays at this card's size — dropped the oversized 2x layer rather
+     than shipping a second multi-megabyte asset. */
   background-image: image-set(
     url('../img/footer-1920.webp') type('image/webp') 1x,
-    url('../img/footer-1920.jpg') type('image/jpeg') 1x,
-    url('../img/footer.jpg') type('image/jpeg') 2x
+    url('../img/footer-1920.jpg') type('image/jpeg') 1x
   );
   background-position: center bottom;
   background-size: cover;
@@ -1464,7 +1475,7 @@ body.is-dark .st-arrow { color: rgba(244, 240, 232, 0.15); }
 .contact-card__email {
   display: inline-block;
   font-size: 0.82rem;
-  color: #8F3A10;
+  color: #85350E;
   text-decoration: none;
   border-bottom: 1px solid transparent;
   transition: color 0.25s ease, border-color 0.25s ease;
@@ -1473,8 +1484,8 @@ body.is-dark .st-arrow { color: rgba(244, 240, 232, 0.15); }
 }
 
 .contact-card__email:hover {
-  color: #C45C26;
-  border-bottom-color: #C45C26;
+  color: #B24F20;
+  border-bottom-color: #B24F20;
 }
 
 .contact-card__top-right {
@@ -1523,7 +1534,7 @@ body.is-dark .st-arrow { color: rgba(244, 240, 232, 0.15); }
 }
 
 .contact-card__socials a:hover {
-  color: #C45C26;
+  color: #B24F20;
 }
 
 
@@ -1929,7 +1940,6 @@ body.is-dark .st-arrow { color: rgba(244, 240, 232, 0.15); }
     display: none !important;
   }
 
-  .stack-trace,
   .hero__scroll-cue,
   .fog-vignette {
     display: none;
@@ -2012,7 +2022,7 @@ body.is-dark .st-arrow { color: rgba(244, 240, 232, 0.15); }
 
 @media print {
   .paper-grain, .fog-vignette, .depth-gauge,
-  .stack-trace, .skip-link, #fluid-canvas,
+  .skip-link, #fluid-canvas,
   #neural-bg-canvas, .loader, .transition-layer { display: none !important; }
   body { background: #FAF8F3; color: #142236; }
   .strata { position: relative; perspective: none; }

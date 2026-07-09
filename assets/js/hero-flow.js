@@ -20,10 +20,19 @@
   var wrap = canvas.parentNode;
   var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+  /* Perf: cap particle count by device tier (window.__deviceTier, set
+     synchronously in index.html <head> — see the tier-detection script —
+     before this defer script ever runs). 760 additive 16-point ribbons is
+     the heaviest cost in this module (was ~12k stroke segments/frame before
+     the gradient-batching above); low/mid-tier devices don't need the full
+     density to read as a coherent flow field. */
+  var deviceTier = window.__deviceTier || 'med';
+  var hwMaxParticles = deviceTier === 'low' ? 260 : (deviceTier === 'med' ? 420 : 760);
+
   var config = {
     density: 373,        // px² per particle (lower = more particles) — ~10% denser
     minParticles: 220,
-    maxParticles: 760,
+    maxParticles: hwMaxParticles,
     noiseScale: 0.0032,  // spatial frequency of the field (css px)
     timeScale: 0.0015,   // how fast the field morphs
     turn: 2.3,           // field angle = noise * PI * turn
@@ -64,8 +73,18 @@
   var useGsapTicker = !!(window.gsap && window.gsap.ticker);
   var visible = true;
   var sampleFlash = 0; // frames remaining on the "SAMPLE" HUD state
+  var hudCache = { deg: 0, mag: 0 }; // last-sampled telemetry, reused between throttled HUD updates
 
   var pointer = { x: 0, y: 0, lastX: 0, lastY: 0, speed: 0, active: false };
+
+  /* Perf: cache the canvas's viewport rect instead of calling
+     getBoundingClientRect() inside setPointer() on every mousemove (a forced
+     layout read in a hot path that can fire dozens of times per second).
+     Refreshed on resize/layout-affecting events and, while the hero can still
+     be moving under the depth-engine's intro/exit transform, on scroll via a
+     rAF-throttled listener — never synchronously inside the pointer handler. */
+  var canvasRect = null;
+  function refreshCanvasRect() { canvasRect = canvas.getBoundingClientRect(); }
 
   /* ── compact gradient (Perlin-style) value noise ── */
   var perm = new Uint8Array(512);
@@ -126,6 +145,14 @@
     return colorLut[idx];
   }
 
+  /* Perf: parse "#rrggbb" → "r,g,b" once per particle spawn (cached on the
+     particle) rather than re-parsing every frame — used to build the ribbon's
+     gradient stops in drawParticles(). */
+  function hexToRgbStr(hex) {
+    return parseInt(hex.substr(1, 2), 16) + ',' + parseInt(hex.substr(3, 2), 16) + ',' + parseInt(hex.substr(5, 2), 16);
+  }
+  var activeRgb = hexToRgbStr(config.active);
+
   /* ── particles ── */
   function Particle() { this.reset(true); }
 
@@ -138,6 +165,7 @@
     this.maxLife = 90 + Math.random() * 230;
     this.speed = config.speed * (0.65 + Math.random() * 0.9);
     this.color = regionColor(this.x, this.y);
+    this.rgb = hexToRgbStr(this.color); // cached parse, reused each frame's gradient build
     this.boost = 0; // cursor-proximity highlight 0..1
   };
 
@@ -214,24 +242,29 @@
 
       var fadeIn = Math.sin((p.life / p.maxLife) * Math.PI); // 0→1→0 over lifetime
       var headAlpha = fadeIn * 0.62;
-      var color = p.color;
+      var rgb = p.rgb;
       if (p.boost > 0.02) {
         headAlpha = Math.min(0.95, headAlpha + p.boost * 0.5);
-        if (p.boost > 0.45) { color = config.active; } // brand terracotta in the active zone
+        if (p.boost > 0.45) { rgb = activeRgb; } // brand terracotta in the active zone
       }
-      ctx.strokeStyle = color;
+      if (headAlpha < 0.018) { continue; }
 
-      // taper alpha from faint tail → bright head for a silky ribbon
-      for (var j = 1; j < n; j++) {
-        var t = j / (n - 1);
+      /* Perf: one beginPath/stroke per particle instead of one per trail
+         segment (was up to ~15 draw calls/particle → ~12k/frame worst case).
+         A gradient along the ribbon reproduces the same tail→head alpha
+         taper (t² easing) in a single stroke. */
+      var stops = n - 1;
+      var grad = ctx.createLinearGradient(p.xs[0], p.ys[0], p.xs[stops], p.ys[stops]);
+      for (var j = 0; j < n; j++) {
+        var t = j / stops;
         var a = headAlpha * t * t;
-        if (a < 0.018) { continue; }
-        ctx.globalAlpha = a;
-        ctx.beginPath();
-        ctx.moveTo(p.xs[j - 1], p.ys[j - 1]);
-        ctx.lineTo(p.xs[j], p.ys[j]);
-        ctx.stroke();
+        grad.addColorStop(t, 'rgba(' + rgb + ',' + a.toFixed(3) + ')');
       }
+      ctx.strokeStyle = grad;
+      ctx.beginPath();
+      ctx.moveTo(p.xs[0], p.ys[0]);
+      for (var k = 1; k < n; k++) { ctx.lineTo(p.xs[k], p.ys[k]); }
+      ctx.stroke();
     }
     ctx.globalAlpha = 1;
   }
@@ -275,12 +308,26 @@
     ctx.globalAlpha = 1;
   }
 
+  /* Perf: this is a telemetry readout, not motion — it doesn't need to redraw
+     every frame. Throttled to ~10 fps (below) and no longer sets
+     ctx.letterSpacing, which forces extra text-shaping work on every call. */
+  var hudFrameInterval = 6; // frames between HUD redraws at ~60fps ≈ 10fps
+  var hudFrameCounter = 0;
+
   function drawHud() {
-    var sx = pointer.active ? pointer.x : W * 0.5;
-    var sy = pointer.active ? pointer.y : H * 0.5;
-    var raw = fieldNoise(sx, sy);
-    var deg = ((raw * config.turn * 180) % 360 + 360) % 360;
-    var mag = Math.min(1, Math.abs(raw) + pointer.speed * 0.012);
+    // The bar/text canvas is cleared by drawParticles() every frame, so the
+    // HUD must still be repainted every frame — throttling only the (more
+    // expensive) noise-sample + text recompute, reusing the last values
+    // between samples for a visually-continuous but cheaper readout.
+    if (hudFrameCounter <= 0) {
+      var sx = pointer.active ? pointer.x : W * 0.5;
+      var sy = pointer.active ? pointer.y : H * 0.5;
+      var raw = fieldNoise(sx, sy);
+      hudCache.deg = ((raw * config.turn * 180) % 360 + 360) % 360;
+      hudCache.mag = Math.min(1, Math.abs(raw) + pointer.speed * 0.012);
+      hudFrameCounter = hudFrameInterval;
+    }
+    hudFrameCounter--;
 
     var state = sampleFlash > 0 ? 'SAMPLE' : (pointer.active ? 'SWIRL' : 'SCAN');
 
@@ -288,7 +335,6 @@
     ctx.save();
     ctx.textAlign = 'right';
     ctx.textBaseline = 'alphabetic';
-    try { ctx.letterSpacing = '0.12em'; } catch (e) { /* older browsers */ }
     var rx = W - 12;
 
     // state line
@@ -301,7 +347,7 @@
     ctx.font = '500 7.5px "Martian Mono", ui-monospace, monospace';
     ctx.fillStyle = '#D9D0BC';
     ctx.globalAlpha = 0.6;
-    ctx.fillText('θ ' + deg.toFixed(0) + '°  |v| ' + mag.toFixed(2), rx, 33);
+    ctx.fillText('θ ' + hudCache.deg.toFixed(0) + '°  |v| ' + hudCache.mag.toFixed(2), rx, 33);
 
     // field-strength micro-bar
     var bw = 54, bh = 2.5, bx = rx - bw, by = 39;
@@ -310,7 +356,7 @@
     ctx.fillRect(bx, by, bw, bh);
     ctx.globalAlpha = 0.85;
     ctx.fillStyle = config.instrument;
-    ctx.fillRect(bx, by, bw * mag, bh);
+    ctx.fillRect(bx, by, bw * hudCache.mag, bh);
 
     ctx.restore();
     ctx.globalAlpha = 1;
@@ -370,6 +416,7 @@
   }
 
   function resize() {
+    refreshCanvasRect();
     var m = measure();
     if (m.w === W && m.h === H && canvas.width) { return; } // no change → skip rebuild
     W = m.w;
@@ -398,9 +445,9 @@
 
   /* ── pointer ── */
   function setPointer(clientX, clientY) {
-    var rect = canvas.getBoundingClientRect();
-    var nx = clientX - rect.left;
-    var ny = clientY - rect.top;
+    if (!canvasRect) { refreshCanvasRect(); }
+    var nx = clientX - canvasRect.left;
+    var ny = clientY - canvasRect.top;
     var dx = nx - pointer.lastX;
     var dy = ny - pointer.lastY;
     pointer.speed = Math.min(60, Math.sqrt(dx * dx + dy * dy));
@@ -432,6 +479,15 @@
   }
   window.addEventListener('resize', scheduleResize, { passive: true });
 
+  // Perf: the hero panel drifts under the depth-engine's intro/exit transform
+  // while scrolling, so its viewport rect can go stale — refresh it at most
+  // once per animation frame during scroll (never synchronously per mousemove).
+  var rectRaf = 0;
+  function scheduleRectRefresh() {
+    if (!rectRaf) { rectRaf = requestAnimationFrame(function () { rectRaf = 0; refreshCanvasRect(); }); }
+  }
+  window.addEventListener('scroll', scheduleRectRefresh, { passive: true });
+
   // Re-fit when the panel's layout box changes (intro settling, fonts, reflow).
   if ('ResizeObserver' in window) {
     var ro = new ResizeObserver(scheduleResize);
@@ -461,6 +517,10 @@
     if (resizeRaf) {
       cancelAnimationFrame(resizeRaf);
       resizeRaf = 0;
+    }
+    if (rectRaf) {
+      cancelAnimationFrame(rectRaf);
+      rectRaf = 0;
     }
     if (ro) ro.disconnect();
     if (io) io.disconnect();

@@ -28,9 +28,17 @@
 
   var THREE = window.THREE;
 
-  /* Hardware detection */
+  /* Hardware detection — reads the unified tier computed synchronously in
+     index.html <head> (window.__deviceTier), which this lazy-loaded module
+     is always guaranteed to see already set by the time it runs. Falls back
+     to the old local heuristic only if that script somehow never ran.
+     Only 'high' gets the full-quality path — live measurement on the actual
+     target laptop (an entry discrete GPU that still landed in 'med' after
+     the FPS governor's correction) showed 'med' still needs the reduced
+     settings; 'low' and 'med' both get them, 'high' is the exclusive
+     full-quality tier. */
   var cores = navigator.hardwareConcurrency || 4;
-  var isLowEnd = cores <= 4 || isSmall;
+  var isLowEnd = window.__deviceTier ? window.__deviceTier !== 'high' : (cores <= 4 || isSmall);
 
   /* ═════════════════════════════════════════════════════════ */
   /* SCENE SETUP                                               */
@@ -117,6 +125,14 @@
     '}'
   ].join('\n');
 
+  /* Perf: the FBM smoke shader is the most expensive per-pixel cost in this
+     scene (3-octave noise, full-screen, every frame). Rather than rendering
+     it at full canvas resolution as part of the main pass, render it into a
+     small offscreen target (half res, or less on constrained devices) and
+     composite that texture as a full-screen overlay — noise detail doesn't
+     need native resolution. Skipped entirely on isLowEnd (kept as a flat,
+     static wash via the fallback below) since it's ambience, not content. */
+  var smokeEnabled = !isLowEnd;
   var smokeGeo = new THREE.PlaneGeometry(2, 2);
   var smokeMat = new THREE.ShaderMaterial({
     vertexShader: smokeVS, fragmentShader: smokeFS,
@@ -127,10 +143,26 @@
     transparent: true, depthWrite: false,
   });
   var smokeMesh = new THREE.Mesh(smokeGeo, smokeMat);
-  smokeMesh.position.set(0, 0, -1);
-  smokeMesh.renderOrder = 10;
-  camera.add(smokeMesh);
-  scene.add(camera);
+  var smokeScene = new THREE.Scene();
+  smokeScene.add(smokeMesh);
+  var smokeCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 2);
+  smokeCamera.position.z = 1;
+
+  var smokeRT = smokeEnabled
+    ? new THREE.WebGLRenderTarget(2, 2, { depthBuffer: false, stencilBuffer: false })
+    : null;
+
+  /* Full-screen overlay quad that composites smokeRT's texture on top of the
+     already-rendered network scene, in a second render pass (autoClear:false)
+     — reproduces the original "smoke drawn over the network" layering without
+     paying full-resolution shader cost. */
+  var overlayScene = new THREE.Scene();
+  var overlayMat = new THREE.MeshBasicMaterial({
+    transparent: true, depthWrite: false, depthTest: false,
+    map: smokeEnabled ? smokeRT.texture : null,
+  });
+  var overlayMesh = new THREE.Mesh(smokeGeo, overlayMat);
+  overlayScene.add(overlayMesh);
 
   /* ═════════════════════════════════════════════════════════ */
   /* COLORS & SHARED GEOMETRY                                  */
@@ -140,7 +172,7 @@
   var colorPalette = {
     cyan:   new THREE.Color(0x6CB4C4),   // slate-blue-light
     blue:   new THREE.Color(0x3D72A4),   // datum blue
-    orange: new THREE.Color(0xC45C26),   // survey terracotta
+    orange: new THREE.Color(0xB24F20),   // survey burnt-orange
     coral:  new THREE.Color(0xE87428),   // warm coral
     yellow: new THREE.Color(0xE8B86D),   // gold accent
   };
@@ -430,13 +462,19 @@
     viewH = window.innerHeight || 1;
     camera.aspect = viewW / viewH;
     camera.updateProjectionMatrix();
-    var fov = (camera.fov * Math.PI) / 180;
-    var ph = 2 * Math.tan(fov / 2);
-    smokeMesh.scale.set(ph * camera.aspect, ph, 1);
     renderer.setSize(viewW, viewH, false);
     renderer.setPixelRatio(isLowEnd ? 1 : Math.min(window.devicePixelRatio || 1, 2));
-    /* uRes only changes on resize — set it here, not every frame in tick() */
-    smokeMat.uniforms.uRes.value.set(viewW, viewH);
+    if (smokeEnabled) {
+      /* Perf: smoke noise is rendered at half the canvas's device-pixel
+         resolution, then upscaled by the GPU when composited — the FBM
+         noise has no fine detail that benefits from full res.
+         uRes only changes on resize — set it here, not every frame in tick(). */
+      var rtDpr = Math.min(window.devicePixelRatio || 1, 2) * 0.5;
+      var rtW = Math.max(2, Math.round(viewW * rtDpr));
+      var rtH = Math.max(2, Math.round(viewH * rtDpr));
+      smokeRT.setSize(rtW, rtH);
+      smokeMat.uniforms.uRes.value.set(rtW, rtH);
+    }
   }
 
   function scheduleResize() {
@@ -558,12 +596,25 @@
     particles.rotation.y -= 0.0006;
     particles.rotation.x += 0.0002;
 
-    /* Smoke shader */
-    smokeMat.uniforms.uTime.value = now * 0.001;
-    smokeMat.uniforms.uMouse.value.copy(shaderMouse);
-    smokeMat.uniforms.uScroll.value = scrollProgress;
-
     renderer.render(scene, camera);
+
+    /* Smoke shader — rendered in a second pass to a small offscreen target,
+       then composited over the main scene at canvas resolution. Skipped
+       entirely on isLowEnd (see smokeEnabled above). */
+    if (smokeEnabled) {
+      smokeMat.uniforms.uTime.value = now * 0.001;
+      smokeMat.uniforms.uMouse.value.copy(shaderMouse);
+      smokeMat.uniforms.uScroll.value = scrollProgress;
+
+      renderer.setRenderTarget(smokeRT);
+      renderer.clear();
+      renderer.render(smokeScene, smokeCamera);
+      renderer.setRenderTarget(null);
+
+      renderer.autoClear = false;
+      renderer.render(overlayScene, smokeCamera);
+      renderer.autoClear = true;
+    }
   }
 
   function start() {
@@ -603,6 +654,9 @@
     }
     window.removeEventListener('resize', scheduleResize);
     scene.traverse(disposeObject);
+    smokeScene.traverse(disposeObject);
+    overlayScene.traverse(disposeObject);
+    if (smokeRT) smokeRT.dispose();
     renderer.dispose();
     if (window.__neuralSetProgress) window.__neuralSetProgress = function () {};
     if (window.__neuralSetSections) window.__neuralSetSections = function () {};

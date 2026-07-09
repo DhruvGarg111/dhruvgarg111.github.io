@@ -26,6 +26,140 @@
   <link rel="preload" href="assets/fonts/Switzer-Regular.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fonts/Switzer-Medium.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="assets/css/style.css?v=9">
+  <script>
+  /* Perf instrumentation — gated FPS/frame-time meter. Activate with ?fps=1.
+     Self-contained, zero cost when inactive (single regex test). */
+  (function () {
+    if (!/[?&]fps=1\b/.test(location.search)) return;
+    var el = document.createElement('div');
+    el.id = '__fpsmeter';
+    el.style.cssText = 'position:fixed;bottom:8px;left:8px;z-index:2147483647;' +
+      'background:rgba(0,0,0,0.78);color:#0f0;font:11px/1.4 ui-monospace,monospace;' +
+      'padding:6px 10px;border-radius:4px;pointer-events:none;white-space:pre;';
+    function mount() { document.body.appendChild(el); }
+    if (document.body) mount(); else document.addEventListener('DOMContentLoaded', mount);
+
+    var frames = 0, lastT = performance.now(), fps = 0;
+    var worst = 999, samples = [];
+    function loop(t) {
+      var dt = t - lastT;
+      frames++;
+      if (dt >= 500) {
+        fps = Math.round((frames * 1000) / dt);
+        samples.push(fps);
+        if (samples.length > 40) samples.shift();
+        var min = Math.min.apply(null, samples);
+        var avg = Math.round(samples.reduce(function (a, b) { return a + b; }, 0) / samples.length);
+        el.textContent = 'FPS ' + fps + '  avg ' + avg + '  min ' + min;
+        el.style.color = fps >= 45 ? '#0f0' : fps >= 24 ? '#fd0' : '#f33';
+        frames = 0; lastT = t;
+      }
+      requestAnimationFrame(loop);
+    }
+    requestAnimationFrame(loop);
+    window.__fpsMeter = { samples: function () { return samples.slice(); } };
+  })();
+  </script>
+  <script>
+  /* Perf: unified device-tier detection. neural-background.js and hero-flow.js
+     used to each compute their own local "is this a weak device" heuristic
+     (cores<=4, or a mobile-width media query) — fragmented, and blind to
+     memory pressure, DPR fill-rate cost, GPU class, and battery/data-saver
+     state. One tier here, read by both, exposed as window.__deviceTier
+     ('low'|'med'|'high') and mirrored onto <html class="tier-*"> for CSS.
+     Runs as a plain (non-defer) script in <head>, so it's synchronously
+     ready before any deferred script — including hero-flow.js, which reads
+     it on its very first line — ever executes. */
+  (function () {
+    var root = document.documentElement;
+    var cores = navigator.hardwareConcurrency || 4;
+    var mem = navigator.deviceMemory; // GB; undefined on Firefox/Safari
+    var dpr = window.devicePixelRatio || 1;
+    var isSmall = window.matchMedia('(max-width: 767px)').matches;
+    var saveData = !!(navigator.connection && navigator.connection.saveData);
+
+    function gpuRenderer() {
+      try {
+        var c = document.createElement('canvas');
+        var gl = c.getContext('webgl') || c.getContext('experimental-webgl');
+        if (!gl) return '';
+        var ext = gl.getExtension('WEBGL_debug_renderer_info');
+        return String(ext ? gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER));
+      } catch (e) { return ''; }
+    }
+    var renderer = gpuRenderer();
+
+    function scoreOf(cores, mem, dpr, isSmall, renderer, saveData) {
+      var score = 0;
+      if (cores >= 8) score += 2; else if (cores >= 6) score += 1; else if (cores <= 2) score -= 1;
+      if (mem !== undefined) { if (mem >= 8) score += 2; else if (mem >= 4) score += 1; else score -= 1; }
+      if (isSmall) score -= 1;
+      if (dpr >= 2.5) score -= 1;
+      if (/nvidia|geforce|rtx|gtx|radeon|amd|apple m[1-9]|adreno\s?(6|7)\d{2}|mali-g7|mali-g9/i.test(renderer)) score += 2;
+      else if (/intel|mali-4|mali-t|adreno\s?[234]\d{2}|powervr|swiftshader|llvmpipe|software/i.test(renderer)) score -= 2;
+      if (saveData) score -= 3;
+      return score;
+    }
+
+    function tierOf(score) {
+      return score >= 3 ? 'high' : score >= 0 ? 'med' : 'low';
+    }
+
+    function applyTier(tier) {
+      root.classList.remove('tier-low', 'tier-med', 'tier-high');
+      root.classList.add('tier-' + tier);
+      window.__deviceTier = tier;
+    }
+
+    var score = scoreOf(cores, mem, dpr, isSmall, renderer, saveData);
+    applyTier(tierOf(score));
+    window.__deviceTierInfo = { score: score, cores: cores, mem: mem, dpr: dpr, isSmall: isSmall, renderer: renderer, saveData: saveData };
+
+    /* Battery: pre-select the low tier when critically low and unplugged.
+       Best-effort — resolves async, so it may land after hero-flow.js (an
+       early defer script) has already read the tier once; it still lands
+       well before neural-background.js, which loads on idle. */
+    if (navigator.getBattery) {
+      navigator.getBattery().then(function (battery) {
+        function checkBattery() {
+          if (battery.level < 0.2 && !battery.charging && window.__deviceTier !== 'low') {
+            applyTier('low');
+          }
+        }
+        checkBattery();
+        battery.addEventListener('levelchange', checkBattery);
+        battery.addEventListener('chargingchange', checkBattery);
+      }).catch(function () {});
+    }
+
+    /* Runtime FPS governor: sample real frame time for ~1s. If the median
+       comes in soft, the device is struggling under whatever's already
+       rendering (hero-flow's canvas, mainly, this early) — step the tier
+       down a notch before the heavier neural-background WebGL scene loads. */
+    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      var samples = [];
+      var start = performance.now();
+      var last = start;
+      function sample(t) {
+        var dt = t - last;
+        last = t;
+        if (dt > 0) samples.push(1000 / dt);
+        if (t - start < 1000) {
+          requestAnimationFrame(sample);
+        } else if (samples.length > 4) {
+          samples.sort(function (a, b) { return a - b; });
+          var median = samples[Math.floor(samples.length / 2)];
+          if (median < 45) {
+            var current = window.__deviceTier;
+            if (current === 'high') applyTier('med');
+            else if (current === 'med') applyTier('low');
+          }
+        }
+      }
+      requestAnimationFrame(sample);
+    }
+  })();
+  </script>
 </head>
 <body>
   <div class="loader" id="loader" aria-label="Loading" role="status">
@@ -76,17 +210,6 @@
       <span class="depth-gauge__label" data-section="proof" style="top:88%">8400m</span>
       <span class="depth-gauge__label" data-section="contact" style="top:97%">CORE</span>
     </div>
-  </div>
-
-  <!-- ═══ STACK TRACE (bottom bar) ═══ -->
-  <div class="stack-trace" id="stack-trace">
-    <span class="st-seg is-active" data-seg="perception">perception/searchlight</span>
-    <span class="st-arrow">→</span>
-    <span class="st-seg" data-seg="training">training/vgg-perceptual</span>
-    <span class="st-arrow">→</span>
-    <span class="st-seg" data-seg="infra">infra/celery-fastapi</span>
-    <span class="st-arrow">→</span>
-    <span class="st-seg" data-seg="interface">interface/typer-agents</span>
   </div>
 
   <!-- ═══ STRATA: Content layer (all sections fixed) ═══ -->
@@ -166,7 +289,7 @@
                 <svg viewBox="0 0 800 400" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"><rect width="100%" height="100%" fill="#E5DFCD"/><g stroke="rgba(26,43,60,0.06)" stroke-width="1"><line x1="0" y1="100" x2="800" y2="100"/><line x1="0" y1="200" x2="800" y2="200"/><line x1="0" y1="300" x2="800" y2="300"/><line x1="200" y1="0" x2="200" y2="400"/><line x1="400" y1="0" x2="400" y2="400"/><line x1="600" y1="0" x2="600" y2="400"/></g><path d="M100 350 L300 120 L500 350 Z" fill="none" stroke="#1A2B3C" stroke-width="2" opacity="0.6"/><circle cx="550" cy="120" r="40" fill="none" stroke="#1A2B3C" stroke-width="2" opacity="0.5"/></svg>
               </div>
               <div class="seam-stage__style">
-                <svg viewBox="0 0 800 400" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"><rect width="100%" height="100%" fill="#1A2B3C"/><path d="M-50 200 C 150 100,250 300,450 200 C 650 100,750 300,850 200" fill="none" stroke="#E8B86D" stroke-width="18" stroke-linecap="round" opacity="0.6"/><path d="M-50 240 C 150 140,250 340,450 240 C 650 140,750 340,850 240" fill="none" stroke="#C45C26" stroke-width="12" stroke-linecap="round" opacity="0.7"/><circle cx="550" cy="120" r="60" fill="#E8B86D" opacity="0.8"/><circle cx="550" cy="120" r="45" fill="#C45C26" opacity="0.9"/></svg>
+                <svg viewBox="0 0 800 400" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"><rect width="100%" height="100%" fill="#1A2B3C"/><path d="M-50 200 C 150 100,250 300,450 200 C 650 100,750 300,850 200" fill="none" stroke="#E8B86D" stroke-width="18" stroke-linecap="round" opacity="0.6"/><path d="M-50 240 C 150 140,250 340,450 240 C 650 140,750 340,850 240" fill="none" stroke="#B24F20" stroke-width="12" stroke-linecap="round" opacity="0.7"/><circle cx="550" cy="120" r="60" fill="#E8B86D" opacity="0.8"/><circle cx="550" cy="120" r="45" fill="#B24F20" opacity="0.9"/></svg>
               </div>
               <div class="seam-stage__divider" id="seam-divider"></div>
             </div>
@@ -515,14 +638,56 @@
     <div class="transition-label mono" id="transition-label">DRILLING TO STRATUM II</div>
   </div>
 
-  <script defer src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js" integrity="sha384-CI3ELBVUz9XQO+97x6nwMDPosPR5XvsxW2ua7N1Xeygeh1IxtgqtCkGfQY9WWdHu" crossorigin="anonymous"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js" crossorigin="anonymous"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js" crossorigin="anonymous"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/@mojs/core@1.7.1/dist/mo.umd.min.js"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/splitting@1.1.0/dist/splitting.min.js"></script>
-  <script defer src="assets/js/neural-background.js?v=2"></script>
   <script defer src="assets/js/fluid-cursor.js?v=3"></script>
   <script defer src="assets/js/hero-flow.js?v=6"></script>
   <script defer src="assets/js/script.js?v=4"></script>
+  <script>
+  /* Perf: three.js (~600KB) and its neural-background consumer, plus @mojs/core
+     and splitting, aren't needed for first paint or for the core scroll/depth
+     experience (gsap + ScrollTrigger above already drive that). Loading them as
+     ordinary `defer` tags forced the browser to fetch+execute all of it before
+     DOMContentLoaded — and therefore before start()/boot() in script.js — even
+     though nothing in the critical path touches them. Inject them once the main
+     thread is idle instead: the page renders and becomes interactive without
+     them, and the neural background fades in a moment later when its script
+     lands. three.js -> neural-background.js is a strict order (that module
+     reads window.THREE once at parse time); mojs and splitting are independent
+     and already optional at every call site in script.js (typeof-guarded), so
+     they load in parallel with no ordering requirement. */
+  (function () {
+    function loadScript(src, attrs) {
+      return new Promise(function (resolve, reject) {
+        var s = document.createElement('script');
+        s.src = src;
+        if (attrs) {
+          for (var k in attrs) { if (Object.prototype.hasOwnProperty.call(attrs, k)) { s.setAttribute(k, attrs[k]); } }
+        }
+        s.onload = resolve;
+        s.onerror = reject;
+        document.body.appendChild(s);
+      });
+    }
+
+    function loadDeferredExtras() {
+      loadScript('https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js', {
+        integrity: 'sha384-CI3ELBVUz9XQO+97x6nwMDPosPR5XvsxW2ua7N1Xeygeh1IxtgqtCkGfQY9WWdHu',
+        crossorigin: 'anonymous'
+      }).then(function () {
+        return loadScript('assets/js/neural-background.js?v=2');
+      }).catch(function () { /* no THREE available — page works fine without the bg */ });
+
+      loadScript('https://cdn.jsdelivr.net/npm/@mojs/core@1.7.1/dist/mo.umd.min.js').catch(function () {});
+      loadScript('https://cdn.jsdelivr.net/npm/splitting@1.1.0/dist/splitting.min.js').catch(function () {});
+    }
+
+    if ('requestIdleCallback' in window) {
+      requestIdleCallback(loadDeferredExtras, { timeout: 2000 });
+    } else {
+      setTimeout(loadDeferredExtras, 200);
+    }
+  })();
+  </script>
 </body>
 </html>

@@ -64,6 +64,12 @@
   var sectionTimelines = {};
   var triggeredSections = new Set();
   var sectionVisible = new Array(SECTIONS.length).fill(false);
+  /* Perf: last-written depth values per section, rounded to the same precision
+     used in the style string. Lets updateSections() skip the transform/opacity
+     DOM write entirely when nothing changed since the previous tick (e.g. a
+     section sitting at its settled z=0 state while scroll is momentarily
+     paused/scrubbed). Avoids style recalc + string churn for no visual change. */
+  var sectionDepthCache = SECTIONS.map(function () { return null; });
   var isDragging = false;
   var scrollTriggerInstance = null;
   var activeTweens = [];
@@ -102,7 +108,6 @@
     els.depthGaugeTrack = $('#depth-gauge-track');
     els.fogVignette = $('#fog-vignette');
     els.heroScrollCue = $('#hero-scroll-cue');
-    els.stSegs = $$('.st-seg');
     els.depthLabels = $$('.depth-gauge__label');
     els.sectionAnnouncer = $('#section-announcer');
 
@@ -210,9 +215,31 @@
           z = 0; sc = 1; op = 1; rx = 0; ry = 0;
         }
 
-        el.style.transform = 'translateZ(' + z.toFixed(1) + 'px) scale(' + sc.toFixed(4) + ') rotateX(' + rx.toFixed(2) + 'deg) rotateY(' + ry.toFixed(2) + 'deg)';
-        el.style.opacity = op.toFixed(4);
+        /* Perf: dirty-check against the last-written (rounded) depth values —
+           skip the transform/opacity write entirely when nothing visually
+           changed since the previous tick, instead of unconditionally
+           rebuilding + assigning a new style string every tick. */
+        var zR = Math.round(z * 10) / 10;
+        var scR = Math.round(sc * 10000) / 10000;
+        var opR = Math.round(op * 10000) / 10000;
+        var rxR = Math.round(rx * 100) / 100;
+        var ryR = Math.round(ry * 100) / 100;
+        var cached = sectionDepthCache[idx];
+        if (!cached || cached.z !== zR || cached.sc !== scR || cached.rx !== rxR || cached.ry !== ryR) {
+          el.style.transform = 'translateZ(' + zR.toFixed(1) + 'px) scale(' + scR.toFixed(4) + ') rotateX(' + rxR.toFixed(2) + 'deg) rotateY(' + ryR.toFixed(2) + 'deg)';
+        }
+        if (!cached || cached.op !== opR) {
+          el.style.opacity = opR.toFixed(4);
+        }
+        sectionDepthCache[idx] = { z: zR, sc: scR, op: opR, rx: rxR, ry: ryR };
         el.classList.add('is-active');
+
+        /* Perf: only promote a GPU layer (will-change) while this section is
+           transiently entering/exiting depth — not for the whole time it's
+           "active" at rest (z=0). Caps how many composited layers are held
+           at once during a long scroll through several sections. */
+        var isSettled = zR === 0 && scR === 1 && opR === 1 && rxR === 0 && ryR === 0;
+        el.classList.toggle('is-transiting', !isSettled);
 
         /* Seek section timeline */
         if (sectionTimelines[sec.id]) {
@@ -224,7 +251,9 @@
         /* ── Out of range — skip if already hidden ── */
         if (!sectionVisible[idx]) return;
         sectionVisible[idx] = false;
+        sectionDepthCache[idx] = null;
         el.classList.remove('is-active');
+        el.classList.remove('is-transiting');
         if (progress < rangeStart) {
           el.style.transform = 'translateZ(-1200px) scale(0.5) rotateX(5deg)';
           el.style.opacity = '0';
@@ -256,11 +285,6 @@
             els.fogVignette.style.background = 'radial-gradient(ellipse at center, transparent 40%, rgba(240,235,224,0.5) 100%)';
           }
         }
-
-        /* Stack trace */
-        els.stSegs.forEach(function (seg) {
-          seg.classList.toggle('is-active', sec.seg && seg.dataset.seg === sec.seg);
-        });
 
         /* Depth gauge labels */
         els.depthLabels.forEach(function (lbl) {
@@ -577,7 +601,7 @@
           children: {
             shape: 'polygon', points: 6,
             fill: 'transparent',
-            stroke: [cssVar('--survey'), '#c45c26', '#3d8a65', cssVar('--validated')],
+            stroke: [cssVar('--survey'), '#b24f20', '#357f5d', cssVar('--validated')],
             strokeWidth: { 3: 0 }, duration: 700,
             easing: 'cubic.out', opacity: { 1: 0 },
           }
@@ -1368,12 +1392,19 @@
   /* LOADING SCREEN                                            */
   /* ═════════════════════════════════════════════════════════ */
 
+  /* Perf: was a fixed 1,050 ms timeline regardless of actual readiness,
+     delaying interaction on fast loads and looking premature on slow ones.
+     Now hides as soon as start() signals the page is actually ready (boot()
+     ran, or the no-gsap fallback path finished), with a small floor (so it
+     never feels like a flash) and a hard ceiling (so a stalled load can't
+     strand the loader on screen forever). Returns a `hide()` callback for
+     start() to invoke. */
   function initLoader() {
     var loader = document.getElementById('loader');
     var barFill = document.getElementById('loader-bar');
     var statusEl = document.getElementById('loader-status');
     var depthEl = document.getElementById('loader-depth');
-    if (!loader) return;
+    if (!loader) return null;
 
     var steps = [
       { t: 0,    w: '0%',   status: 'INITIALIZING DEPTH ENGINE', depth: '0m' },
@@ -1383,26 +1414,47 @@
       { t: 720,  w: '88%',  status: 'PRIMING DRILL HEAD',         depth: '7800m' },
       { t: 900,  w: '100%', status: 'READY · SURFACE LOCKED',      depth: '9000m' },
     ];
-
-    steps.forEach(function (step) {
-      setTimeout(function () {
+    var stepTimers = steps.map(function (step) {
+      return setTimeout(function () {
         if (barFill) barFill.style.transform = 'scaleX(' + (parseFloat(step.w) / 100).toFixed(3) + ')';
         if (statusEl) statusEl.textContent = step.status;
         if (depthEl) depthEl.textContent = step.depth;
       }, step.t);
     });
 
-    setTimeout(function () {
+    var shownAt = (window.performance && performance.now) ? performance.now() : Date.now();
+    var minDwell = 300;  // floor — avoids a jarring instant flash
+    var maxDwell = 1800; // ceiling — safety net if readiness never signals
+    var hidden = false;
+    var ceilingTimer = null;
+
+    function reallyHide() {
+      if (hidden) return;
+      hidden = true;
+      stepTimers.forEach(clearTimeout);
+      if (ceilingTimer) clearTimeout(ceilingTimer);
+      if (barFill) barFill.style.transform = 'scaleX(1)';
+      if (statusEl) statusEl.textContent = 'READY · SURFACE LOCKED';
       loader.classList.add('is-done');
       setTimeout(function () {
         loader.style.display = 'none';
       }, 450);
-    }, 1050);
+    }
+
+    function hide() {
+      var now = (window.performance && performance.now) ? performance.now() : Date.now();
+      var elapsed = now - shownAt;
+      var wait = Math.max(0, minDwell - elapsed);
+      setTimeout(reallyHide, wait);
+    }
+
+    ceilingTimer = setTimeout(reallyHide, maxDwell);
+    return hide;
   }
 
   function start() {
     initBreakpointReload();
-    initLoader();
+    var hideLoader = initLoader();
 
     if (prefersRM) {
       var loaderEl = document.getElementById('loader');
@@ -1425,6 +1477,7 @@
       $$('.stat-card').forEach(function (c) { c.classList.add('is-visible', 'is-filled'); showStatic(c); });
       $$('.pipe-card').forEach(showStatic);
       $$('.stat-count').forEach(function (el) { el.textContent = el.getAttribute('data-count'); });
+      if (hideLoader) hideLoader();
       return;
     }
 
@@ -1432,7 +1485,14 @@
        race against a timeout so content can't get stuck behind the loader. */
     var fontsReady = document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve();
     var booted = false;
-    var bootOnce = function () { if (!booted) { booted = true; boot(); } };
+    var bootOnce = function () {
+      if (booted) return;
+      booted = true;
+      boot();
+      /* Perf: loader hides right after boot() wires everything up, instead of
+         on a fixed clock — see initLoader(). */
+      if (hideLoader) hideLoader();
+    };
     fontsReady.then(bootOnce);
     setTimeout(bootOnce, 1500);
   }
