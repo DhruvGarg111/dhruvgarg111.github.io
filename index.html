@@ -18,6 +18,8 @@
   <meta name="twitter:description" content="Production ML engineer. Computer vision, generative systems, and the full stack around them.">
   <link rel="canonical" href="https://www.dhruvgarg.tech/">
   <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
+  <link rel="apple-touch-icon" href="assets/img/favicon.svg">
+  <link rel="manifest" href="manifest.json">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preload" href="https://fonts.googleapis.com/css2?family=Martian+Mono:wght@400;500;600&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
@@ -50,7 +52,12 @@
         if (samples.length > 40) samples.shift();
         var min = Math.min.apply(null, samples);
         var avg = Math.round(samples.reduce(function (a, b) { return a + b; }, 0) / samples.length);
-        el.textContent = 'FPS ' + fps + '  avg ' + avg + '  min ' + min;
+        el.textContent =
+          'FPS ' + fps + '  avg ' + avg + '  min ' + min + '\n' +
+          'tier ' + (window.__deviceTier || '?') +
+          '  bg ' + (window.__bgMode || '?') +
+          '  drill ' + (window.__canDepthDrill ? 'y' : 'n') +
+          '  hidden ' + (document.hidden ? 'y' : 'n');
         el.style.color = fps >= 45 ? '#0f0' : fps >= 24 ? '#fd0' : '#f33';
         frames = 0; lastT = t;
       }
@@ -115,6 +122,18 @@
     applyTier(tierOf(score));
     window.__deviceTierInfo = { score: score, cores: cores, mem: mem, dpr: dpr, isSmall: isSmall, renderer: renderer, saveData: saveData };
 
+    /* window.__bgMode ('webgl'|'lite'|'off') decides how much ambient-background
+       cost this visitor pays: full Three.js scene, a cheap canvas2d stand-in
+       (neural-lite.js — also covers touch/no-hover devices, where the WebGL
+       scene's headline feature, mouse-reactive smoke, can structurally never
+       fire), or nothing (the existing fog/grain layers remain the sole
+       atmosphere). Thresholds are a documented first pass, tuned later against
+       real-device data via the ?fps=1 HUD. */
+    var noHover = !window.matchMedia('(hover: hover) and (any-hover: hover)').matches;
+    var bgMode = score <= -4 ? 'off' : (noHover || tierOf(score) === 'low') ? 'lite' : 'webgl';
+    window.__bgMode = bgMode;
+    root.classList.add('bg-' + bgMode);
+
     /* Battery: pre-select the low tier when critically low and unplugged.
        Best-effort — resolves async, so it may land after hero-flow.js (an
        early defer script) has already read the tier once; it still lands
@@ -132,33 +151,100 @@
       }).catch(function () {});
     }
 
-    /* Runtime FPS governor: sample real frame time for ~1s. If the median
-       comes in soft, the device is struggling under whatever's already
-       rendering (hero-flow's canvas, mainly, this early) — step the tier
-       down a notch before the heavier neural-background WebGL scene loads. */
+    /* Continuous frame-time watcher. The original one-shot 1s boot sample
+       only ever looked at startup — a device that's fine at boot but gets
+       hammered by e.g. 30 browser tabs 10 minutes later never adapts, and
+       a device that sampled soft during a transient boot-time spike never
+       recovers. This keeps a rolling window going for the life of the
+       page: sustained bad frames step the tier down (event-driven, no
+       polling from consumers); sustained good frames while idle recover
+       it — but NEVER above the static `score`-derived ceiling, so a
+       lucky idle period can't promote a genuinely weak device past what
+       its hardware profile justified. */
     if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      var staticCeilingTier = tierOf(score);
+      var tierRank = { low: 0, med: 1, high: 2 };
       var samples = [];
-      var start = performance.now();
-      var last = start;
-      function sample(t) {
-        var dt = t - last;
-        last = t;
+      var lastChangeAt = 0;
+      var lastScrollAt = 0;
+      window.addEventListener('scroll', function () { lastScrollAt = performance.now(); }, { passive: true });
+
+      function median(arr) {
+        var s = arr.slice().sort(function (a, b) { return a - b; });
+        return s[Math.floor(s.length / 2)];
+      }
+
+      function clampRank(r) { return Math.max(0, Math.min(2, r)); }
+
+      function maybeChangeTier(dir) {
+        var now = performance.now();
+        if (now - lastChangeAt < 5000) return; // debounce: at most one step per 5s
+        var current = window.__deviceTier;
+        var currentRank = tierRank[current];
+        var nextRank = clampRank(currentRank + dir);
+        var ceilingRank = tierRank[staticCeilingTier];
+        if (dir > 0 && nextRank > ceilingRank) return; // never recover above the hardware ceiling
+        if (nextRank === currentRank) return;
+        var nextTier = Object.keys(tierRank).filter(function (k) { return tierRank[k] === nextRank; })[0];
+        applyTier(nextTier);
+        lastChangeAt = now;
+        window.dispatchEvent(new CustomEvent('devicetierchange', { detail: { tier: nextTier } }));
+      }
+
+      var lastFrameAt = performance.now();
+      function tick(t) {
+        var dt = t - lastFrameAt;
+        lastFrameAt = t;
         if (dt > 0) samples.push(1000 / dt);
-        if (t - start < 1000) {
-          requestAnimationFrame(sample);
-        } else if (samples.length > 4) {
-          samples.sort(function (a, b) { return a - b; });
-          var median = samples[Math.floor(samples.length / 2)];
-          if (median < 45) {
-            var current = window.__deviceTier;
-            if (current === 'high') applyTier('med');
-            else if (current === 'med') applyTier('low');
+        if (samples.length >= 90) { // ~1.5-3s of frames depending on refresh rate
+          var med = median(samples);
+          samples.length = 0;
+          if (med < 24) {
+            maybeChangeTier(-1); // sustained sub-24fps: step down
+          } else if (med > 50 && !document.hidden && (t - lastScrollAt) > 2000) {
+            maybeChangeTier(1); // sustained >50fps AND idle (not mid-scroll): cautiously recover
           }
         }
+        requestAnimationFrame(tick);
       }
-      requestAnimationFrame(sample);
+      requestAnimationFrame(tick);
     }
   })();
+  </script>
+  <script>
+  /* Perf/a11y: the single source of truth for "can this visitor run the
+     fixed 3D depth-drill". Computed synchronously so CSS (via the
+     can-depth-drill class) and script.js (via window.__canDepthDrill)
+     never disagree — previously a bare `min-width:768px` media query in
+     CSS, a separate matchMedia call in script.js, and a `prefers-reduced-
+     motion` override were three independent checks that could drift out
+     of sync, which is how reduced-motion desktop users ended up with
+     all nine sections stacked on top of each other. Width alone also
+     misclassified small touch laptops/tablets as "desktop" — this adds
+     height and (any-pointer:fine)+(any-hover:hover) so a device has to
+     actually behave like a mouse-driven desktop, not just be wide. */
+  (function () {
+    var prefersRM = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var capable = window.matchMedia(
+      '(min-width: 768px) and (min-height: 480px) and (any-pointer: fine) and (any-hover: hover)'
+    ).matches;
+    var canDrill = capable && !prefersRM;
+    window.__canDepthDrill = canDrill;
+    document.documentElement.classList.toggle('can-depth-drill', canDrill);
+  })();
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "Dhruv Garg",
+    "url": "https://www.dhruvgarg.tech",
+    "jobTitle": "AI/ML Engineer",
+    "sameAs": [
+      "https://github.com/DhruvGarg111",
+      "https://www.linkedin.com/in/dhruv-garg-6b0954177/"
+    ]
+  }
   </script>
 </head>
 <body>
@@ -194,7 +280,7 @@
 
   <!-- ═══ DEPTH GAUGE (right side — draggable navigation) ═══ -->
   <div class="depth-gauge" id="depth-gauge" role="navigation" aria-label="Depth navigation — click or drag to navigate sections">
-    <div class="depth-gauge__track" id="depth-gauge-track" role="slider" aria-label="Scroll depth" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" tabindex="0">
+    <div class="depth-gauge__track" id="depth-gauge-track" role="slider" aria-orientation="vertical" aria-label="Scroll depth" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="0 metres, Surface, 1 of 9" tabindex="0">
       <div class="depth-gauge__fill" id="depth-fill"></div>
       <div class="depth-gauge__marker" id="depth-marker"></div>
     </div>
@@ -262,9 +348,11 @@
             <a class="stratum__link" href="https://github.com/DhruvGarg111/The-Searchlight-Protocol" target="_blank" rel="noopener noreferrer">View repository →</a>
           </div>
           <div class="stratum__visual">
-            <div class="aerial-stage" id="aerial-stage">
-              <img class="aerial-stage__base" src="assets/img/hero-aerial-800.jpg" alt="" width="800" height="800" loading="lazy" decoding="async">
-              <img class="aerial-stage__sharp" src="assets/img/hero-aerial-800.jpg" alt="" width="800" height="800" loading="lazy" decoding="async" aria-hidden="true">
+            <div class="aerial-stage aerial-stage--single-decode" id="aerial-stage" style="--aerial-src: url('../img/hero-aerial-800.webp');">
+              <picture>
+                <source srcset="assets/img/hero-aerial-800.webp" type="image/webp">
+                <img class="aerial-stage__sharp" src="assets/img/hero-aerial-800.jpg" alt="" width="800" height="800" loading="lazy" decoding="async">
+              </picture>
               <div class="aerial-stage__roi" aria-hidden="true"></div>
             </div>
             <figure class="arch-figure">
@@ -638,8 +726,8 @@
     <div class="transition-label mono" id="transition-label">DRILLING TO STRATUM II</div>
   </div>
 
-  <script defer src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js" crossorigin="anonymous"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js" crossorigin="anonymous" integrity="sha384-HOvlOYPIs/zjoIkWUGXkVmXsjr8GuZLV+Q+rcPwmJOVZVpvTSXQChiN4t9Euv9Vc"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js" crossorigin="anonymous" integrity="sha384-P8VzCVnT9NBUkMrpcIZrJbA7EBjJvh/fJS6PmP+4nLIM284DtsImIv8D0fFjIkeh"></script>
   <script defer src="assets/js/fluid-cursor.js?v=3"></script>
   <script defer src="assets/js/hero-flow.js?v=6"></script>
   <script defer src="assets/js/script.js?v=4"></script>
@@ -671,15 +759,27 @@
     }
 
     function loadDeferredExtras() {
-      loadScript('https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js', {
-        integrity: 'sha384-CI3ELBVUz9XQO+97x6nwMDPosPR5XvsxW2ua7N1Xeygeh1IxtgqtCkGfQY9WWdHu',
-        crossorigin: 'anonymous'
-      }).then(function () {
-        return loadScript('assets/js/neural-background.js?v=2');
-      }).catch(function () { /* no THREE available — page works fine without the bg */ });
+      if (window.__bgMode === 'webgl') {
+        loadScript('https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js', {
+          integrity: 'sha384-CI3ELBVUz9XQO+97x6nwMDPosPR5XvsxW2ua7N1Xeygeh1IxtgqtCkGfQY9WWdHu',
+          crossorigin: 'anonymous'
+        }).then(function () {
+          return loadScript('assets/js/neural-background.js?v=2');
+        }).catch(function () { /* no THREE available — page works fine without the bg */ });
+      } else if (window.__bgMode === 'lite') {
+        loadScript('assets/js/neural-lite.js?v=1').catch(function () {});
+      }
+      /* 'off': #neural-bg-canvas simply never gets a renderer. The
+         existing .fog-vignette and .paper-grain layers (already present,
+         already near-zero cost) remain the sole atmosphere — a
+         deliberate, honest degrade, not a broken page. */
 
-      loadScript('https://cdn.jsdelivr.net/npm/@mojs/core@1.7.1/dist/mo.umd.min.js').catch(function () {});
-      loadScript('https://cdn.jsdelivr.net/npm/splitting@1.1.0/dist/splitting.min.js').catch(function () {});
+      loadScript('https://cdn.jsdelivr.net/npm/@mojs/core@1.7.1/dist/mo.umd.min.js', {
+        integrity: 'sha384-mhL8ajiHMuHLBYm4rYiotXHCRSc7BS9whyLA8g0dbVemOdYfZd14yGJa/riwFW0M', crossorigin: 'anonymous'
+      }).catch(function () {});
+      loadScript('https://cdn.jsdelivr.net/npm/splitting@1.1.0/dist/splitting.min.js', {
+        integrity: 'sha384-4xKCEoe7sOCJeUwo9HheqN+yYVNglF+fjekGEZx4DcdgbJWToC2k5MgQ+6T9sfUT', crossorigin: 'anonymous'
+      }).catch(function () {});
     }
 
     if ('requestIdleCallback' in window) {

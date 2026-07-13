@@ -18,14 +18,6 @@
 
 @font-face {
   font-family: 'Switzer';
-  src: url('../fonts/Switzer-Italic.woff2') format('woff2');
-  font-weight: 400;
-  font-style: italic;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Switzer';
   src: url('../fonts/Switzer-Medium.woff2') format('woff2');
   font-weight: 500;
   font-style: normal;
@@ -220,10 +212,19 @@ body {
   line-height: 1.6;
   color: var(--ink);
   background-color: var(--paper);
+  /* Sediment-band texture (strata-field.svg — six contour lines + tick marks
+     in the site's existing survey/gold/olive/datum palette, tileable at
+     576x288) sits beneath the graph-paper grid. Gives the page a "field
+     survey core sample" floor instead of flat color, in the same visual
+     family as the footer illustration, at effectively zero decode/paint
+     cost (one small vector, no raster, no JS). */
   background-image:
     linear-gradient(90deg, rgba(26, 43, 60, 0.035) 1px, transparent 1px),
-    linear-gradient(0deg, rgba(26, 43, 60, 0.03) 1px, transparent 1px);
-  background-size: 72px 72px;
+    linear-gradient(0deg, rgba(26, 43, 60, 0.03) 1px, transparent 1px),
+    url('../img/strata-field.svg');
+  background-size: 72px 72px, 72px 72px, 576px 288px;
+  background-position: 0 0, 0 0, 0 0;
+  background-repeat: repeat, repeat, repeat;
   transition: background-color 0.6s ease, color 0.6s ease;
 }
 
@@ -231,7 +232,8 @@ body {
   body {
     background-image:
       linear-gradient(90deg, oklch(24% 0.044 248 / 0.035) 1px, transparent 1px),
-      linear-gradient(0deg, oklch(24% 0.044 248 / 0.03) 1px, transparent 1px);
+      linear-gradient(0deg, oklch(24% 0.044 248 / 0.03) 1px, transparent 1px),
+      url('../img/strata-field.svg');
   }
 }
 
@@ -239,7 +241,8 @@ body.is-dark {
   background-color: var(--dark-bg-solid);
   background-image:
     linear-gradient(90deg, rgba(244, 240, 232, 0.035) 1px, transparent 1px),
-    linear-gradient(0deg, rgba(244, 240, 232, 0.028) 1px, transparent 1px);
+    linear-gradient(0deg, rgba(244, 240, 232, 0.028) 1px, transparent 1px),
+    url('../img/strata-field.svg');
   color: var(--dark-ink);
 }
 
@@ -247,7 +250,8 @@ body.is-dark {
   body.is-dark {
     background-image:
       linear-gradient(90deg, oklch(94% 0.016 82 / 0.035) 1px, transparent 1px),
-      linear-gradient(0deg, oklch(94% 0.016 82 / 0.028) 1px, transparent 1px);
+      linear-gradient(0deg, oklch(94% 0.016 82 / 0.028) 1px, transparent 1px),
+      url('../img/strata-field.svg');
   }
 }
 
@@ -367,9 +371,11 @@ body.has-neural-depth #neural-bg-canvas {
   opacity: 1;
 }
 
-body.is-dark #neural-bg-canvas {
-  filter: brightness(1.85) contrast(1.18) saturate(1.3);
-}
+/* Dark-mode look is fully carried by the shader's darkness uniform
+   (see neural-background.js) — this filter was a second, redundant
+   full-screen composite pass on top of it. Removed after visual A/B
+   confirmed no perceptible difference (docs/superpowers/plans/
+   2026-07-12-adaptive-performance-mobile-optimization.md, Task 4.1). */
 
 .fog-vignette {
   position: fixed; inset: 0; z-index: var(--z-fog);
@@ -411,6 +417,14 @@ html.tier-low .paper-grain {
   z-index: -1;
   pointer-events: none;
 }
+
+/* The 1000vh spacer only exists to give the master ScrollTrigger room to
+   drive the depth-drill. Without the drill engine (no-JS, reduced-motion, or
+   touch/narrow) it would just be a huge blank trailing scroll region, so
+   collapse it. JS's initMobile() also zeroes it, but this covers the no-JS
+   desktop (>=768px) case where initMobile never runs — same opt-in pattern
+   as .strata/.stratum above. */
+html:not(.can-depth-drill) .scroll-spacer { height: 0; }
 
 /* Themed scrollbar */
 body::-webkit-scrollbar { width: 5px; }
@@ -509,7 +523,7 @@ body { scrollbar-width: thin; scrollbar-color: rgba(26, 43, 60, 0.12) transparen
   font-family: var(--font-mono);
   font-size: 0.55rem;
   letter-spacing: 0.06em;
-  color: rgba(26, 43, 60, 0.35);
+  color: rgba(26, 43, 60, 0.55); /* was 0.35 — failed WCAG AA against the paper background at this font-size */
   white-space: nowrap;
   transform: translateY(-50%);
   transition: color 0.3s ease, font-weight 0.3s ease;
@@ -528,34 +542,63 @@ body { scrollbar-width: thin; scrollbar-color: rgba(26, 43, 60, 0.12) transparen
 
 body.is-dark .depth-gauge__track { background: rgba(244, 240, 232, 0.08); }
 body.is-dark .depth-gauge__marker { border-color: var(--dark-bg); }
-body.is-dark .depth-gauge__label { color: rgba(244, 240, 232, 0.3); }
+body.is-dark .depth-gauge__label { color: rgba(244, 240, 232, 0.5); } /* was 0.3 — raised for WCAG AA contrast */
 body.is-dark .depth-gauge__label.is-active { color: var(--survey); }
 
 /* ═══════════════════════════════════════════════════════════ */
 /* STRATA — fixed overlay content layer                       */
 /* ═══════════════════════════════════════════════════════════ */
 
+/* Document-flow is the default for EVERY visitor — no-JS, reduced-motion,
+   and touch/narrow devices all land here with zero extra CSS. The fixed,
+   3D-perspective drill layout below only activates once html.can-depth-
+   drill is present, which script.js's synchronous head check (see
+   index.html) only ever adds for capable, motion-OK desktops. */
 .strata {
-  position: fixed; inset: 0;
+  position: relative;
   z-index: var(--z-content);
+  pointer-events: auto;
+}
+
+.stratum {
+  position: relative;
+  display: flex; align-items: center; justify-content: center;
+  padding: clamp(1.5rem, 4vw, 3.8rem);
+  padding-bottom: clamp(3.5rem, 6vh, 5rem);
+  pointer-events: auto;
+  opacity: 1;
+  transform: none;
+}
+
+html.can-depth-drill .strata {
+  position: fixed; inset: 0;
   perspective: 1200px;
   perspective-origin: 50% 50%;
   overflow: hidden;
   pointer-events: none;
 }
 
-.stratum {
+html.can-depth-drill .stratum {
   position: absolute; inset: 0;
-  display: flex; align-items: center; justify-content: center;
-  padding: clamp(1.5rem, 4vw, 3.8rem);
-  padding-bottom: clamp(3.5rem, 6vh, 5rem);
   pointer-events: none;
-  /* Initial state: deep in z-axis, invisible */
+  /* Initial state: deep in z-axis, invisible — script.js's boot() then
+     drives this via GSAP as the master ScrollTrigger progresses. */
   opacity: 0;
   transform: translateZ(-1500px) scale(0.5) rotateX(5deg);
 }
 
 .stratum.is-active {
+  pointer-events: auto;
+}
+
+/* In depth-drill mode the base rule `html.can-depth-drill .stratum` sets
+   pointer-events:none (so the stacked, inactive fixed overlays never
+   intercept the cursor). That selector's specificity (0,2,1) outranks a bare
+   `.stratum.is-active` (0,2,0), so without this higher-specificity re-enable
+   the ACTIVE stratum stays non-interactive — the hero flow field never sees
+   the cursor and in-stratum links/buttons aren't clickable. Match the base
+   rule's specificity + the extra class so the active section is hit-testable. */
+html.can-depth-drill .stratum.is-active {
   pointer-events: auto;
 }
 
@@ -932,11 +975,18 @@ body.is-dark .depth-gauge__label.is-active { color: var(--survey); }
   box-shadow: 0 18px 52px var(--ink-10);
 }
 
-.aerial-stage__base, .aerial-stage__sharp {
-  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+.aerial-stage--single-decode::before {
+  content: "";
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  background-image: var(--aerial-src);
+  background-size: cover;
+  background-position: center;
+  filter: blur(14px) saturate(0.7) brightness(0.85);
 }
-.aerial-stage__base { filter: blur(14px) saturate(0.7) brightness(0.85); }
-.aerial-stage__sharp { z-index: 2; clip-path: inset(28% 32% 38% 30%); }
+.aerial-stage__sharp {
+  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+  z-index: 2; clip-path: inset(28% 32% 38% 30%);
+}
 
 .aerial-stage__roi {
   position: absolute; inset: 0; z-index: 3; pointer-events: none;
@@ -2009,7 +2059,6 @@ body.is-dark .depth-gauge__label.is-active { color: var(--survey); }
   html { scroll-behavior: auto; }
   .hero__scroll-cue, .hero__scroll-cue svg { animation: none; }
   .loader { display: none; }
-  .stratum { opacity: 1 !important; transform: none !important; }
   .tline, .journey-era, .capability, .stat-card, .pipe-card { opacity: 1 !important; transform: none !important; }
   .capability .capability__tools li { opacity: 1 !important; }
   .journey-era__card { clip-path: none !important; }

@@ -32,13 +32,18 @@
      index.html <head> (window.__deviceTier), which this lazy-loaded module
      is always guaranteed to see already set by the time it runs. Falls back
      to the old local heuristic only if that script somehow never ran.
-     Only 'high' gets the full-quality path — live measurement on the actual
-     target laptop (an entry discrete GPU that still landed in 'med' after
-     the FPS governor's correction) showed 'med' still needs the reduced
-     settings; 'low' and 'med' both get them, 'high' is the exclusive
-     full-quality tier. */
+     isLowEnd is true only for tier === 'low' ('med' gets the reduced-but-
+     not-lowest settings elsewhere, e.g. maxPulses/pCount/frameInterval).
+     isLowEnd is read once here to bake antialias/powerPreference into the
+     WebGLRenderer constructor and again in resize() for setPixelRatio —
+     both are boot-frozen by design (a new GL context would be needed to
+     change them mid-session), so isLowEnd must NOT be reassigned by the
+     devicetierchange listener below; only the live-adjustable knobs
+     (frameInterval, smokeEnabled/smokeQuarterRes/smokeFrameSkip) react to
+     tier changes after boot. */
   var cores = navigator.hardwareConcurrency || 4;
-  var isLowEnd = window.__deviceTier ? window.__deviceTier !== 'high' : (cores <= 4 || isSmall);
+  var tier = window.__deviceTier || (cores <= 4 || isSmall ? 'low' : 'high');
+  var isLowEnd = tier === 'low'; // kept for the few genuinely binary knobs (antialias, powerPreference — see below)
 
   /* ═════════════════════════════════════════════════════════ */
   /* SCENE SETUP                                               */
@@ -132,7 +137,16 @@
      composite that texture as a full-screen overlay — noise detail doesn't
      need native resolution. Skipped entirely on isLowEnd (kept as a flat,
      static wash via the fallback below) since it's ambience, not content. */
-  var smokeEnabled = !isLowEnd;
+  /* Three real states instead of a binary skip: `low` drops the FBM smoke
+     pass entirely (it's ambience, not content — see the comment above).
+     `high` runs it every frame at half-canvas-res (existing behavior).
+     `med` now runs it too, just at half that resolution again and only
+     every other frame — same visual read (a slow drifting wash), a
+     fraction of the fill-rate cost. */
+  var smokeEnabled = tier !== 'low';
+  var smokeQuarterRes = tier === 'med';
+  var smokeFrameSkip = tier === 'med'; // update the smoke uniforms every 2nd frame only
+  var smokeFrameToggle = false;
   var smokeGeo = new THREE.PlaneGeometry(2, 2);
   var smokeMat = new THREE.ShaderMaterial({
     vertexShader: smokeVS, fragmentShader: smokeFS,
@@ -148,18 +162,37 @@
   var smokeCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 2);
   smokeCamera.position.z = 1;
 
-  var smokeRT = smokeEnabled
-    ? new THREE.WebGLRenderTarget(2, 2, { depthBuffer: false, stencilBuffer: false })
-    : null;
+  /* Always allocated (this module only loads in webgl bgMode — a capable
+     device), so a live tier RECOVERY can re-enable smoke even if the module
+     happened to initialize during a transient 'low' tier reading. It's just
+     a small offscreen target; whether we actually render into it each frame
+     is gated by smokeEnabled below, so a device that stays 'low' pays no
+     per-frame smoke cost. */
+  var smokeRT = new THREE.WebGLRenderTarget(2, 2, { depthBuffer: false, stencilBuffer: false });
 
   /* Full-screen overlay quad that composites smokeRT's texture on top of the
      already-rendered network scene, in a second render pass (autoClear:false)
      — reproduces the original "smoke drawn over the network" layering without
      paying full-resolution shader cost. */
   var overlayScene = new THREE.Scene();
+  /* The smoke is rendered into smokeRT (cleared to transparent black) with the
+     shader's default NormalBlending, so its texels come out PREMULTIPLIED
+     (rgb already scaled by the fragment's own alpha, e.g. light 0.94 * 0.45 ≈
+     0.42). Compositing that texture back over the scene must therefore use a
+     premultiplied-over blend (src*1 + dst*(1-srcAlpha)). The old default
+     (straight-alpha NormalBlending, src*srcAlpha + dst*(1-srcAlpha)) multiplied
+     the already-premultiplied rgb by alpha a SECOND time, collapsing the light
+     0.42 haze to ~0.19 — a mid-grey film over the whole page ("random dark film
+     on load"). CustomBlending with OneFactor / OneMinusSrcAlphaFactor is the
+     correct premultiplied composite and keeps the smoke reading as a light
+     wash. Verified: open-background luminance 195 (veil) -> 232 (paper). */
   var overlayMat = new THREE.MeshBasicMaterial({
     transparent: true, depthWrite: false, depthTest: false,
-    map: smokeEnabled ? smokeRT.texture : null,
+    map: smokeRT.texture,
+    blending: THREE.CustomBlending,
+    blendEquation: THREE.AddEquation,
+    blendSrc: THREE.OneFactor,
+    blendDst: THREE.OneMinusSrcAlphaFactor,
   });
   var overlayMesh = new THREE.Mesh(smokeGeo, overlayMat);
   overlayScene.add(overlayMesh);
@@ -374,7 +407,7 @@
   /* PULSES — InstancedMesh                                    */
   /* ═════════════════════════════════════════════════════════ */
 
-  var maxPulses = isLowEnd ? 8 : 18;
+  var maxPulses = tier === 'low' ? 8 : tier === 'med' ? 13 : 18;
   var paletteValues = Object.values(colorPalette);
   /* White base so setColorAt can apply palette colors per pulse */
   var pulseMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.9, depthWrite: false, fog: true });
@@ -396,7 +429,7 @@
   /* PARTICLES                                                 */
   /* ═════════════════════════════════════════════════════════ */
 
-  var pCount = isLowEnd ? 80 : 250;
+  var pCount = tier === 'low' ? 80 : tier === 'med' ? 160 : 250;
   var pPos = new Float32Array(pCount * 3);
   for (var pp = 0; pp < pPos.length; pp++) pPos[pp] = (Math.random() - 0.5) * 50;
   var pGeo = new THREE.BufferGeometry();
@@ -404,6 +437,9 @@
   var particles = new THREE.Points(pGeo, new THREE.PointsMaterial({
     size: 0.04, color: 0x968D7B, transparent: true, opacity: 0.75, depthWrite: false, fog: true,
   }));
+  /* Base hue for the per-section hueShift nudge (see SEGMENT_MOTION). Copied
+     from — never mutated in place — so the offset can't accumulate. */
+  var particlesBaseColor = particles.material.color.clone();
   scene.add(particles);
 
   /* Network tilt */
@@ -429,11 +465,28 @@
     if (!sec) return null;
     return {
       id: sec.id,
+      seg: sec.seg || null,
       start: Number(sec.start),
       end: Number(sec.end),
       atmosphereDark: !!sec.atmosphereDark,
       dark: !!sec.dark,
     };
+  }
+
+  /* One entry per project segment already used elsewhere in the app
+     (perception/training/infra/interface — see SECTIONS in script.js).
+     driftMul scales the existing particle rotation speed
+     (particles.rotation.y -= 0.0006 * driftMul); hueShift nudges the
+     ambient particle material's hue via offsetHSL, copied fresh from a
+     stored base each frame so it never accumulates or replaces the palette. */
+  var SEGMENT_MOTION = {
+    perception:     { driftMul: 1.3, hueShift: 0.00 },  // faster drift — scanning/ROI-tightening read
+    training:       { driftMul: 0.6, hueShift: 0.04 },  // slower, denser — internal system state
+    infra:          { driftMul: 1.0, hueShift: -0.03 }, // baseline — structured flow
+    interface:      { driftMul: 0.85, hueShift: 0.02 }, // observable, user-facing
+  };
+  function segmentMotion(seg) {
+    return SEGMENT_MOTION[seg] || { driftMul: 1, hueShift: 0 };
   }
 
   window.__neuralSetSections = function (sections) {
@@ -469,7 +522,7 @@
          resolution, then upscaled by the GPU when composited — the FBM
          noise has no fine detail that benefits from full res.
          uRes only changes on resize — set it here, not every frame in tick(). */
-      var rtDpr = Math.min(window.devicePixelRatio || 1, 2) * 0.5;
+      var rtDpr = Math.min(window.devicePixelRatio || 1, 2) * (smokeQuarterRes ? 0.25 : 0.5);
       var rtW = Math.max(2, Math.round(viewW * rtDpr));
       var rtH = Math.max(2, Math.round(viewH * rtDpr));
       smokeRT.setSize(rtW, rtH);
@@ -530,7 +583,29 @@
   var rafId = 0;
   var useGsapTicker = !!(window.gsap && window.gsap.ticker);
   var lastRender = 0;
-  var frameInterval = isLowEnd ? 33 : 16;
+  var frameInterval = tier === 'low' ? 33 : tier === 'med' ? 20 : 16; // ~30 / ~50 / ~60fps caps
+
+  /* Live-adjustable on a devicetierchange event, without recreating the
+     WebGL context: render cadence and smoke cost. NOT live-adjustable:
+     particle/pulse instance counts (baked into fixed-size THREE.js
+     geometry at init) and antialias/DPR (require a new context) — those
+     stay pinned to the tier this module booted with. A mid-session
+     downgrade still meaningfully reduces cost via cadence + smoke alone. */
+  function handleDeviceTierChange(e) {
+    var t = e.detail && e.detail.tier;
+    if (!t) return;
+    tier = t;
+    frameInterval = tier === 'low' ? 33 : tier === 'med' ? 20 : 16;
+    smokeEnabled = tier !== 'low';
+    smokeQuarterRes = tier === 'med';
+    smokeFrameSkip = tier === 'med';
+    /* Re-run resize() so the smoke render target is (re)sized for the new
+       state: it applies the new smokeQuarterRes resolution, and — critically —
+       sizes the target the first time smoke turns on after booting in 'low'
+       (the setSize call lives behind `if (smokeEnabled)` in resize()). */
+    resize();
+  }
+  window.addEventListener('devicetierchange', handleDeviceTierChange);
 
   function tick(now) {
     if (!running) return;
@@ -592,9 +667,12 @@
     });
     if (pulseNeedsUpdate) pulseInstanced.instanceMatrix.needsUpdate = true;
 
-    /* Particles */
-    particles.rotation.y -= 0.0006;
-    particles.rotation.x += 0.0002;
+    /* Particles — drift speed and ambient hue react to the active section's
+       discipline (seg), riding on top of the existing dark/light fade. */
+    var motion = segmentMotion(activeSection && activeSection.seg);
+    particles.rotation.y -= 0.0006 * motion.driftMul;
+    particles.rotation.x += 0.0002 * motion.driftMul;
+    particles.material.color.copy(particlesBaseColor).offsetHSL(motion.hueShift, 0, 0);
 
     renderer.render(scene, camera);
 
@@ -602,15 +680,20 @@
        then composited over the main scene at canvas resolution. Skipped
        entirely on isLowEnd (see smokeEnabled above). */
     if (smokeEnabled) {
-      smokeMat.uniforms.uTime.value = now * 0.001;
-      smokeMat.uniforms.uMouse.value.copy(shaderMouse);
-      smokeMat.uniforms.uScroll.value = scrollProgress;
+      smokeFrameToggle = !smokeFrameToggle;
+      if (!smokeFrameSkip || smokeFrameToggle) {
+        smokeMat.uniforms.uTime.value = now * 0.001;
+        smokeMat.uniforms.uMouse.value.copy(shaderMouse);
+        smokeMat.uniforms.uScroll.value = scrollProgress;
 
-      renderer.setRenderTarget(smokeRT);
-      renderer.clear();
-      renderer.render(smokeScene, smokeCamera);
-      renderer.setRenderTarget(null);
-
+        renderer.setRenderTarget(smokeRT);
+        renderer.clear();
+        renderer.render(smokeScene, smokeCamera);
+        renderer.setRenderTarget(null);
+      }
+      /* Composite every frame even on the skipped-update frames — the
+         render target still holds last frame's texture, so this reuses
+         it instead of leaving a blank gap. */
       renderer.autoClear = false;
       renderer.render(overlayScene, smokeCamera);
       renderer.autoClear = true;
@@ -653,6 +736,8 @@
       resizeRafId = 0;
     }
     window.removeEventListener('resize', scheduleResize);
+    window.removeEventListener('devicetierchange', handleDeviceTierChange);
+    document.removeEventListener('visibilitychange', handleVisibilityChange);
     scene.traverse(disposeObject);
     smokeScene.traverse(disposeObject);
     overlayScene.traverse(disposeObject);
@@ -678,6 +763,7 @@
   start();
 
   window.addEventListener('resize', scheduleResize, { passive: true });
-  document.addEventListener('visibilitychange', function () { if (document.hidden) stop(); else start(); });
+  function handleVisibilityChange() { if (document.hidden) stop(); else start(); }
+  document.addEventListener('visibilitychange', handleVisibilityChange);
   window.addEventListener('pagehide', dispose, { once: true });
 })();

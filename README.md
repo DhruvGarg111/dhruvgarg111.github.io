@@ -19,6 +19,8 @@ The contact background keeps `assets/img/footer.jpg` as the source image and ser
 - `assets/img/footer-1920.webp`
 - `assets/img/footer-1920.jpg`
 
+> Note: the original `footer.jpg` source file is not currently in the working tree — it exists in git history only. Restore it from history before re-running the regeneration command below, or treat `footer-1920.jpg`/`.webp` as the canonical assets going forward.
+
 Regenerate those variants with Pillow:
 
 ```bash

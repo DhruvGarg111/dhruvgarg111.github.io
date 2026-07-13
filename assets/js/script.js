@@ -15,7 +15,11 @@
   var rmQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
   var prefersRM = rmQuery.matches;
   try { rmQuery.addEventListener('change', function (e) { prefersRM = e.matches; }); } catch (e) { /* Safari < 14 */ }
-  var isDesktop = window.matchMedia('(min-width: 768px)').matches;
+  /* Single source of truth with the html.can-depth-drill class set
+     synchronously in index.html's <head> — see that file's capability
+     script. Do not recompute this independently; that's what caused
+     the reduced-motion/no-JS overlap bug this replaces. */
+  var isDesktop = !!window.__canDepthDrill;
 
   /* ─── Shortcuts ─── */
   function $(s, r) { return (r || document).querySelector(s); }
@@ -57,6 +61,32 @@
     sectionById[sec.id] = sec;
   });
 
+  /* ─── Stratum asset prefetch ───
+     Every .stratum sits inset:0 inside a position:fixed container once
+     can-depth-drill is active, so all panels are permanently "in the
+     viewport" by bounding box regardless of opacity/3D transform —
+     loading="lazy"'s intersection heuristic never gets a meaningful
+     signal here. Prefetch explicitly instead, keyed to the section
+     index updateSections() already tracks. */
+  var STRATUM_IMAGES = {
+    perception: ['assets/img/hero-aerial-800.jpg', 'assets/img/searchlight.svg'],
+    training: ['assets/img/neural_canvas.svg'],
+    infrastructure: ['assets/img/pixelqueue.svg'],
+    interface: ['assets/img/pygog.svg'],
+  };
+  var prefetched = {};
+  function prefetchStratum(id) {
+    if (!id || prefetched[id]) return;
+    var srcs = STRATUM_IMAGES[id];
+    if (!srcs) return;
+    prefetched[id] = true;
+    srcs.forEach(function (src) {
+      var img = new Image();
+      img.decoding = 'async';
+      img.src = src;
+    });
+  }
+
   var currentSection = -1;
   var announcedSectionId = null;
   var scrollVelocity = 0;
@@ -73,6 +103,20 @@
   var isDragging = false;
   var scrollTriggerInstance = null;
   var activeTweens = [];
+
+  /* Normal scroll updates and direct depth-gauge interactions use different
+     paths. Keep the slider's numeric and spoken values in one shared writer
+     so assistive technology never receives a percentage with a stale label. */
+  function updateDepthGaugeAria(progress) {
+    var track = els.depthGaugeTrack;
+    if (!track) return;
+    track.setAttribute('aria-valuenow', Math.round(progress * 100));
+    var sec = SECTIONS[currentSection] || SECTIONS[0];
+    track.setAttribute(
+      'aria-valuetext',
+      sec.depth.replace('m', '') + ' metres, ' + sec.label + ', ' + (sec.index + 1) + ' of ' + SECTIONS.length
+    );
+  }
 
   /* ─── Element Cache ─── */
   var els = {};
@@ -274,6 +318,13 @@
       if (newSection >= 0) {
         var sec = SECTIONS[newSection];
 
+        /* Prefetch current + next + prev section images ahead of arrival */
+        prefetchStratum(sec.id);
+        var nextSec = SECTIONS[newSection + 1];
+        var prevSec = SECTIONS[newSection - 1];
+        if (nextSec) prefetchStratum(nextSec.id);
+        if (prevSec) prefetchStratum(prevSec.id);
+
         /* Dark mode */
         document.body.classList.toggle('is-dark', sec.dark);
 
@@ -312,9 +363,23 @@
   }
 
   /* Clear mo.js container after transition */
+  var activeTransitionTl = null;
+
   function clearFx() {
     var fx = $('#transition-fx');
     if (fx) fx.innerHTML = '';
+    /* Dark-section transitions (idx 2/4) raise #transition-layer to a 0.85
+       opaque navy fill mid-timeline and rely on the SAME timeline's tail to
+       fade it back to 0. If that timeline is interrupted (a rapid multi-
+       section sweep, e.g. a restored-scroll reload), the layer would stay
+       stuck as a full-viewport dark veil — and triggeredSections prevents it
+       from ever re-running to clean up. Kill any in-flight transition and
+       force the layer back to a clean, invisible state so it can never stick. */
+    if (activeTransitionTl) { activeTransitionTl.kill(); activeTransitionTl = null; }
+    if (typeof gsap !== 'undefined') {
+      var layer = $('#transition-layer');
+      if (layer) gsap.set(layer, { opacity: 0, clipPath: 'none', background: 'transparent' });
+    }
   }
 
   function withWillChange(targets, props, tween) {
@@ -390,6 +455,9 @@
     var tl = gsap.timeline({
       onComplete: function () { clearFx(); }
     });
+    /* Track the in-flight transition so a subsequent section change (which
+       calls clearFx first) can kill it and reset the layer — see clearFx. */
+    activeTransitionTl = tl;
 
     /* ── idx 1: Perception — Surface Penetration ── */
     if (idx === 1) {
@@ -1052,6 +1120,13 @@
 
     function updateAria(progress) {
       track.setAttribute('aria-valuenow', Math.round(progress * 100));
+      /* aria-valuetext gives screen-reader users the depth/section context a
+         bare percentage can't — e.g. "2400 metres, Training, 3 of 9". */
+      var sec = SECTIONS[currentSection] || SECTIONS[0];
+      track.setAttribute(
+        'aria-valuetext',
+        sec.depth.replace('m', '') + ' metres, ' + sec.label + ', ' + (sec.index + 1) + ' of ' + SECTIONS.length
+      );
     }
 
     /* ── Click on track (jump to position) ── */
@@ -1170,7 +1245,14 @@
   function initKeyboard() {
     if (!isDesktop) return;
     document.addEventListener('keydown', function (e) {
-      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+      /* Don't hijack digit keys while focus is on an interactive/editable
+         element — a user typing in a field or activating a link/button
+         shouldn't trigger a section jump. */
+      var active = document.activeElement;
+      var tag = active && active.tagName;
+      if (active && (active.isContentEditable || tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'BUTTON' || tag === 'A' || tag === 'SELECT')) {
+        return;
+      }
       var key = parseInt(e.key, 10);
       if (key >= 1 && key <= SECTIONS.length) {
         e.preventDefault();
@@ -1209,6 +1291,21 @@
     gsap.registerPlugin(ScrollTrigger);
     gsap.ticker.lagSmoothing(500, 33);
 
+    /* ScrollTrigger's _refreshAll forces history.scrollRestoration back to
+       'auto' on every refresh (so it can programmatically scroll during
+       measurement), which silently undoes the 'manual' we set in start().
+       Re-assert 'manual' after each refresh so a reload can never restore a
+       deep scroll and boot the depth engine mid-way through the dark strata
+       (the "random dark film on load"). Don't scrollTo here — that would
+       fight legitimate resize refreshes; the one-time top reset lives in
+       start(). */
+    if ('scrollRestoration' in history) {
+      history.scrollRestoration = 'manual';
+      ScrollTrigger.addEventListener('refresh', function () {
+        history.scrollRestoration = 'manual';
+      });
+    }
+
     var spacer = $('#scroll-spacer');
     if (!spacer) return;
 
@@ -1235,10 +1332,8 @@
         updateHud(lastProgress);
         updateScrollCue(lastProgress);
 
-        /* Keep the slider's reported value in sync for assistive tech */
-        if (els.depthGaugeTrack) {
-          els.depthGaugeTrack.setAttribute('aria-valuenow', Math.round(lastProgress * 100));
-        }
+        /* Keep the slider's percentage and section narration in sync. */
+        updateDepthGaugeAria(lastProgress);
 
         /* Pass to neural background */
         pushSectionToBackground(lastProgress);
@@ -1298,8 +1393,14 @@
   /* MOBILE FALLBACK                                           */
   /* ═════════════════════════════════════════════════════════ */
 
-  function initMobile() {
-    if (isDesktop) return;
+  function initMobile(forceLinearFlow) {
+    if (isDesktop && !forceLinearFlow) return;
+    if (forceLinearFlow) {
+      /* A capable viewport still needs readable document flow when the
+         external depth-engine dependency is unavailable. The CSS contract is
+         keyed by this class, so remove it before revealing all strata. */
+      document.documentElement.classList.remove('can-depth-drill');
+    }
     document.body.classList.add('is-mobile-flow');
     document.body.classList.remove('is-desktop-depth');
 
@@ -1342,7 +1443,8 @@
     cacheElements();
     refreshCssVars();
     document.body.classList.add('is-ready');
-    if (isDesktop) {
+    var canRunDepthEngine = isDesktop && typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined';
+    if (canRunDepthEngine) {
       document.body.classList.add('is-desktop-depth');
       document.body.classList.remove('is-mobile-flow');
     }
@@ -1354,9 +1456,9 @@
 
     initHero();
 
-    initKeyboard();
+    if (canRunDepthEngine) initKeyboard();
 
-    if (isDesktop) {
+    if (canRunDepthEngine) {
       buildSectionTimelines();
       initScrollEngine();
       initDepthGaugeDrag();
@@ -1367,18 +1469,29 @@
       updateHud(0);
       pushSectionToBackground(0);
     } else {
-      initMobile();
+      initMobile(true);
     }
   }
 
   function initBreakpointReload() {
-    var mq = window.matchMedia('(min-width: 768px)');
-    var initialDesktop = mq.matches;
+    /* Deliberately does NOT include min-height — a mobile on-screen
+       keyboard opening shrinks the visual viewport's height by 40-50%,
+       which would otherwise flip this query and force a reload mid-
+       keystroke. Width + pointer/hover capability are stable across a
+       keyboard opening; those are what actually determine whether the
+       depth-drill engine should be running. */
+    var mq = window.matchMedia('(min-width: 768px) and (any-pointer: fine) and (any-hover: hover)');
+    var initialCapable = mq.matches;
+    var pending = null;
 
     function handleBreakpointChange(e) {
-      if (e.matches !== initialDesktop) {
-        window.location.reload();
-      }
+      if (e.matches === initialCapable) return;
+      if (pending) clearTimeout(pending);
+      /* Debounce: a resize storm (window drag, devtools panel toggle)
+         fires many events in a row — only act once it settles. */
+      pending = setTimeout(function () {
+        if (mq.matches !== initialCapable) window.location.reload();
+      }, 400);
     }
 
     try {
@@ -1453,6 +1566,18 @@
   }
 
   function start() {
+    /* The depth engine hijacks a 1000vh spacer: scroll position IS section
+       progress. With the browser's default scrollRestoration ('auto'), a
+       reload restores the previous deep scroll, so ScrollTrigger boots mid-
+       way and sweeps through the dark strata (training/interface) on the way
+       back — flashing the dark atmosphere at the surface ("random dark film
+       on load"). Force every depth-drill load to start at the hero (0m,
+       light). Document-flow/mobile keeps native restore (a normal page). */
+    if (window.__canDepthDrill && 'scrollRestoration' in history) {
+      history.scrollRestoration = 'manual';
+      window.scrollTo(0, 0);
+    }
+
     initBreakpointReload();
     var hideLoader = initLoader();
 
@@ -1463,8 +1588,9 @@
 
     if (typeof gsap === 'undefined') {
       document.body.classList.add('is-ready');
-      document.body.classList.toggle('is-mobile-flow', !isDesktop);
-      document.body.classList.toggle('is-desktop-depth', isDesktop);
+      document.documentElement.classList.remove('can-depth-drill');
+      document.body.classList.add('is-mobile-flow');
+      document.body.classList.remove('is-desktop-depth');
       cacheElements();
       refreshCssVars();
       /* Static fallback */

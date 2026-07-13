@@ -29,6 +29,21 @@
   var deviceTier = window.__deviceTier || 'med';
   var hwMaxParticles = deviceTier === 'low' ? 260 : (deviceTier === 'med' ? 420 : 760);
 
+  /* devicetierchange fires after this module's already built its particle
+     pool from the boot-time tier. config.maxParticles is only consulted
+     inside buildParticles() (at resize() time, which early-returns if W/H
+     haven't changed) — it isn't read per-frame — so a live tier drop needs
+     an explicit buildParticles() call here, not just a config write, or
+     the pool silently stays at its original size. */
+  function handleDeviceTierChange(e) {
+    var t = e.detail && e.detail.tier;
+    if (!t) return;
+    hwMaxParticles = t === 'low' ? 260 : (t === 'med' ? 420 : 760);
+    config.maxParticles = hwMaxParticles;
+    buildParticles();
+  }
+  window.addEventListener('devicetierchange', handleDeviceTierChange);
+
   var config = {
     density: 373,        // px² per particle (lower = more particles) — ~10% denser
     minParticles: 220,
@@ -514,6 +529,9 @@
 
   window.addEventListener('pagehide', function () {
     stopLoop();
+    window.removeEventListener('devicetierchange', handleDeviceTierChange);
+    window.removeEventListener('resize', scheduleResize);
+    window.removeEventListener('scroll', scheduleRectRefresh);
     if (resizeRaf) {
       cancelAnimationFrame(resizeRaf);
       resizeRaf = 0;

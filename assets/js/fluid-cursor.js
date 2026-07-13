@@ -114,6 +114,12 @@
   }
 
   function Particle(x, y, vx, vy, color, type) {
+    this.reset(x, y, vx, vy, color, type);
+  }
+
+  // Same body the constructor used to have — reused by acquireParticle() to
+  // reinitialize a pooled instance in place instead of allocating a new one.
+  Particle.prototype.reset = function (x, y, vx, vy, color, type) {
     this.x = x;
     this.y = y;
     this.vx = vx;
@@ -134,6 +140,26 @@
     }
     this.angle = Math.random() * Math.PI * 2;
     this.rotSpeed = (Math.random() - 0.5) * 0.02;
+  };
+
+  // Fixed-size object pool: reuses Particle instances round-robin instead of
+  // allocating a fresh one on every spawn (continuous minor-GC pressure on
+  // desktop during mouse movement). POOL_SIZE (40) stays comfortably above
+  // config.maxParticles (30) so a pool slot is never reset while its
+  // occupant is still referenced by the live `particles` render list.
+  var POOL_SIZE = 40;
+  var pool = [];
+  var poolPtr = 0;
+  function acquireParticle(x, y, vx, vy, color, type) {
+    var p = pool[poolPtr];
+    if (!p) {
+      p = new Particle(x, y, vx, vy, color, type);
+      pool[poolPtr] = p;
+    } else {
+      p.reset(x, y, vx, vy, color, type);
+    }
+    poolPtr = (poolPtr + 1) % POOL_SIZE;
+    return p;
   }
 
   Particle.prototype.update = function (dt, now) {
@@ -204,7 +230,7 @@
       var vy = Math.sin(angle) * speed;
       var color = palette[Math.floor(Math.random() * palette.length)];
       var type = (Math.random() < 0.08) ? 'bbox' : 'node';
-      particles.push(new Particle(x, y, vx, vy, color, type));
+      particles.push(acquireParticle(x, y, vx, vy, color, type));
     }
     if (particles.length > config.maxParticles) {
       particles.splice(0, particles.length - config.maxParticles);
@@ -246,14 +272,16 @@
       var color = palette[Math.floor(Math.random() * palette.length)];
       
       // Spawn standard node
-      particles.push(new Particle(mouse.x, mouse.y, vx, vy, color, 'node'));
-      
+      particles.push(acquireParticle(mouse.x, mouse.y, vx, vy, color, 'node'));
+
       // If moving rapidly, spawn a bounding box
       if (dist > 15 && Math.random() < 0.25) {
-        particles.push(new Particle(mouse.x, mouse.y, vx * 0.4, vy * 0.4, theme.bbox, 'bbox'));
+        particles.push(acquireParticle(mouse.x, mouse.y, vx * 0.4, vy * 0.4, theme.bbox, 'bbox'));
       }
-      
-      if (particles.length > config.maxParticles) {
+
+      // while (not if): up to 2 particles can be pushed above in one call, and
+      // pooled slots must never be reused while still referenced by `particles`.
+      while (particles.length > config.maxParticles) {
         particles.shift();
       }
     }
@@ -300,7 +328,7 @@
       var theme = frameTheme || readTheme();
       var palette = theme.palette;
       var color = palette[Math.floor(Math.random() * palette.length)];
-      particles.push(new Particle(mouse.x, mouse.y, dx * 0.12, dy * 0.12, color, 'node'));
+      particles.push(acquireParticle(mouse.x, mouse.y, dx * 0.12, dy * 0.12, color, 'node'));
       if (particles.length > config.maxParticles) {
         particles.shift();
       }
