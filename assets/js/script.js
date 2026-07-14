@@ -28,6 +28,13 @@
   function lerp(a, b, t) { return a + (b - a) * t; }
   function mapRange(v, inLo, inHi, outLo, outHi) { return outLo + ((v - inLo) / (inHi - inLo)) * (outHi - outLo); }
 
+  /* ─── Motion constants ───
+     Shared easing + stagger so transition-effect call sites reference one
+     name instead of scattering raw strings. GSAP's ease-out equivalent of
+     the CSS --ease-out token. */
+  var EASE = Object.freeze({ out: 'power3.out' });
+  var STAGGER = Object.freeze({ label: 0.03 });   // 30ms label-reveal stagger
+
   /* Toggle aria-hidden + inert together (with legacy-attribute fallback) */
   function setInert(el, on) {
     if (on) {
@@ -489,17 +496,17 @@
 
       var lbl1 = animateLabel(label, labelText,
         { opacity: 0, y: 12 },
-        { opacity: 1, y: 0, duration: 0.2, stagger: 0.025, ease: 'power2.out' }
+        { opacity: 1, y: 0, duration: 0.2, stagger: STAGGER.label, ease: 'power2.out' }
       );
       if (lbl1) tl.add(lbl1, 0.1);
 
-      tl.to(layer, { clipPath: 'inset(50% 0 50% 0)', duration: 0.22, ease: 'power3.in' }, 0.35);
+      tl.to(layer, { clipPath: 'inset(50% 0 50% 0)', duration: 0.22, ease: EASE.out }, 0.35);
       tl.set(layer, { opacity: 0, clipPath: 'inset(50% 0 50% 0)' });
 
     /* ── idx 2: Training — Stratum Fracture ── */
     } else if (idx === 2) {
       tl.set(layer, { opacity: 0, background: 'oklch(12% 0.03 250)' });
-      tl.to(layer, { opacity: 0.85, duration: 0.12, ease: 'power4.in' });
+      tl.to(layer, { opacity: 0.85, duration: 0.12, ease: EASE.out });
 
       if (cracks) {
         tl.set(cracks, { opacity: 1 }, 0.02);
@@ -527,7 +534,7 @@
 
       var lbl2 = animateLabel(label, labelText,
         { opacity: 0, x: 4 },
-        { opacity: 1, x: 0, duration: 0.15, stagger: 0.02, ease: 'power2.out' }
+        { opacity: 1, x: 0, duration: 0.15, stagger: STAGGER.label, ease: 'power2.out' }
       );
       if (lbl2) tl.add(lbl2, 0.1);
 
@@ -569,17 +576,17 @@
 
       var lbl3 = animateLabel(label, labelText,
         { opacity: 0, filter: 'blur(8px)' },
-        { opacity: 1, filter: 'blur(0px)', duration: 0.2, stagger: 0.02, ease: 'power2.out' }
+        { opacity: 1, filter: 'blur(0px)', duration: 0.2, stagger: STAGGER.label, ease: 'power2.out' }
       );
       if (lbl3) tl.add(lbl3, 0.1);
 
-      tl.to(layer, { clipPath: 'inset(50% 0 50% 0)', duration: 0.22, ease: 'power3.in' }, 0.35);
+      tl.to(layer, { clipPath: 'inset(50% 0 50% 0)', duration: 0.22, ease: EASE.out }, 0.35);
       tl.set(layer, { opacity: 0, clipPath: 'inset(50% 0 50% 0)' });
 
     /* ── idx 4: Interface — Tectonic Shift ── */
     } else if (idx === 4) {
       tl.set(layer, { opacity: 0, background: 'oklch(12% 0.03 250)' });
-      tl.to(layer, { opacity: 0.85, duration: 0.12, ease: 'power4.in' });
+      tl.to(layer, { opacity: 0.85, duration: 0.12, ease: EASE.out });
 
       if (hasMo && fx) {
         var burst4 = new mo.Burst({
@@ -605,7 +612,7 @@
 
       var lbl4 = animateLabel(label, labelText,
         { opacity: 0, x: -15 },
-        { opacity: 1, x: 0, duration: 0.2, stagger: 0.02, ease: 'power3.out' }
+        { opacity: 1, x: 0, duration: 0.2, stagger: STAGGER.label, ease: 'power3.out' }
       );
       if (lbl4) tl.add(lbl4, 0.1);
 
@@ -648,11 +655,11 @@
 
       var lbl5 = animateLabel(label, labelText,
         { opacity: 0, y: -15 },
-        { opacity: 1, y: 0, duration: 0.2, stagger: 0.02, ease: 'power3.out' }
+        { opacity: 1, y: 0, duration: 0.2, stagger: STAGGER.label, ease: 'power3.out' }
       );
       if (lbl5) tl.add(lbl5, 0.05);
 
-      tl.to(layer, { clipPath: 'circle(120% at 50% 50%)', opacity: 0, duration: 0.2, ease: 'power2.in' }, 0.32);
+      tl.to(layer, { clipPath: 'circle(120% at 50% 50%)', opacity: 0, duration: 0.2, ease: EASE.out }, 0.32);
 
     /* ── idx 6: Skills — Mineral Bloom ── */
     } else if (idx === 6) {
@@ -684,12 +691,12 @@
       }
 
       var lbl6 = animateLabel(label, labelText,
-        { opacity: 0, scale: 0 },
-        { opacity: 1, scale: 1, duration: 0.25, stagger: 0.02, ease: 'back.out(2)' }
+        { opacity: 0, scale: 0.92 },
+        { opacity: 1, scale: 1, duration: 0.25, stagger: STAGGER.label, ease: 'back.out(2)' }
       );
       if (lbl6) tl.add(lbl6, 0.05);
 
-      tl.to(layer, { clipPath: 'circle(120% at 50% 50%)', opacity: 0, duration: 0.2, ease: 'power2.in' }, 0.32);
+      tl.to(layer, { clipPath: 'circle(120% at 50% 50%)', opacity: 0, duration: 0.2, ease: EASE.out }, 0.32);
 
     /* ── idx 7: Proof — Verification Pulse ── */
     } else if (idx === 7) {
@@ -730,12 +737,12 @@
       }
 
       var lbl7 = animateLabel(label, labelText,
-        { opacity: 0, scale: 0.5 },
-        { opacity: 1, scale: 1, duration: 0.25, stagger: 0.02, ease: 'elastic.out(1, 0.5)' }
+        { opacity: 0, scale: 0.94 },
+        { opacity: 1, scale: 1, duration: 0.25, stagger: STAGGER.label, ease: 'elastic.out(1, 0.5)' }
       );
       if (lbl7) tl.add(lbl7, 0.05);
 
-      tl.to(layer, { clipPath: 'circle(120% at 50% 50%)', opacity: 0, duration: 0.2, ease: 'power2.in' }, 0.32);
+      tl.to(layer, { clipPath: 'circle(120% at 50% 50%)', opacity: 0, duration: 0.2, ease: EASE.out }, 0.32);
 
     /* ── idx 8: Contact — Core Breach ── */
     } else if (idx === 8) {
@@ -778,12 +785,12 @@
       }
 
       var lbl8 = animateLabel(label, labelText,
-        { opacity: 0, scale: 3, rotation: -12 },
-        { opacity: 1, scale: 1, rotation: 0, duration: 0.3, stagger: 0.015, ease: 'back.out(3)' }
+        { opacity: 0, scale: 1.25, rotation: -12 },
+        { opacity: 1, scale: 1, rotation: 0, duration: 0.3, stagger: STAGGER.label, ease: 'back.out(3)' }
       );
       if (lbl8) tl.add(lbl8, 0.1);
 
-      tl.to(layer, { opacity: 0, duration: 0.3, ease: 'power3.in' }, 0.5);
+      tl.to(layer, { opacity: 0, duration: 0.3, ease: EASE.out }, 0.5);
     }
     /* idx === 0: no transition (initial load) */
   }

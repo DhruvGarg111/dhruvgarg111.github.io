@@ -118,6 +118,8 @@
   --font-mono: "Martian Mono", ui-monospace, monospace;
 
   --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);        /* strong ease-out for UI enter/exit */
+  --dur-press: 160ms;                                /* button/press feedback */
 
   --z-neural: 0;
   --z-fog: 1;
@@ -258,6 +260,19 @@ body.is-dark {
 img, svg { display: block; max-width: 100%; }
 a { color: inherit; text-decoration-thickness: 1px; text-underline-offset: 0.2em; }
 a:hover { color: var(--survey); }
+
+/* Press feedback: subtle scale on pointer-down/tap (fires on touch too).
+   The depth-gauge label must re-state its base translateY(-50%) centering
+   here, or the press would drop it and the label would jump. */
+.stratum__link:active,
+.capability__proof:active,
+.contact-card__email:active,
+.contact-card__socials a:active {
+  transform: scale(0.97);
+}
+.depth-gauge__label:active {
+  transform: translateY(-50%) scale(0.97);
+}
 button, input, textarea { font: inherit; color: inherit; }
 :focus-visible { outline: 2px solid var(--survey); outline-offset: 3px; }
 .mono { font-family: var(--font-mono); }
@@ -309,7 +324,7 @@ button, input, textarea { font: inherit; color: inherit; }
 .loader__hex--outer { stroke-dasharray: 220; stroke-dashoffset: 220; animation: loader-draw 0.6s ease forwards; }
 .loader__hex--mid   { stroke-dasharray: 180; stroke-dashoffset: 180; animation: loader-draw 0.6s 0.1s ease forwards; }
 .loader__hex--inner { stroke-dasharray: 140; stroke-dashoffset: 140; animation: loader-draw 0.6s 0.2s ease forwards; }
-.loader__core { transform: scale(0); transform-origin: center; animation: loader-core 0.3s 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; opacity: 0; }
+.loader__core { transform: scale(0.92); transform-origin: center; animation: loader-core 0.3s 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; opacity: 0; }
 
 @keyframes loader-draw { to { stroke-dashoffset: 0; } }
 @keyframes loader-core { to { transform: scale(1); opacity: 1; } }
@@ -476,7 +491,7 @@ body { scrollbar-width: thin; scrollbar-color: rgba(26, 43, 60, 0.12) transparen
   border-radius: 2px;
   transform: scaleY(0);
   transform-origin: top center;
-  transition: transform 0.15s ease;
+  transition: transform 0.15s linear;
   pointer-events: none;
   z-index: 2;
 }
@@ -490,15 +505,17 @@ body { scrollbar-width: thin; scrollbar-color: rgba(26, 43, 60, 0.12) transparen
   border-radius: 50%;
   transform: translate3d(-50%, calc(var(--depth-offset) - 50%), 0);
   box-shadow: 0 0 0 4px var(--survey-08), 0 0 18px var(--survey-glow);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.2s var(--ease-out), box-shadow 0.2s var(--ease-out);
   cursor: grab;
   z-index: 3;
   touch-action: none;
 }
 
-.depth-gauge__marker:hover {
-  transform: translate3d(-50%, calc(var(--depth-offset) - 50%), 0) scale(1.3);
-  box-shadow: 0 0 0 6px var(--survey-14), 0 0 24px var(--survey-glow);
+@media (hover: hover) and (pointer: fine) {
+  .depth-gauge__marker:hover {
+    transform: translate3d(-50%, calc(var(--depth-offset) - 50%), 0) scale(1.3);
+    box-shadow: 0 0 0 6px var(--survey-14), 0 0 24px var(--survey-glow);
+  }
 }
 
 .depth-gauge__marker.is-dragging,
@@ -526,7 +543,7 @@ body { scrollbar-width: thin; scrollbar-color: rgba(26, 43, 60, 0.12) transparen
   color: rgba(26, 43, 60, 0.55); /* was 0.35 — failed WCAG AA against the paper background at this font-size */
   white-space: nowrap;
   transform: translateY(-50%);
-  transition: color 0.3s ease, font-weight 0.3s ease;
+  transition: transform var(--dur-press) var(--ease-out), color 0.3s ease, font-weight 0.3s ease;
   cursor: pointer;
   padding: 0.2rem 0.3rem;
 }
@@ -810,6 +827,7 @@ html.can-depth-drill .stratum.is-active {
   font-family: var(--font-mono); font-size: 0.78rem; font-weight: 600;
   color: var(--survey-text); text-decoration: underline; text-decoration-style: dotted; text-underline-offset: 0.35em;
   display: inline-flex; align-items: center; min-height: 44px;
+  transition: transform var(--dur-press) var(--ease-out);
 }
 .stratum__link:hover { color: var(--survey); }
 .stratum--dark .stratum__link { color: rgba(244, 240, 232, 0.8); }
@@ -1330,7 +1348,7 @@ html.can-depth-drill .stratum.is-active {
   text-decoration: none;
   border-bottom: 1px dotted var(--survey-dotted);
   padding-bottom: 1px;
-  transition: color 0.2s ease, border-color 0.2s ease;
+  transition: transform var(--dur-press) var(--ease-out), color 0.2s ease, border-color 0.2s ease;
 }
 .capability__proof:hover { color: var(--survey); border-bottom-color: var(--survey); }
 
@@ -1392,10 +1410,12 @@ html.can-depth-drill .stratum.is-active {
   transform: translateY(0);
   transition: opacity 0.5s ease, transform 0.5s var(--ease-expo);
 }
-.stat-card:hover {
-  box-shadow: 0 24px 64px var(--ink-16);
-  transform: translateY(-3px);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+@media (hover: hover) and (pointer: fine) {
+  .stat-card:hover {
+    box-shadow: 0 24px 64px var(--ink-16);
+    transform: translateY(-3px);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
 }
 
 .stat-card__texture {
@@ -1528,7 +1548,7 @@ html.can-depth-drill .stratum.is-active {
   color: #85350E;
   text-decoration: none;
   border-bottom: 1px solid transparent;
-  transition: color 0.25s ease, border-color 0.25s ease;
+  transition: transform var(--dur-press) var(--ease-out), color 0.25s ease, border-color 0.25s ease;
   min-height: 44px;
   line-height: 44px;
 }
@@ -1578,7 +1598,7 @@ html.can-depth-drill .stratum.is-active {
   font-size: 0.78rem;
   color: #5A4032;
   text-decoration: none;
-  transition: color 0.25s ease;
+  transition: transform var(--dur-press) var(--ease-out), color 0.25s ease;
   white-space: nowrap;
   text-shadow: 0 1px 6px rgba(240, 234, 214, 0.7);
 }
