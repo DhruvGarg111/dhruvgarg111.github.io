@@ -27,7 +27,7 @@
   <link rel="preload" href="assets/fonts/aldrich.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fonts/Switzer-Regular.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fonts/Switzer-Medium.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="assets/css/style.css?v=9">
+  <link rel="stylesheet" href="assets/css/style.css?v=10">
   <script>
   /* Perf instrumentation — gated FPS/frame-time meter. Activate with ?fps=1.
      Self-contained, zero cost when inactive (single regex test). */
@@ -57,6 +57,7 @@
           'tier ' + (window.__deviceTier || '?') +
           '  bg ' + (window.__bgMode || '?') +
           '  drill ' + (window.__canDepthDrill ? 'y' : 'n') +
+          '  touch ' + (window.__isTouchFirst === undefined ? '?' : window.__isTouchFirst ? 'y' : 'n') +
           '  hidden ' + (document.hidden ? 'y' : 'n');
         el.style.color = fps >= 45 ? '#0f0' : fps >= 24 ? '#fd0' : '#f33';
         frames = 0; lastT = t;
@@ -130,7 +131,15 @@
        atmosphere). Thresholds are a documented first pass, tuned later against
        real-device data via the ?fps=1 HUD. */
     var noHover = !window.matchMedia('(hover: hover) and (any-hover: hover)').matches;
-    var bgMode = score <= -4 ? 'off' : (noHover || tierOf(score) === 'low') ? 'lite' : 'webgl';
+    /* Reduced motion and Save-Data hard-force 'off': neural-background.js
+       and neural-lite.js both refuse to animate under reduced motion
+       anyway — fetching a renderer that will bail at its first check is
+       pure wasted transfer, worst on exactly the connections Save-Data
+       flags. This must gate the FETCH, not just the runtime. */
+    var rmOff = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var bgMode = (rmOff || saveData || score <= -4) ? 'off'
+               : (noHover || tierOf(score) === 'low') ? 'lite'
+               : 'webgl';
     window.__bgMode = bgMode;
     root.classList.add('bg-' + bgMode);
 
@@ -231,6 +240,16 @@
     var canDrill = capable && !prefersRM;
     window.__canDepthDrill = canDrill;
     document.documentElement.classList.toggle('can-depth-drill', canDrill);
+    /* Input-modality axis, deliberately separate from __canDepthDrill:
+       a reduced-motion desktop is !canDepthDrill but NOT touch-first; a
+       narrow mouse-driven window is !canDepthDrill but NOT touch-first.
+       touch-first means "no fine-pointer-with-hover input exists at all"
+       — phones and touch-only tablets, regardless of viewport width.
+       Hybrid laptops (touchscreen + trackpad) match (any-pointer:fine)
+       and stay on the desktop profile, per the plan's assumptions. */
+    var touchFirst = !window.matchMedia('(any-pointer: fine) and (any-hover: hover)').matches;
+    window.__isTouchFirst = touchFirst;
+    document.documentElement.classList.toggle('touch-first', touchFirst);
   })();
   </script>
   <script type="application/ld+json">
@@ -348,7 +367,7 @@
             <a class="stratum__link" href="https://github.com/DhruvGarg111/The-Searchlight-Protocol" target="_blank" rel="noopener noreferrer">View repository →</a>
           </div>
           <div class="stratum__visual">
-            <div class="aerial-stage aerial-stage--single-decode" id="aerial-stage" style="--aerial-src: url('../img/hero-aerial-800.webp');">
+            <div class="aerial-stage aerial-stage--single-decode" id="aerial-stage">
               <picture>
                 <source srcset="assets/img/hero-aerial-800.webp" type="image/webp">
                 <img class="aerial-stage__sharp" src="assets/img/hero-aerial-800.jpg" alt="" width="800" height="800" loading="lazy" decoding="async">
@@ -643,7 +662,7 @@
             <div class="stat-card__texture"></div>
             <div class="stat-card__inner">
               <div class="stat-card__value mono">
-                <span class="stat-count" data-count="200">0</span>
+                <span class="stat-count" data-count="200">200</span>
                 <span class="stat-card__suffix">+</span>
               </div>
               <div class="stat-card__label mono">Open Source Contributions</div>
@@ -654,7 +673,7 @@
             <div class="stat-card__texture"></div>
             <div class="stat-card__inner">
               <div class="stat-card__value mono">
-                <span class="stat-count" data-count="500">0</span>
+                <span class="stat-count" data-count="500">500</span>
                 <span class="stat-card__suffix">+</span>
               </div>
               <div class="stat-card__label mono">LeetCode Questions Solved</div>
@@ -665,7 +684,7 @@
             <div class="stat-card__texture"></div>
             <div class="stat-card__inner">
               <div class="stat-card__value mono">
-                <span class="stat-count" data-count="1730">0</span>
+                <span class="stat-count" data-count="1730">1730</span>
               </div>
               <div class="stat-card__label mono">LC Contest Rating</div>
               <div class="stat-card__bar"><div class="stat-card__bar-fill"></div></div>
@@ -728,9 +747,8 @@
 
   <script defer src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js" crossorigin="anonymous" integrity="sha384-HOvlOYPIs/zjoIkWUGXkVmXsjr8GuZLV+Q+rcPwmJOVZVpvTSXQChiN4t9Euv9Vc"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js" crossorigin="anonymous" integrity="sha384-P8VzCVnT9NBUkMrpcIZrJbA7EBjJvh/fJS6PmP+4nLIM284DtsImIv8D0fFjIkeh"></script>
-  <script defer src="assets/js/fluid-cursor.js?v=3"></script>
   <script defer src="assets/js/hero-flow.js?v=6"></script>
-  <script defer src="assets/js/script.js?v=4"></script>
+  <script defer src="assets/js/script.js?v=5"></script>
   <script>
   /* Perf: three.js (~600KB) and its neural-background consumer, plus @mojs/core
      and splitting, aren't needed for first paint or for the core scroll/depth
@@ -759,6 +777,10 @@
     }
 
     function loadDeferredExtras() {
+      /* Keep the lite renderer's public hook available before the mobile
+         controller starts feeding it. This removes a timing race where a
+         fast idle callback could load mobile-motion before neural-lite. */
+      var liteReady = Promise.resolve();
       if (window.__bgMode === 'webgl') {
         loadScript('https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js', {
           integrity: 'sha384-CI3ELBVUz9XQO+97x6nwMDPosPR5XvsxW2ua7N1Xeygeh1IxtgqtCkGfQY9WWdHu',
@@ -767,19 +789,54 @@
           return loadScript('assets/js/neural-background.js?v=2');
         }).catch(function () { /* no THREE available — page works fine without the bg */ });
       } else if (window.__bgMode === 'lite') {
-        loadScript('assets/js/neural-lite.js?v=1').catch(function () {});
+        liteReady = loadScript('assets/js/neural-lite.js?v=2').catch(function () {});
+      }
+
+      /* Mobile choreography controller: linear-flow + motion-OK profiles
+         only. Loads on idle, well after script.js (defer) has run
+         initMobile()'s readable baseline — no readiness event needed. */
+      if (!window.__canDepthDrill &&
+          !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        function loadMobileMotionWhenBaselineIsReady(attempt) {
+          /* The module only overrides initMobile's already-readable baseline.
+             Deferred scripts can be held up by a slow CDN, so verify that
+             baseline instead of assuming the idle callback always runs later. */
+          if (!document.body.classList.contains('is-mobile-flow')) {
+            if (attempt < 80) {
+              setTimeout(function () { loadMobileMotionWhenBaselineIsReady(attempt + 1); }, 50);
+            }
+            return;
+          }
+          loadScript('assets/js/mobile-motion.js?v=2').catch(function () {});
+        }
+        liteReady.then(function () {
+          loadMobileMotionWhenBaselineIsReady(0);
+        });
       }
       /* 'off': #neural-bg-canvas simply never gets a renderer. The
          existing .fog-vignette and .paper-grain layers (already present,
          already near-zero cost) remain the sole atmosphere — a
          deliberate, honest degrade, not a broken page. */
 
-      loadScript('https://cdn.jsdelivr.net/npm/@mojs/core@1.7.1/dist/mo.umd.min.js', {
-        integrity: 'sha384-mhL8ajiHMuHLBYm4rYiotXHCRSc7BS9whyLA8g0dbVemOdYfZd14yGJa/riwFW0M', crossorigin: 'anonymous'
-      }).catch(function () {});
-      loadScript('https://cdn.jsdelivr.net/npm/splitting@1.1.0/dist/splitting.min.js', {
-        integrity: 'sha384-4xKCEoe7sOCJeUwo9HheqN+yYVNglF+fjekGEZx4DcdgbJWToC2k5MgQ+6T9sfUT', crossorigin: 'anonymous'
-      }).catch(function () {});
+      /* mo.js and Splitting are consumed exclusively by the desktop drill
+         timelines (playTransitionEffect, animateLabel — both typeof-guarded
+         at every call site). Linear-flow profiles (touch, reduced motion,
+         narrow windows) structurally never call them; don't ship the bytes.
+         fluid-cursor is the desktop mouse tracer — its former unconditional
+         defer tag also loaded it on touch tablets, which then ran its touch
+         handlers as a global finger trail. Idle-load it only where a fine
+         hover pointer exists and motion is OK. */
+      if (window.__canDepthDrill) {
+        loadScript('https://cdn.jsdelivr.net/npm/@mojs/core@1.7.1/dist/mo.umd.min.js', {
+          integrity: 'sha384-mhL8ajiHMuHLBYm4rYiotXHCRSc7BS9whyLA8g0dbVemOdYfZd14yGJa/riwFW0M', crossorigin: 'anonymous'
+        }).catch(function () {});
+        loadScript('https://cdn.jsdelivr.net/npm/splitting@1.1.0/dist/splitting.min.js', {
+          integrity: 'sha384-4xKCEoe7sOCJeUwo9HheqN+yYVNglF+fjekGEZx4DcdgbJWToC2k5MgQ+6T9sfUT', crossorigin: 'anonymous'
+        }).catch(function () {});
+      }
+      if (!window.__isTouchFirst && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        loadScript('assets/js/fluid-cursor.js?v=3').catch(function () {});
+      }
     }
 
     if ('requestIdleCallback' in window) {

@@ -76,7 +76,7 @@
      signal here. Prefetch explicitly instead, keyed to the section
      index updateSections() already tracks. */
   var STRATUM_IMAGES = {
-    perception: ['assets/img/hero-aerial-800.jpg', 'assets/img/searchlight.svg'],
+    perception: ['assets/img/hero-aerial-800.webp', 'assets/img/searchlight.svg'],
     training: ['assets/img/neural_canvas.svg'],
     infrastructure: ['assets/img/pixelqueue.svg'],
     interface: ['assets/img/pygog.svg'],
@@ -1058,6 +1058,9 @@
       cards.forEach(function (card, i) {
         var target = parseInt(card.getAttribute('data-target'), 10);
         var counterEl = card.querySelector('.stat-count');
+        /* Markup now carries the final value for no-JS readers; the drill
+           counts up from 0, so zero it before the timeline first renders. */
+        if (counterEl) counterEl.textContent = '0';
         var pos = i * 0.22;
 
         tl.fromTo(card,

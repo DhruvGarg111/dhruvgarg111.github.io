@@ -460,7 +460,11 @@ body { scrollbar-width: thin; scrollbar-color: rgba(26, 43, 60, 0.12) transparen
   height: 60vh; max-height: 440px;
 }
 
-@media (min-width: 1024px) { .depth-gauge { display: flex; } }
+/* The gauge is drill instrumentation — its fill/marker/labels are only
+   ever updated by the desktop scroll engine. A wide touch tablet or a
+   reduced-motion desktop used to get a visible, functional-looking,
+   permanently-dead gauge here. */
+@media (min-width: 1024px) { html.can-depth-drill .depth-gauge { display: flex; } }
 
 .depth-gauge__track {
   width: 4px; height: 100%; position: relative;
@@ -996,15 +1000,24 @@ html.can-depth-drill .stratum.is-active {
 .aerial-stage--single-decode::before {
   content: "";
   position: absolute; inset: 0; width: 100%; height: 100%;
-  background-image: var(--aerial-src);
+  /* Declared here (not via a custom property in an inline style attribute)
+     because relative url() in a custom property resolves against the base
+     URL of the declaration site — for an inline style that's the document,
+     which turned this into a 404 on /img/. Stylesheet-relative is correct
+     in every browser. */
+  background-image: url('../img/hero-aerial-800.webp');
   background-size: cover;
   background-position: center;
   filter: blur(14px) saturate(0.7) brightness(0.85);
 }
 .aerial-stage__sharp {
   position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
-  z-index: 2; clip-path: inset(28% 32% 38% 30%);
+  z-index: 2;
 }
+/* Initial tight crop is a desktop-drill animation start state — the GSAP
+   perception timeline drives it. Non-drill visitors get the readable,
+   fully-revealed image as the static default. */
+html.can-depth-drill .aerial-stage__sharp { clip-path: inset(28% 32% 38% 30%); }
 
 .aerial-stage__roi {
   position: absolute; inset: 0; z-index: 3; pointer-events: none;
@@ -1051,7 +1064,12 @@ html.can-depth-drill .stratum.is-active {
 .seam-stage__content, .seam-stage__style { position: absolute; inset: 0; }
 .seam-stage__content svg, .seam-stage__style svg { width: 100%; height: 100%; display: block; }
 .seam-stage__content { z-index: 1; }
-.seam-stage__style { z-index: 2; clip-path: inset(0 100% 0 0); }
+.seam-stage__style { z-index: 2; }
+html.can-depth-drill .seam-stage__style { clip-path: inset(0 100% 0 0); }
+/* The sweep divider only makes sense mid-animation; hide it whenever the
+   drill isn't running the seam timeline. mobile-motion.js reveals it
+   transiently during the one-time sweep/replay via inline styles. */
+html:not(.can-depth-drill) .seam-stage__divider { opacity: 0; }
 
 .seam-stage__divider {
   position: absolute; top: 0; bottom: 0; left: 0; width: 3px;
@@ -1078,9 +1096,9 @@ html.can-depth-drill .stratum.is-active {
   border: 1px solid var(--ink-11);
   display: flex; flex-direction: column; justify-content: space-between;
   min-height: 90px; position: relative; overflow: hidden;
-  opacity: 0; transform: translateY(12px);
   box-shadow: 0 14px 34px var(--ink-08);
 }
+html.can-depth-drill .pipe-card { opacity: 0; transform: translateY(12px); }
 
 .pipe-card__name { font-size: 0.55rem; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(26, 43, 60, 0.4); margin-top: auto; padding-top: 0.3rem; }
 
@@ -1168,7 +1186,7 @@ html.can-depth-drill .stratum.is-active {
   font-family: var(--font-mono); font-size: 0.72rem; line-height: 1.8; color: #D4C5A8;
 }
 
-.tline { opacity: 0; transform: translateY(6px); }
+html.can-depth-drill .tline { opacity: 0; transform: translateY(6px); }
 .tline.is-typed { opacity: 1; transform: translateY(0); transition: opacity 0.25s ease, transform 0.25s ease; }
 .tprompt { color: rgba(244, 240, 232, 0.4); }
 .tline--ok { color: #8fd4b8; }
@@ -1205,9 +1223,8 @@ html.can-depth-drill .stratum.is-active {
   flex-direction: column;
   align-items: center;
   flex: 1;
-  opacity: 0;
-  transform: translateY(20px);
 }
+html.can-depth-drill .journey-era { opacity: 0; transform: translateY(20px); }
 .journey-era__marker {
   width: 16px; height: 16px;
   border-radius: 50%;
@@ -1233,9 +1250,9 @@ html.can-depth-drill .stratum.is-active {
   text-align: center;
   box-shadow: 0 8px 24px var(--ink-08);
   position: relative;
-  clip-path: inset(100% 0 0 0);
   transition: clip-path 0.6s var(--ease-expo), box-shadow 0.3s ease;
 }
+html.can-depth-drill .journey-era__card { clip-path: inset(100% 0 0 0); }
 .journey-era.is-cracked .journey-era__card {
   clip-path: inset(0% 0 0 0);
 }
@@ -1290,13 +1307,12 @@ html.can-depth-drill .stratum.is-active {
   gap: 1.1rem;
   padding: 1.25rem 0.6rem 1.4rem;
   border-top: 1px solid var(--ink-13);
-  opacity: 0;
-  transform: translateY(16px);
   transition: background-color 0.25s ease, box-shadow 0.25s ease;
   outline: none;
   /* per-domain accent */
   --cap: var(--survey);
 }
+html.can-depth-drill .capability { opacity: 0; transform: translateY(16px); }
 .capability:last-child { border-bottom: 1px solid var(--ink-13); }
 .capability.is-active { opacity: 1; transform: none; transition: opacity 0.42s ease, transform 0.42s var(--ease-expo); }
 
@@ -1367,9 +1383,9 @@ html.can-depth-drill .stratum.is-active {
   border: 1px solid var(--ink-14);
   background: rgba(247, 244, 238, 0.7);
   color: var(--ink-soft);
-  opacity: 0;
   transition: border-color 0.2s ease, color 0.2s ease;
 }
+html.can-depth-drill .capability__tools li { opacity: 0; }
 .capability.is-active .capability__tools li { opacity: 1; }
 .capability:hover .capability__tools li,
 .capability:focus-visible .capability__tools li {
@@ -1402,9 +1418,8 @@ html.can-depth-drill .stratum.is-active {
   border: 1px solid var(--ink-12);
   overflow: hidden;
   box-shadow: 0 20px 50px var(--ink-10);
-  opacity: 0;
-  transform: translateY(30px);
 }
+html.can-depth-drill .stat-card { opacity: 0; transform: translateY(30px); }
 .stat-card.is-visible {
   opacity: 1;
   transform: translateY(0);
@@ -1451,9 +1466,10 @@ html.can-depth-drill .stratum.is-active {
 }
 .stat-card__bar-fill {
   height: 100%; border-radius: 999px;
-  transform: scaleX(0); transform-origin: left;
+  transform-origin: left;
   transition: transform 1s var(--ease-expo);
 }
+html.can-depth-drill .stat-card__bar-fill { transform: scaleX(0); }
 .stat-card:nth-child(1) .stat-card__bar-fill { background: linear-gradient(90deg, var(--survey), #e87428); }
 .stat-card:nth-child(2) .stat-card__bar-fill { background: linear-gradient(90deg, #5a6d82, #3d5166); }
 .stat-card:nth-child(3) .stat-card__bar-fill { background: linear-gradient(90deg, var(--validated), #1a9078); }
@@ -2069,6 +2085,63 @@ html.can-depth-drill .stratum.is-active {
     padding-bottom: calc(1.15rem + env(safe-area-inset-bottom, 0px));
     min-height: 320px;
   }
+}
+
+/* ═══════════════════════════════════════════════════════════ */
+/* MOBILE MOTION (touch-first linear flow — mobile-motion.js)  */
+/* ═══════════════════════════════════════════════════════════ */
+
+.mm-depth {
+  position: fixed;
+  right: calc(0.9rem + env(safe-area-inset-right, 0px));
+  bottom: calc(0.9rem + env(safe-area-inset-bottom, 0px));
+  z-index: var(--z-hud);
+  display: flex; flex-direction: column; align-items: flex-end; gap: 0.1rem;
+  padding: 0.45rem 0.6rem;
+  border: 1px solid var(--ink-13);
+  border-radius: 4px;
+  background: rgba(247, 244, 238, 0.82);
+  backdrop-filter: blur(6px);
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.35s ease, transform 0.35s var(--ease-out);
+}
+.mm-depth.is-visible { opacity: 1; transform: none; }
+.mm-depth__value { font-size: 0.72rem; font-weight: 600; color: var(--survey); }
+.mm-depth__label { font-size: 0.52rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-soft); }
+body.is-dark .mm-depth { background: rgba(18, 26, 38, 0.82); border-color: var(--cream-16); }
+body.is-dark .mm-depth__label { color: rgba(244, 240, 232, 0.6); }
+
+.mm-replay {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-height: 44px; min-width: 44px;
+  margin-top: 0.5rem; padding: 0 0.9rem;
+  font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--ink-soft);
+  background: transparent;
+  border: 1px solid var(--ink-14); border-radius: 4px;
+  cursor: pointer;
+  transition: transform var(--dur-press) var(--ease-out), border-color 0.2s ease, color 0.2s ease;
+}
+.mm-replay:active { transform: scale(0.96); }
+.mm-replay:focus-visible { outline: 2px solid var(--survey); outline-offset: 2px; }
+.stratum--dark .mm-replay { color: rgba(244, 240, 232, 0.7); border-color: var(--cream-16); }
+
+/* Journey vertical line draw-in (pseudo-element — needs a class hook). */
+html:not(.can-depth-drill) .journey-track.mm-line-pending::before {
+  transform: scaleY(0); transform-origin: top;
+}
+html:not(.can-depth-drill) .journey-track.mm-line-grow::before {
+  transform: scaleY(1);
+  transition: transform 0.9s var(--ease-expo);
+}
+
+/* Capability touch "sample" feedback — transient, JS-toggled, mirrors the
+   desktop hover treatment without making non-controls look like buttons. */
+.capability.mm-sampled .capability__tools li {
+  border-color: var(--cap-border);
+  color: var(--ink);
 }
 
 /* ═══════════════════════════════════════════════════════════ */

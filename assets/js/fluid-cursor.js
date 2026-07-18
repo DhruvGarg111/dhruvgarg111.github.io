@@ -11,8 +11,13 @@
     return;
   }
 
-  var isCoarsePhone = window.matchMedia('(max-width: 767px) and (pointer: coarse)').matches;
-  if (isCoarsePhone) {
+  /* Touch-first devices (no fine hover pointer at any width — includes
+     touch tablets, which the old max-767px check missed) never get the
+     tracer: a persistent trail under a scrolling finger is distracting
+     and battery-hostile. The loader in index.html already skips fetching
+     this file for them; this guard is defense-in-depth. */
+  var isTouchFirst = !window.matchMedia('(any-pointer: fine) and (any-hover: hover)').matches;
+  if (isTouchFirst) {
     return;
   }
 
