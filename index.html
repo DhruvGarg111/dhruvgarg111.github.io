@@ -5,13 +5,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dhruv Garg — Ground Truth</title>
   <meta name="description" content="Dhruv Garg builds perception systems that ship — coarse-to-fine computer vision, production PyTorch, and full-stack ML infrastructure.">
-  <meta name="theme-color" content="#EDE7DA" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#1A2838" media="(prefers-color-scheme: dark)">
+  <!-- One theme-color, matching the design. The second entry promised a dark
+       UI to OS-dark users, but there is no prefers-color-scheme: dark block
+       anywhere in the stylesheet — this is a light paper design at every
+       scroll depth — so those visitors got dark browser chrome wrapped around
+       a light page. Removed rather than faked, and manifest.json's theme_color
+       now agrees with it instead of carrying the same stale dark value. -->
+  <meta name="theme-color" content="#EDE7DA">
   <meta property="og:title" content="Dhruv Garg — Ground Truth">
   <meta property="og:description" content="Field survey of production ML: Searchlight, Neural Canvas, PixelQueue, PyGOG.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://www.dhruvgarg.tech/">
   <meta property="og:image" content="https://www.dhruvgarg.tech/assets/img/og-card.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Ground Truth — field survey plate for Dhruv Garg, AI/ML engineer.">
   <meta property="og:site_name" content="Dhruv Garg">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Dhruv Garg — Ground Truth">
@@ -24,10 +32,18 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preload" href="https://fonts.googleapis.com/css2?family=Martian+Mono:wght@400;500;600&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
   <noscript><link href="https://fonts.googleapis.com/css2?family=Martian+Mono:wght@400;500;600&display=swap" rel="stylesheet"></noscript>
+  <!-- All five faces render inside the first viewport, so all five are
+       preloaded. SemiBold (.hero-manifest__name, .capability__domain) and Bold
+       (.hero__tagline strong) were previously discovered only from the
+       stylesheet, which meant the hero's project list and the emphasised words
+       in the tagline swapped in late and reflowed the block that had just
+       finished animating in. -->
   <link rel="preload" href="assets/fonts/aldrich.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fonts/Switzer-Regular.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fonts/Switzer-Medium.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="assets/css/style.css?v=10">
+  <link rel="preload" href="assets/fonts/Switzer-SemiBold.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/Switzer-Bold.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="assets/css/style.css?v=13">
   <script>
   /* Perf instrumentation — gated FPS/frame-time meter. Activate with ?fps=1.
      Self-contained, zero cost when inactive (single regex test). */
@@ -204,13 +220,20 @@
       function tick(t) {
         var dt = t - lastFrameAt;
         lastFrameAt = t;
+        /* Discard samples taken while the page is hidden. A backgrounded tab
+           has its rAF clamped to ~1fps rather than stopped outright, so 90
+           such samples give a median of ~1 and would step the tier down on
+           evidence that says nothing about the device — the visitor comes
+           back to a needlessly degraded scene. The recovery path below
+           already guarded on this; the downgrade path did not. */
+        if (document.hidden) { samples.length = 0; requestAnimationFrame(tick); return; }
         if (dt > 0) samples.push(1000 / dt);
         if (samples.length >= 90) { // ~1.5-3s of frames depending on refresh rate
           var med = median(samples);
           samples.length = 0;
           if (med < 24) {
             maybeChangeTier(-1); // sustained sub-24fps: step down
-          } else if (med > 50 && !document.hidden && (t - lastScrollAt) > 2000) {
+          } else if (med > 50 && (t - lastScrollAt) > 2000) {
             maybeChangeTier(1); // sustained >50fps AND idle (not mid-scroll): cautiously recover
           }
         }
@@ -265,6 +288,19 @@
     ]
   }
   </script>
+
+  <!-- a11y: the loader is a fixed, opaque, z-index:9999 overlay that only JS
+       ever dismisses (via .is-done). With scripting off it would sit on top of
+       the page forever, leaving a permanently-stuck "INITIALIZING DEPTH ENGINE"
+       screen — the whole no-JS baseline (all nine strata in normal document
+       flow, since the can-depth-drill class is never added) is rendered
+       underneath but unreachable. Hide it outright when there's no JS to hide
+       it. Lives in <head> so it applies on first paint, with no flash. -->
+  <noscript>
+    <style>
+      .loader { display: none !important; }
+    </style>
+  </noscript>
 </head>
 <body>
   <div class="loader" id="loader" aria-label="Loading" role="status">
@@ -279,16 +315,27 @@
       </div>
       <div class="loader__text">
         <span class="loader__name mono">DHRUV GARG</span>
-        <span class="loader__status mono" id="loader-status">INITIALIZING DEPTH ENGINE</span>
+        <!-- aria-hidden on the churning readouts: this is a role="status"
+             region (implicit aria-live="polite") whose text is rewritten six
+             times in ~900ms, so assistive tech got a burst of drilling jargon
+             before the page itself. The region keeps its stable "Loading"
+             name, which is announced once; the numbers stay purely visual. -->
+        <span class="loader__status mono" id="loader-status" aria-hidden="true">INITIALIZING DEPTH ENGINE</span>
       </div>
-      <div class="loader__bar">
+      <div class="loader__bar" aria-hidden="true">
         <div class="loader__bar-fill" id="loader-bar"></div>
       </div>
-      <div class="loader__depth mono" id="loader-depth">0m</div>
+      <div class="loader__depth mono" id="loader-depth" aria-hidden="true">0m</div>
     </div>
   </div>
 
-  <a class="skip-link" href="#hero">Skip to content</a>
+  <!-- Targets the <main> landmark, not #hero. Focus has to actually move for
+       the skip to work: pointing at a plain <section> left activeElement on
+       <body>, and Chrome only appeared to honour it because it sets the
+       sequential-focus start point from the fragment. <main tabindex="-1">
+       receives focus for real, so screen readers announce arrival and every
+       browser resumes Tab from the right place. -->
+  <a class="skip-link" href="#strata">Skip to content</a>
   <div class="sr-only" aria-live="polite" aria-atomic="true" id="section-announcer"></div>
 
   <!-- ═══ ATMOSPHERIC LAYERS ═══ -->
@@ -317,56 +364,137 @@
     </div>
   </div>
 
-  <!-- ═══ STRATA: Content layer (all sections fixed) ═══ -->
-  <div class="strata" id="strata">
+  <!-- ═══ STRATA: Content layer (all sections fixed) ═══
+       <main>, not <div>: every one of the nine strata sits outside any landmark
+       otherwise, which is a WCAG "region" failure on all of them (34 nodes in
+       the mobile document-flow layout) and leaves the skip link with nothing
+       meaningful to point at. tabindex="-1" so the skip link can move real
+       focus here. -->
+  <main class="strata" id="strata" tabindex="-1">
 
-    <!-- ── HERO ── -->
+    <!-- ── HERO ──
+         One framed instrument object. The plate wrapper and its body are
+         display:contents below 900px, so the mobile document-flow hero (field
+         first, stacked type below) survives untouched — see style.css HERO. -->
     <section class="stratum is-active" id="hero">
       <div class="stratum__inner hero-layout">
-        <div class="hero__left">
-          <h1 class="hero__name" aria-label="Dhruv Garg">
-            <span class="hero__word">
-              <span class="hero__char">D</span><span class="hero__char">H</span><span class="hero__char">R</span><span class="hero__char">U</span><span class="hero__char">V</span>
-            </span>
-            <span class="hero__word hero__word--accent">
-              <span class="hero__char">G</span><span class="hero__char">A</span><span class="hero__char">R</span><span class="hero__char">G</span>
-            </span>
-          </h1>
-          <p class="hero__role mono">AI / ML ENGINEER</p>
-          <p class="hero__tagline">
-            I ship <strong>PyTorch models</strong> to <strong>production</strong> —
-            computer vision, generative systems, and the full stack around them.
-          </p>
+       <div class="hero-plate">
+
+        <!-- The plate's substrate, split out of .hero-plate's own background so the
+             boot morph can develop it in. The lattice->network morph renders on the
+             ambient canvas *behind* this plate, and the plate covers ~62% of the
+             viewport, so an opaque substrate hides the entire effect. Animating
+             opacity on this one dedicated layer keeps that compositor-only — the
+             plate's text is never repainted. Defaults opaque; only the paths that
+             actually run the morph start it translucent (see style.css). -->
+        <div class="hero-plate__paper" aria-hidden="true"></div>
+
+        <!-- Instrument chrome: presentational telemetry, never document structure. -->
+        <div class="hero-plate__rail hero-plate__rail--top" aria-hidden="true">
+          <span class="hero-plate__cell hero-plate__cell--key mono">SURVEY PLATE 00</span>
+          <span class="hero-plate__cell mono">SURFACE · 0m</span>
+          <span class="hero-plate__cell mono" id="hero-rail-field">FIELD · STANDBY</span>
+          <span class="hero-plate__cell hero-plate__cell--state mono" id="hero-rail-state">STATIC</span>
         </div>
-        <div class="hero__right">
-          <div class="hero__image-wrap" id="hero-image-wrap">
-            <canvas class="hero__flow" id="hero-flow" role="img" aria-label="A live generative vector field — thousands of particles drifting through curl noise. Move the cursor over the panel to bend the flow into a swirl."></canvas>
-            <div class="hero__scanline" aria-hidden="true"></div>
-            <div class="survey-brackets"></div>
+
+        <div class="hero-plate__body">
+          <div class="hero__left">
+            <h1 class="hero__name" aria-label="Dhruv Garg">
+              <span class="hero__word">
+                <span class="hero__char">D</span><span class="hero__char">H</span><span class="hero__char">R</span><span class="hero__char">U</span><span class="hero__char">V</span>
+              </span>
+              <span class="hero__word hero__word--accent">
+                <span class="hero__char">G</span><span class="hero__char">A</span><span class="hero__char">R</span><span class="hero__char">G</span>
+              </span>
+            </h1>
+            <p class="hero__role mono">AI / ML ENGINEER</p>
+            <p class="hero__tagline">
+              I ship <strong>PyTorch models</strong> to <strong>production</strong> —
+              computer vision, generative systems, and the full stack around them.
+            </p>
+
+            <!-- Authored statically so the rows are real navigable links with JS
+                 disabled (no can-depth-drill => the strata are in normal document
+                 flow and the hash targets resolve natively). script.js asserts each
+                 depth against SECTIONS at boot and upgrades the jump to a
+                 scroll-progress move for the depth-drill layout. -->
+            <ul class="hero-manifest" aria-label="Field manifest — shipped projects">
+              <li class="hero-manifest__row">
+                <a class="hero-manifest__jump" href="#perception" data-section="perception">
+                  <span class="hero-manifest__code mono">SP-01</span>
+                  <span class="hero-manifest__name">Searchlight Protocol</span>
+                  <span class="hero-manifest__depth mono" data-depth-for="perception">1200m</span>
+                </a>
+                <a class="hero-manifest__badge hero-manifest__badge--live mono" href="https://the-searchlight-protocol.vercel.app" target="_blank" rel="noopener noreferrer" aria-label="Searchlight Protocol — open live web app">LIVE ↗</a>
+              </li>
+              <li class="hero-manifest__row">
+                <a class="hero-manifest__jump" href="#training" data-section="training">
+                  <span class="hero-manifest__code mono">NC-03</span>
+                  <span class="hero-manifest__name">Neural Canvas</span>
+                  <span class="hero-manifest__depth mono" data-depth-for="training">2400m</span>
+                </a>
+                <a class="hero-manifest__badge hero-manifest__badge--live mono" href="https://huggingface.co/spaces/DhruvGarg111/Style-Transfer" target="_blank" rel="noopener noreferrer" aria-label="Neural Canvas — open live demo">LIVE ↗</a>
+              </li>
+              <li class="hero-manifest__row">
+                <a class="hero-manifest__jump" href="#infrastructure" data-section="infrastructure">
+                  <span class="hero-manifest__code mono">PQ-02</span>
+                  <span class="hero-manifest__name">PixelQueue</span>
+                  <span class="hero-manifest__depth mono" data-depth-for="infrastructure">3600m</span>
+                </a>
+                <span class="hero-manifest__badge mono" aria-hidden="true">REPO</span>
+              </li>
+              <li class="hero-manifest__row">
+                <a class="hero-manifest__jump" href="#interface" data-section="interface">
+                  <span class="hero-manifest__code mono">PG-04</span>
+                  <span class="hero-manifest__name">PyGOG CLI</span>
+                  <span class="hero-manifest__depth mono" data-depth-for="interface">4800m</span>
+                </a>
+                <span class="hero-manifest__badge mono" aria-hidden="true">REPO</span>
+              </li>
+            </ul>
+          </div>
+          <div class="hero__right">
+            <div class="hero__image-wrap" id="hero-image-wrap">
+              <canvas class="hero__flow" id="hero-flow" role="img" aria-label="A live attention field — thousands of particles drifting through curl noise. Move the cursor over the panel and it acts as a searchlight, resolving the coarse field into sharp focus within its radius; on touch it sweeps automatically."></canvas>
+              <div class="hero__scanline" aria-hidden="true"></div>
+              <span class="hero__surface-tag mono" id="hero-surface-tag" aria-hidden="true">0m · SURFACE</span>
+            </div>
           </div>
         </div>
 
-        <div class="hero__scroll-cue" id="hero-scroll-cue">
-          <span class="mono">SCROLL TO DRILL</span>
-          <svg width="16" height="24" viewBox="0 0 16 24" aria-hidden="true" focusable="false"><path d="M8 4v16M2 14l6 6 6-6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <div class="hero-plate__rail hero-plate__rail--bottom" aria-hidden="true">
+          <span class="hero-plate__cell mono" id="hero-rail-strata">9 STRATA · 9000m</span>
+          <div class="hero__scroll-cue" id="hero-scroll-cue">
+            <span class="mono">SCROLL TO DRILL</span>
+            <svg width="16" height="24" viewBox="0 0 16 24" aria-hidden="true" focusable="false"><path d="M8 4v16M2 14l6 6 6-6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
         </div>
+
+        <!-- The site's identity primitive, promoted from panel decoration to the
+             plate's own corners. Four arms so all four corners can draw in. -->
+        <div class="survey-brackets" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+       </div>
       </div>
     </section>
 
     <!-- ── PERCEPTION / SEARCHLIGHT ── -->
     <section class="stratum" id="perception">
       <div class="stratum__window">
+      <div class="attention-grain" aria-hidden="true"></div>
       <div class="stratum__inner">
         <div class="stratum__label mono">Stratum I · 1200m</div>
         <div class="stratum__grid">
           <div class="stratum__copy">
             <p class="stratum__id mono">SP-01 · Searchlight Protocol</p>
             <h2 class="stratum__title"><span class="heading-primary">Coarse-to-Fine</span><br><span class="heading-accent">Detection</span></h2>
-            <p class="stratum__desc">Pipeline for small-object detection in high-resolution aerial imagery. Intelligently slices regions of interest, skipping 80%+ of empty background before fine inference.</p>
-            <div class="stratum__tags"><span>Python</span><span>PyTorch</span><span>LayerCAM</span></div>
-            <a class="stratum__link" href="https://github.com/DhruvGarg111/The-Searchlight-Protocol" target="_blank" rel="noopener noreferrer">View repository →</a>
+            <p class="stratum__desc">Small-object detection in high-resolution aerial imagery. A ResNet18 + LayerCAM guide fuses backbone layers 2/3/4 into a semantic heatmap; an NMS slicer extracts candidate crops; a YOLOv8 detector runs <em>only</em> on those — skipping 80%+ of empty background before fine inference.</p>
+            <div class="stratum__tags"><span>Python</span><span>PyTorch</span><span>ResNet18</span><span>LayerCAM</span><span>YOLOv8</span><span>OpenCV</span></div>
+            <div class="stratum__links">
+              <a class="stratum__link stratum__link--live" href="https://the-searchlight-protocol.vercel.app" target="_blank" rel="noopener noreferrer">Launch web app →</a>
+              <a class="stratum__link" href="https://github.com/DhruvGarg111/The-Searchlight-Protocol" target="_blank" rel="noopener noreferrer">View repository →</a>
+            </div>
           </div>
-          <div class="stratum__visual">
+          <div class="stratum__visual" role="region" aria-label="Searchlight visual steps — swipe between the live field and architecture on touch devices">
             <div class="aerial-stage aerial-stage--single-decode" id="aerial-stage">
               <picture>
                 <source srcset="assets/img/hero-aerial-800.webp" type="image/webp">
@@ -390,7 +518,7 @@
       <div class="stratum__inner">
         <div class="stratum__label mono">Stratum II · 2400m</div>
         <div class="stratum__grid stratum__grid--reverse">
-          <div class="stratum__visual">
+          <div class="stratum__visual" role="region" aria-label="Neural Canvas visual steps — swipe between the style-transfer seam and architecture on touch devices">
             <div class="seam-stage" id="seam-stage">
               <div class="seam-stage__content">
                 <svg viewBox="0 0 800 400" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"><rect width="100%" height="100%" fill="#E5DFCD"/><g stroke="rgba(26,43,60,0.06)" stroke-width="1"><line x1="0" y1="100" x2="800" y2="100"/><line x1="0" y1="200" x2="800" y2="200"/><line x1="0" y1="300" x2="800" y2="300"/><line x1="200" y1="0" x2="200" y2="400"/><line x1="400" y1="0" x2="400" y2="400"/><line x1="600" y1="0" x2="600" y2="400"/></g><path d="M100 350 L300 120 L500 350 Z" fill="none" stroke="#1A2B3C" stroke-width="2" opacity="0.6"/><circle cx="550" cy="120" r="40" fill="none" stroke="#1A2B3C" stroke-width="2" opacity="0.5"/></svg>
@@ -408,9 +536,12 @@
           <div class="stratum__copy">
             <p class="stratum__id mono">NC-03 · Neural Canvas</p>
             <h2 class="stratum__title"><span class="heading-primary">Perceptual</span><br><span class="heading-accent">Style Transfer</span></h2>
-            <p class="stratum__desc">Feed-forward neural style transfer with perceptual loss via VGG-16 — shipped to Hugging Face with ONNX export.</p>
-            <div class="stratum__tags"><span>PyTorch</span><span>VGG-16</span><span>ONNX</span></div>
-            <a class="stratum__link" href="https://github.com/DhruvGarg111/Neural-Style-Transfer" target="_blank" rel="noopener noreferrer">View repository →</a>
+            <p class="stratum__desc">Feed-forward style transfer (Johnson 2016): 5 residual blocks with Instance Normalization, trained against a VGG-16 perceptual loss on MS-COCO across 4 styles. Shipped to a live Hugging Face Space with a callable <code class="mono">/stylize</code> API and ONNX export.</p>
+            <div class="stratum__tags"><span>PyTorch</span><span>VGG-16</span><span>InstanceNorm</span><span>MS-COCO</span><span>ONNX</span></div>
+            <div class="stratum__links">
+              <a class="stratum__link stratum__link--live" href="https://huggingface.co/spaces/DhruvGarg111/Style-Transfer" target="_blank" rel="noopener noreferrer">Try live demo →</a>
+              <a class="stratum__link" href="https://github.com/DhruvGarg111/Neural-Style-Transfer" target="_blank" rel="noopener noreferrer">View repository →</a>
+            </div>
           </div>
         </div>
       </div>
@@ -426,9 +557,11 @@
           <div class="stratum__copy">
             <p class="stratum__id mono">PQ-02 · PixelQueue</p>
             <h2 class="stratum__title"><span class="heading-primary">Async Annotation</span><br><span class="heading-accent">Infrastructure</span></h2>
-            <p class="stratum__desc">React-Konva canvas, FastAPI, Celery workers, Redis broker, and PostgreSQL for human-in-the-loop vision pipelines.</p>
-            <div class="stratum__tags"><span>React</span><span>Celery</span><span>PostgreSQL</span><span>FastAPI</span></div>
-            <a class="stratum__link" href="https://github.com/DhruvGarg111/PixelQueue" target="_blank" rel="noopener noreferrer">View repository →</a>
+            <p class="stratum__desc">Human-in-the-loop vision pipeline: a React-Konva canvas behind an NGINX gateway → FastAPI → Celery workers, with PostgreSQL, a Redis broker, and MinIO blob storage. YOLO/SAM auto-labeling workers, COCO + YOLO export, an SSE event stream, and RBAC across admin / reviewer / annotator roles.</p>
+            <div class="stratum__tags"><span>FastAPI</span><span>Celery</span><span>Redis</span><span>PostgreSQL</span><span>MinIO</span><span>YOLO/SAM</span></div>
+            <div class="stratum__links">
+              <a class="stratum__link" href="https://github.com/DhruvGarg111/PixelQueue" target="_blank" rel="noopener noreferrer">View repository →</a>
+            </div>
           </div>
           <div class="stratum__visual">
             <div class="pipeline" id="pipeline">
@@ -460,7 +593,7 @@
             </div>
             <figure class="arch-figure">
               <img src="assets/img/pixelqueue.svg" width="2160" height="1080" alt="PixelQueue architecture" loading="lazy" decoding="async">
-              <figcaption class="mono">React UI → FastAPI → Celery → ML workers → PostgreSQL</figcaption>
+              <figcaption class="mono">React UI → FastAPI → Celery → auto-label / export workers → PostgreSQL</figcaption>
             </figure>
           </div>
         </div>
@@ -489,15 +622,17 @@
             </div>
             <figure class="arch-figure arch-figure--dark">
               <img src="assets/img/pygog.svg" width="2160" height="1080" alt="PyGOG CLI architecture" loading="lazy" decoding="async">
-              <figcaption class="mono">Typer CLI · LLM intent parsing · OAuth2 tool routing</figcaption>
+              <figcaption class="mono">Typer CLI · 5-provider LLM intent parsing · OAuth2 tool routing</figcaption>
             </figure>
           </div>
           <div class="stratum__copy">
             <p class="stratum__id mono">PG-04 · PyGOG CLI</p>
             <h2 class="stratum__title"><span class="heading-primary">Agentic</span><br><span class="heading-accent">Workspace CLI</span></h2>
-            <p class="stratum__desc">Natural language in, tool routing out. An agentic Google Workspace CLI that parses intent and orchestrates across Calendar, Gmail, Drive.</p>
-            <div class="stratum__tags"><span>Typer</span><span>LLM Agents</span><span>OAuth2</span></div>
-            <a class="stratum__link" href="https://github.com/DhruvGarg111/py-goog-cli" target="_blank" rel="noopener noreferrer">View repository →</a>
+            <p class="stratum__desc">Natural language in, tool routing out. A Go→Python reimplementation of gogcli that adds an LLM agent layer over <strong>5 providers</strong> (DeepSeek, OpenAI, Gemini, Anthropic, OpenRouter), orchestrating across Gmail, Drive, Calendar, and Tasks — with web search, OS-keyring credential storage, and multi-account aliases.</p>
+            <div class="stratum__tags"><span>Typer</span><span>LLM Agents</span><span>5 Providers</span><span>OAuth2</span><span>Keyring</span></div>
+            <div class="stratum__links">
+              <a class="stratum__link" href="https://github.com/DhruvGarg111/py-goog-cli" target="_blank" rel="noopener noreferrer">View repository →</a>
+            </div>
           </div>
         </div>
       </div>
@@ -588,9 +723,16 @@
         <div class="stratum__label mono">Sensor Matrix · 7200m</div>
         <h2 class="stratum__title stratum__title--center">Capabilities</h2>
         <p class="capability-log__note mono">Every capability below is bound to a system I shipped — not a self-rating.</p>
-        <div class="capability-log" id="capability-log" role="list">
+        <!-- A real <ul>/<li>, not <div role="list"> + <article role="listitem">.
+             role="listitem" on an <article> discards the article semantics and
+             is a disallowed role for that element; native list markup carries
+             the same structure with no ARIA at all. tabindex="0" stays: these
+             cards have a visible focus treatment (accent bar, tint, diamond
+             glow, tool-chip highlight) that keyboard users otherwise cannot
+             reach, since the only natively focusable child is the proof link. -->
+        <ul class="capability-log" id="capability-log">
 
-          <article class="capability capability--perception" role="listitem" tabindex="0">
+          <li class="capability capability--perception" tabindex="0">
             <div class="capability__index mono"><span>01</span></div>
             <div class="capability__main">
               <header class="capability__head">
@@ -602,9 +744,9 @@
                 <li>PyTorch</li><li>YOLOv8</li><li>LayerCAM</li><li>OpenCV</li><li>ONNX</li>
               </ul>
             </div>
-          </article>
+          </li>
 
-          <article class="capability capability--generation" role="listitem" tabindex="0">
+          <li class="capability capability--generation" tabindex="0">
             <div class="capability__index mono"><span>02</span></div>
             <div class="capability__main">
               <header class="capability__head">
@@ -616,9 +758,9 @@
                 <li>PyTorch</li><li>VGG-16</li><li>ONNX</li><li>Hugging Face</li><li>GANs</li>
               </ul>
             </div>
-          </article>
+          </li>
 
-          <article class="capability capability--infra" role="listitem" tabindex="0">
+          <li class="capability capability--infra" tabindex="0">
             <div class="capability__index mono"><span>03</span></div>
             <div class="capability__main">
               <header class="capability__head">
@@ -630,23 +772,23 @@
                 <li>FastAPI</li><li>Celery</li><li>Redis</li><li>PostgreSQL</li><li>Docker</li>
               </ul>
             </div>
-          </article>
+          </li>
 
-          <article class="capability capability--agents" role="listitem" tabindex="0">
+          <li class="capability capability--agents" tabindex="0">
             <div class="capability__index mono"><span>04</span></div>
             <div class="capability__main">
               <header class="capability__head">
                 <h3 class="capability__domain">Agents</h3>
                 <a class="capability__proof mono" href="https://github.com/DhruvGarg111/py-goog-cli" target="_blank" rel="noopener noreferrer">Proven in PyGOG CLI →</a>
               </header>
-              <p class="capability__line">Natural-language intent parsed into authenticated tool calls, orchestrated across Google Workspace — Calendar, Gmail, and Drive — from a single command line.</p>
+              <p class="capability__line">Natural-language intent parsed into authenticated tool calls over 5 interchangeable LLM providers, orchestrated across Google Workspace — Gmail, Drive, Calendar, and Tasks — from a single command line.</p>
               <ul class="capability__tools mono">
                 <li>Typer</li><li>LLM Agents</li><li>OAuth2</li><li>Function Calling</li>
               </ul>
             </div>
-          </article>
+          </li>
 
-        </div>
+        </ul>
       </div>
       </div>
     </section>
@@ -658,33 +800,33 @@
         <div class="stratum__label mono">Verification · 8400m</div>
         <h2 class="stratum__title stratum__title--center">Proof</h2>
         <div class="stat-cluster" id="stat-cluster">
-          <div class="stat-card" data-target="200" data-suffix="+">
+          <div class="stat-card">
             <div class="stat-card__texture"></div>
             <div class="stat-card__inner">
               <div class="stat-card__value mono">
-                <span class="stat-count" data-count="200">200</span>
+                <span class="stat-count" data-count="200" aria-hidden="true">200</span>
                 <span class="stat-card__suffix">+</span>
               </div>
               <div class="stat-card__label mono">Open Source Contributions</div>
               <div class="stat-card__bar"><div class="stat-card__bar-fill"></div></div>
             </div>
           </div>
-          <div class="stat-card" data-target="500" data-suffix="+">
+          <div class="stat-card">
             <div class="stat-card__texture"></div>
             <div class="stat-card__inner">
               <div class="stat-card__value mono">
-                <span class="stat-count" data-count="500">500</span>
+                <span class="stat-count" data-count="500" aria-hidden="true">500</span>
                 <span class="stat-card__suffix">+</span>
               </div>
               <div class="stat-card__label mono">LeetCode Questions Solved</div>
               <div class="stat-card__bar"><div class="stat-card__bar-fill"></div></div>
             </div>
           </div>
-          <div class="stat-card" data-target="1730" data-suffix="">
+          <div class="stat-card">
             <div class="stat-card__texture"></div>
             <div class="stat-card__inner">
               <div class="stat-card__value mono">
-                <span class="stat-count" data-count="1730">1730</span>
+                <span class="stat-count" data-count="1730" aria-hidden="true">1730</span>
               </div>
               <div class="stat-card__label mono">LC Contest Rating</div>
               <div class="stat-card__bar"><div class="stat-card__bar-fill"></div></div>
@@ -727,7 +869,7 @@
       </div>
     </section>
 
-  </div><!-- /.strata -->
+  </main><!-- /.strata -->
 
   <!-- ═══ SCROLL SPACER — drives all animations ═══ -->
   <div class="scroll-spacer" id="scroll-spacer"></div>
@@ -747,8 +889,8 @@
 
   <script defer src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js" crossorigin="anonymous" integrity="sha384-HOvlOYPIs/zjoIkWUGXkVmXsjr8GuZLV+Q+rcPwmJOVZVpvTSXQChiN4t9Euv9Vc"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js" crossorigin="anonymous" integrity="sha384-P8VzCVnT9NBUkMrpcIZrJbA7EBjJvh/fJS6PmP+4nLIM284DtsImIv8D0fFjIkeh"></script>
-  <script defer src="assets/js/hero-flow.js?v=6"></script>
-  <script defer src="assets/js/script.js?v=5"></script>
+  <script defer src="assets/js/hero-flow.js?v=9"></script>
+  <script defer src="assets/js/script.js?v=6"></script>
   <script>
   /* Perf: three.js (~600KB) and its neural-background consumer, plus @mojs/core
      and splitting, aren't needed for first paint or for the core scroll/depth
@@ -786,10 +928,10 @@
           integrity: 'sha384-CI3ELBVUz9XQO+97x6nwMDPosPR5XvsxW2ua7N1Xeygeh1IxtgqtCkGfQY9WWdHu',
           crossorigin: 'anonymous'
         }).then(function () {
-          return loadScript('assets/js/neural-background.js?v=2');
+          return loadScript('assets/js/neural-background.js?v=7');
         }).catch(function () { /* no THREE available — page works fine without the bg */ });
       } else if (window.__bgMode === 'lite') {
-        liteReady = loadScript('assets/js/neural-lite.js?v=2').catch(function () {});
+        liteReady = loadScript('assets/js/neural-lite.js?v=4').catch(function () {});
       }
 
       /* Mobile choreography controller: linear-flow + motion-OK profiles
@@ -807,7 +949,7 @@
             }
             return;
           }
-          loadScript('assets/js/mobile-motion.js?v=2').catch(function () {});
+          loadScript('assets/js/mobile-motion.js?v=3').catch(function () {});
         }
         liteReady.then(function () {
           loadMobileMotionWhenBaselineIsReady(0);

@@ -159,6 +159,7 @@
     els.depthGaugeTrack = $('#depth-gauge-track');
     els.fogVignette = $('#fog-vignette');
     els.heroScrollCue = $('#hero-scroll-cue');
+    els.heroRailState = $('#hero-rail-state');
     els.depthLabels = $$('.depth-gauge__label');
     els.sectionAnnouncer = $('#section-announcer');
 
@@ -206,10 +207,16 @@
     els.sectionAnnouncer.textContent = sec.label + ', ' + sec.depth;
   }
 
+  /* Perf: SECTIONS is static, so a section's serialized form never changes —
+     but this runs on every ScrollTrigger onUpdate, and used to allocate a
+     fresh object each time (which __neuralSetProgress then re-normalised into
+     a second one). Serialize each section once, then hand out the same frozen
+     record every tick. */
+  var serializedSections = SECTIONS.map(serializeSection);
   function pushSectionToBackground(progress) {
     if (!window.__neuralSetProgress) return;
-    var sec = currentSection >= 0 ? SECTIONS[currentSection] : null;
-    window.__neuralSetProgress(progress, sec ? serializeSection(sec) : null);
+    var sec = currentSection >= 0 ? serializedSections[currentSection] : null;
+    window.__neuralSetProgress(progress, sec || null);
   }
 
   /* ═════════════════════════════════════════════════════════ */
@@ -282,7 +289,14 @@
         if (!cached || cached.op !== opR) {
           el.style.opacity = opR.toFixed(4);
         }
-        sectionDepthCache[idx] = { z: zR, sc: scR, op: opR, rx: rxR, ry: ryR };
+        /* Mutate the cached record rather than replacing it — this block's
+           whole purpose is avoiding per-tick churn, and it was allocating a
+           fresh object literal every tick for every in-range section. */
+        if (cached) {
+          cached.z = zR; cached.sc = scR; cached.op = opR; cached.rx = rxR; cached.ry = ryR;
+        } else {
+          sectionDepthCache[idx] = { z: zR, sc: scR, op: opR, rx: rxR, ry: ryR };
+        }
         el.classList.add('is-active');
 
         /* Perf: only promote a GPU layer (will-change) while this section is
@@ -840,8 +854,53 @@
   function updateFogVelocity(speed) {
     if (!els.fogVignette) return;
     var intensity = clamp(0.3 + Math.abs(speed) * 0.3, 0.3, 0.85);
+    /* One write, not two. The CSS reads `opacity: var(--fog-opacity, 0.5)`,
+       so setting the custom property already drives it; the inline opacity
+       that followed just shadowed the rule it had itself fed. */
     els.fogVignette.style.setProperty('--fog-opacity', intensity.toFixed(3));
-    els.fogVignette.style.opacity = intensity.toFixed(3);
+  }
+
+  /* ═════════════════════════════════════════════════════════ */
+  /* HERO MANIFEST                                             */
+  /* ═════════════════════════════════════════════════════════ */
+
+  /* The four rows are authored statically in index.html so they remain real,
+     navigable anchors with JS disabled. Here they're (a) asserted against
+     SECTIONS so a depth can never silently drift from the depth engine, and
+     (b) upgraded from a hash jump — which does nothing useful once the strata
+     are fixed overlays — to the same scroll-progress move the depth gauge
+     already uses. */
+  function initHeroManifest() {
+    var jumps = $$('.hero-manifest__jump');
+    if (jumps.length === 0) return;
+
+    $$('[data-depth-for]').forEach(function (el) {
+      var sec = sectionById[el.getAttribute('data-depth-for')];
+      if (sec && el.textContent.trim() !== sec.depth) el.textContent = sec.depth;
+    });
+
+    jumps.forEach(function (jump) {
+      var sec = sectionById[jump.dataset.section];
+      if (!sec) return;
+      jump.setAttribute('aria-label', 'Go to ' + sec.label + ', ' + sec.depth);
+      jump.addEventListener('click', function (e) {
+        if (!isDesktop) return; // document flow: let the native hash jump work
+        var spacer = $('#scroll-spacer');
+        if (!spacer) return;
+        e.preventDefault();
+        window.scrollTo({ top: sec.start * spacer.offsetHeight, behavior: prefersRM ? 'auto' : 'smooth' });
+      });
+    });
+
+    /* Rail state: the honest resting value depends on which layout actually
+       booted, so it can't be hardcoded in markup. */
+    if (els.heroRailState) {
+      els.heroRailState.textContent = isDesktop ? 'READY' : 'STATIC';
+    }
+    var strataCell = $('#hero-rail-strata');
+    if (strataCell) {
+      strataCell.textContent = SECTIONS.length + ' STRATA · ' + SECTIONS[SECTIONS.length - 1].depth;
+    }
   }
 
   /* ═════════════════════════════════════════════════════════ */
@@ -896,6 +955,36 @@
       withWillChange(imgWrap, 'transform, opacity', gsap.fromTo(imgWrap,
         { opacity: 0, scale: 0.92 },
         { opacity: 1, scale: 1, duration: 1, ease: 'power3.out', delay: 0.6 }
+      ));
+    }
+
+    /* Plate chrome: corner brackets draw out from their corners, then the rail
+       cells and manifest rows arrive. Each bracket scales from its own corner
+       so the frame reads as being struck, not faded in. */
+    var brackets = $$('.survey-brackets span');
+    if (brackets.length) {
+      var origins = ['top left', 'top right', 'bottom right', 'bottom left'];
+      brackets.forEach(function (b, i) {
+        withWillChange(b, 'transform', gsap.fromTo(b,
+          { scaleX: 0, scaleY: 0 },
+          { scaleX: 1, scaleY: 1, duration: 0.32, ease: 'power4.out', delay: 0.1, transformOrigin: origins[i] || 'top left' }
+        ));
+      });
+    }
+
+    var cells = $$('.hero-plate__cell');
+    if (cells.length) {
+      withWillChange(cells, 'opacity', gsap.fromTo(cells,
+        { opacity: 0 },
+        { opacity: 1, duration: 0.26, ease: 'power2.out', delay: 0.22, stagger: 0.04 }
+      ));
+    }
+
+    var rows = $$('.hero-manifest__row');
+    if (rows.length) {
+      withWillChange(rows, 'transform, opacity', gsap.fromTo(rows,
+        { y: 14, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.3, ease: 'power3.out', delay: 0.52, stagger: 0.06 }
       ));
     }
   }
@@ -1056,8 +1145,11 @@
       var tl = gsap.timeline({ paused: true });
 
       cards.forEach(function (card, i) {
-        var target = parseInt(card.getAttribute('data-target'), 10);
+        /* data-count on the .stat-count span is the single source for this
+           number. It used to also exist as data-target on the card and as the
+           element's own text — three copies, any two of which could drift. */
         var counterEl = card.querySelector('.stat-count');
+        var target = counterEl ? parseInt(counterEl.getAttribute('data-count'), 10) : 0;
         /* Markup now carries the final value for no-JS readers; the drill
            counts up from 0, so zero it before the timeline first renders. */
         if (counterEl) counterEl.textContent = '0';
@@ -1128,16 +1220,10 @@
       pushSectionToBackground(progress);
     }
 
-    function updateAria(progress) {
-      track.setAttribute('aria-valuenow', Math.round(progress * 100));
-      /* aria-valuetext gives screen-reader users the depth/section context a
-         bare percentage can't — e.g. "2400 metres, Training, 3 of 9". */
-      var sec = SECTIONS[currentSection] || SECTIONS[0];
-      track.setAttribute(
-        'aria-valuetext',
-        sec.depth.replace('m', '') + ' metres, ' + sec.label + ', ' + (sec.index + 1) + ' of ' + SECTIONS.length
-      );
-    }
+    /* Was a byte-for-byte second copy of updateDepthGaugeAria, directly under
+       that function's own comment promising "one shared writer". Now it is
+       one. */
+    var updateAria = updateDepthGaugeAria;
 
     /* ── Click on track (jump to position) ── */
     track.addEventListener('mousedown', function (e) {
@@ -1182,11 +1268,27 @@
     document.addEventListener('mousemove', onDragMove);
     document.addEventListener('mouseup', onDragEnd);
 
-    /* ── Touch support ── */
+    /* ── Touch support ──
+       The document-level touchmove is bound on drag start and unbound on drag
+       end, not for the page lifetime. It has to be non-passive (onDragMove
+       calls preventDefault to stop the page scrolling under the drag), and a
+       permanently-attached non-passive document touchmove disables the
+       browser's scroll optimisation across the whole page. That penalty landed
+       on touchscreen laptops, which satisfy (any-pointer: fine) and so run the
+       depth engine — they'd pay it for every scroll without ever touching the
+       gauge. */
+    function bindDragMove() {
+      document.addEventListener('touchmove', onDragMove, { passive: false });
+    }
+    function unbindDragMove() {
+      document.removeEventListener('touchmove', onDragMove, { passive: false });
+    }
+
     track.addEventListener('touchstart', function (e) {
       isDragging = true;
       marker.classList.add('is-dragging');
       if (fill) fill.classList.add('is-dragging');
+      bindDragMove();
       var clientY = e.touches[0].clientY;
       var progress = getProgressFromY(clientY);
       updateDirectly(progress);
@@ -1195,8 +1297,8 @@
       e.preventDefault();
     }, { passive: false });
 
-    document.addEventListener('touchmove', onDragMove, { passive: false });
-    document.addEventListener('touchend', onDragEnd);
+    document.addEventListener('touchend', function () { unbindDragMove(); onDragEnd(); });
+    document.addEventListener('touchcancel', function () { unbindDragMove(); onDragEnd(); });
 
     /* ── Click on labels (jump to section) ── */
     function jumpToLabel(lbl) {
@@ -1249,20 +1351,81 @@
   }
 
   /* ═════════════════════════════════════════════════════════ */
+  /* SCROLLABLE STRATUM INNERS — keyboard reachability         */
+  /* ═════════════════════════════════════════════════════════ */
+
+  /* A scroll container with no tabindex cannot be scrolled by keyboard alone,
+     so whatever it hides is unreachable without a pointer (WCAG 2.1.1). Two
+     kinds exist here, and both were affected:
+
+       - .stratum__inner (overflow-y:auto). On a short viewport these genuinely
+         overflow — at 1280x620 seven of the nine do, Capabilities hiding
+         ~435px.
+       - .stratum__visual (overflow-x:auto) — the phone/tablet swipe galleries
+         for Searchlight and Neural Canvas. These already carry role="region"
+         and an aria-label from the markup; they were just never focusable.
+
+     Only containers that actually overflow are marked, so the tab order stays
+     as short as the layout requires — on a tall desktop window this adds
+     nothing at all. Re-run on resize, since overflow is a function of viewport
+     size. Anything this function adds is tagged with data-kbd-scroll so it can
+     be removed again cleanly without stomping authored attributes. */
+  var scrollableRefreshRaf = 0;
+  function refreshScrollableInners() {
+    scrollableRefreshRaf = 0;
+    var containers = $$('.stratum__inner').concat($$('.stratum__visual'));
+    containers.forEach(function (box) {
+      /* 2px tolerance: sub-pixel layout rounding otherwise reports a fraction
+         of a pixel of overflow on boxes that are visually exact. */
+      var overflows = box.scrollHeight - box.clientHeight > 2 ||
+                      box.scrollWidth - box.clientWidth > 2;
+      if (overflows) {
+        if (box.getAttribute('tabindex') === '0') return;
+        box.setAttribute('tabindex', '0');
+        var added = 'tabindex';
+        /* Don't overwrite an authored role/label — the galleries have good ones. */
+        if (!box.getAttribute('role')) { box.setAttribute('role', 'group'); added += ' role'; }
+        if (!box.getAttribute('aria-label') && !box.getAttribute('aria-labelledby')) {
+          var section = box.closest('.stratum');
+          var title = section && section.querySelector('.stratum__title');
+          box.setAttribute('aria-label',
+            (title ? title.textContent.trim() : 'Section') + ' — scrollable content');
+          added += ' aria-label';
+        }
+        box.setAttribute('data-kbd-scroll', added);
+      } else if (box.hasAttribute('data-kbd-scroll')) {
+        var mine = box.getAttribute('data-kbd-scroll');
+        box.removeAttribute('tabindex');
+        if (mine.indexOf('role') !== -1) box.removeAttribute('role');
+        if (mine.indexOf('aria-label') !== -1) box.removeAttribute('aria-label');
+        box.removeAttribute('data-kbd-scroll');
+      }
+    });
+  }
+  function scheduleScrollableRefresh() {
+    if (scrollableRefreshRaf) return;
+    scrollableRefreshRaf = requestAnimationFrame(refreshScrollableInners);
+  }
+
+  /* ═════════════════════════════════════════════════════════ */
   /* KEYBOARD NAV                                              */
   /* ═════════════════════════════════════════════════════════ */
 
   function initKeyboard() {
     if (!isDesktop) return;
     document.addEventListener('keydown', function (e) {
-      /* Don't hijack digit keys while focus is on an interactive/editable
-         element — a user typing in a field or activating a link/button
-         shouldn't trigger a section jump. */
+      /* Don't hijack digit keys while anything is focused. This used to be a
+         tag allow-list (INPUT/TEXTAREA/BUTTON/A/SELECT), which missed every
+         focusable element that isn't one of those tags — the depth-gauge
+         labels (focusable <span role="button">), the capability cards, and now
+         the keyboard-scrollable stratum boxes. Any of those being focused and
+         a digit still jumping the drill out from under the user is exactly the
+         surprise WCAG 2.1.4 is about. Testing "is something focused" instead of
+         "is it one of these tags" is both simpler and complete.
+         Modifier chords are also left alone so browser/OS shortcuts pass. */
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
       var active = document.activeElement;
-      var tag = active && active.tagName;
-      if (active && (active.isContentEditable || tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'BUTTON' || tag === 'A' || tag === 'SELECT')) {
-        return;
-      }
+      if (active && active !== document.body && active !== document.documentElement) return;
       var key = parseInt(e.key, 10);
       if (key >= 1 && key <= SECTIONS.length) {
         e.preventDefault();
@@ -1299,7 +1462,8 @@
     if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined' || !isDesktop) return;
 
     gsap.registerPlugin(ScrollTrigger);
-    gsap.ticker.lagSmoothing(500, 33);
+    /* lagSmoothing is set once in boot(), which always runs first — it is a
+       global ticker setting, not a per-engine one. */
 
     /* ScrollTrigger's _refreshAll forces history.scrollRestoration back to
        'auto' on every refresh (so it can programmatically scroll during
@@ -1465,6 +1629,7 @@
     }
 
     initHero();
+    initHeroManifest();
 
     if (canRunDepthEngine) initKeyboard();
 
@@ -1481,6 +1646,13 @@
     } else {
       initMobile(true);
     }
+
+    /* Both layouts need this: the drill has overflowing .stratum__inner boxes
+       on short windows, the document-flow layout has the horizontal swipe
+       galleries. Deferred one frame so it measures settled layout, not
+       mid-boot. */
+    requestAnimationFrame(refreshScrollableInners);
+    window.addEventListener('resize', scheduleScrollableRefresh, { passive: true });
   }
 
   function initBreakpointReload() {
@@ -1528,6 +1700,8 @@
     var statusEl = document.getElementById('loader-status');
     var depthEl = document.getElementById('loader-depth');
     if (!loader) return null;
+    var logoEl = loader.querySelector('.loader__logo');
+    var heroWrap = document.getElementById('hero-image-wrap');
 
     var steps = [
       { t: 0,    w: '0%',   status: 'INITIALIZING DEPTH ENGINE', depth: '0m' },
@@ -1551,6 +1725,24 @@
     var hidden = false;
     var ceilingTimer = null;
 
+    function publishSurfaceLock() {
+      document.body.classList.add('is-surface-locked');
+      /* Latch, not just an event. neural-background.js is lazy-loaded on idle
+         while this fires as soon as boot() completes, so the module can come
+         up *after* the event has already been dispatched — a plain
+         addEventListener there would wait forever and strand the boot lattice
+         on screen. Consumers check this flag first and only then subscribe. */
+      window.__surfaceLocked = true;
+      window.dispatchEvent(new CustomEvent('hero:surface-lock'));
+    }
+
+    function completeHide() {
+      loader.classList.add('is-done');
+      setTimeout(function () {
+        loader.style.display = 'none';
+      }, 450);
+    }
+
     function reallyHide() {
       if (hidden) return;
       hidden = true;
@@ -1558,10 +1750,29 @@
       if (ceilingTimer) clearTimeout(ceilingTimer);
       if (barFill) barFill.style.transform = 'scaleX(1)';
       if (statusEl) statusEl.textContent = 'READY · SURFACE LOCKED';
-      loader.classList.add('is-done');
-      setTimeout(function () {
-        loader.style.display = 'none';
-      }, 450);
+      /* The loader depth readout completes the descent, then hands the
+         instrument back to the surface rather than leaving a false 9000m
+         reading behind. */
+      if (depthEl) depthEl.textContent = '0m';
+      publishSurfaceLock();
+
+      /* Move the actual survey mark toward the hero panel's reticle. The
+         geometry is measured at handoff time so responsive layouts and font
+         settling do not introduce a jump. Reduced-motion and dependency
+         failure retain the same semantic handoff without the transform. */
+      if (prefersRM || typeof gsap === 'undefined' || !logoEl || !heroWrap) {
+        completeHide();
+        return;
+      }
+      var from = logoEl.getBoundingClientRect();
+      var to = heroWrap.getBoundingClientRect();
+      var dx = (to.left + to.width * 0.5) - (from.left + from.width * 0.5);
+      var dy = (to.top + to.height * 0.5) - (from.top + from.height * 0.5);
+      var tl = gsap.timeline({ onComplete: completeHide });
+      tl.to(loader.querySelector('.loader__text'), { opacity: 0, y: -8, duration: 0.24, ease: 'power2.out' }, 0)
+        .to(loader.querySelector('.loader__bar'), { opacity: 0, duration: 0.2, ease: 'power2.out' }, 0)
+        .to(logoEl, { x: dx, y: dy, scale: 0.5, duration: 0.72, ease: 'power3.out' }, 0)
+        .to(loader, { opacity: 0, duration: 0.42, ease: 'power2.out' }, 0.28);
     }
 
     function hide() {
@@ -1575,6 +1786,26 @@
     return hide;
   }
 
+  /* Map location.hash onto scroll progress for the depth drill. Falls back to
+     the top for no hash, an unknown hash, or a hash naming something that
+     isn't one of the nine strata (e.g. #strata from the skip link — that must
+     move focus, not scroll the drill). `smooth` only for an in-session
+     hashchange; the initial load jumps. */
+  function seedScrollFromHash(smooth) {
+    var id = (location.hash || '').replace(/^#/, '');
+    var sec = id && Object.prototype.hasOwnProperty.call(sectionById, id) ? sectionById[id] : null;
+    if (!sec) {
+      if (!smooth) window.scrollTo(0, 0);
+      return;
+    }
+    var spacer = $('#scroll-spacer');
+    if (!spacer) { window.scrollTo(0, 0); return; }
+    window.scrollTo({
+      top: sec.start * spacer.offsetHeight,
+      behavior: smooth && !prefersRM ? 'smooth' : 'auto',
+    });
+  }
+
   function start() {
     /* The depth engine hijacks a 1000vh spacer: scroll position IS section
        progress. With the browser's default scrollRestoration ('auto'), a
@@ -1585,8 +1816,18 @@
        light). Document-flow/mobile keeps native restore (a normal page). */
     if (window.__canDepthDrill && 'scrollRestoration' in history) {
       history.scrollRestoration = 'manual';
-      window.scrollTo(0, 0);
+      /* ...but an explicit deep link is not a restored scroll. Sharing
+         dhruvgarg.tech/#skills used to land the recipient on the hero,
+         because scroll position IS section progress here and nothing ever
+         mapped an incoming hash onto it — the in-page manifest links work
+         only because they're intercepted and converted at click time. The
+         dark-flash this scrollTo(0,0) guards against is a *restored* mid-
+         drill position, which a deliberate target isn't. */
+      seedScrollFromHash();
     }
+    window.addEventListener('hashchange', function () {
+      if (window.__canDepthDrill) seedScrollFromHash(true);
+    });
 
     initBreakpointReload();
     var hideLoader = initLoader();
@@ -1603,6 +1844,7 @@
       document.body.classList.remove('is-desktop-depth');
       cacheElements();
       refreshCssVars();
+      initHeroManifest();
       /* Static fallback */
       $$('.stratum').forEach(function (s) {
         s.classList.add('is-active'); setInert(s, false); showStatic(s);

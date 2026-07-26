@@ -307,49 +307,6 @@
     ensureRunning();
   }
 
-  function handleTouchStart(e) {
-    mouse.active = true;
-    var t = e.touches[0];
-    mouse.x = t.clientX;
-    mouse.y = t.clientY;
-    mouse.lastX = mouse.x;
-    mouse.lastY = mouse.y;
-    cursorTarget.x = mouse.x;
-    cursorTarget.y = mouse.y;
-    spawnParticles(mouse.x, mouse.y, 6, 2.5);
-    ensureRunning();
-  }
-
-  function handleTouchMove(e) {
-    var t = e.touches[0];
-    mouse.x = t.clientX;
-    mouse.y = t.clientY;
-    
-    var dx = mouse.x - mouse.lastX;
-    var dy = mouse.y - mouse.lastY;
-    var dist = Math.sqrt(dx * dx + dy * dy);
-    
-    if (dist > 3) {
-      var theme = frameTheme || readTheme();
-      var palette = theme.palette;
-      var color = palette[Math.floor(Math.random() * palette.length)];
-      particles.push(acquireParticle(mouse.x, mouse.y, dx * 0.12, dy * 0.12, color, 'node'));
-      if (particles.length > config.maxParticles) {
-        particles.shift();
-      }
-    }
-    
-    mouse.lastX = mouse.x;
-    mouse.lastY = mouse.y;
-    cursorTarget.x = mouse.x;
-    cursorTarget.y = mouse.y;
-    ensureRunning();
-  }
-
-  function handleTouchEnd() {
-    cursorTarget.size = 20;
-  }
-
   function handleMouseLeave() {
     mouse.active = false;
   }
@@ -357,9 +314,13 @@
   window.addEventListener('mousemove', handleMouseMove, { passive: true });
   window.addEventListener('mousedown', handleMouseDown, { passive: true });
   window.addEventListener('mouseup', function () { cursorTarget.size = 20; }, { passive: true });
-  window.addEventListener('touchstart', handleTouchStart, { passive: true });
-  window.addEventListener('touchmove', handleTouchMove, { passive: true });
-  window.addEventListener('touchend', handleTouchEnd, { passive: true });
+  /* No touch listeners, deliberately. The early return above is keyed on
+     device *capability* (isTouchFirst), but touch *events* still fire on a
+     hybrid machine — a touchscreen laptop matches (any-pointer: fine), so it
+     passes that guard and would then draw exactly the finger trail the note
+     at the top of this file rules out as distracting and battery-hostile.
+     This module is mouse-only by design; pointer input drives it via
+     mousemove. */
   document.addEventListener('mouseleave', handleMouseLeave);
 
   function drawConnections(now, theme) {
