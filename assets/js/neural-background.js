@@ -35,12 +35,13 @@
      isLowEnd is true only for tier === 'low' ('med' gets the reduced-but-
      not-lowest settings elsewhere, e.g. maxPulses/pCount/frameInterval).
      isLowEnd is read once here to bake antialias/powerPreference into the
-     WebGLRenderer constructor and again in resize() for setPixelRatio —
-     both are boot-frozen by design (a new GL context would be needed to
-     change them mid-session), so isLowEnd must NOT be reassigned by the
-     devicetierchange listener below; only the live-adjustable knobs
-     (frameInterval, smokeEnabled/smokeQuarterRes/smokeFrameSkip) react to
-     tier changes after boot. */
+     WebGLRenderer constructor — those two are genuinely boot-frozen (they are
+     constructor options; changing them needs a new GL context), so isLowEnd
+     must NOT be reassigned by the devicetierchange listener below. The
+     live-adjustable knobs that DO react to tier changes after boot are
+     frameInterval, smokeEnabled/smokeQuarterRes/smokeFrameSkip, and the render
+     pixel ratio (see renderDprCap — setPixelRatio, unlike the constructor
+     options, can be changed on a live context). */
   var cores = navigator.hardwareConcurrency || 4;
   var tier = window.__deviceTier || (cores <= 4 || isSmall ? 'low' : 'high');
   var isLowEnd = tier === 'low'; // kept for the few genuinely binary knobs (antialias, powerPreference — see below)
@@ -293,7 +294,10 @@
 
   /* Sphere nodes (InstancedMesh) — white base so setColorAt works correctly */
   var sphereCount = allSpherePositions.length;
-  var sphereMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.82, depthWrite: false, fog: true });
+  /* NOTE: this opacity is mirrored as baseSpOp in updateAtmosphere() — that
+     function rewrites .opacity every frame, so changing it here alone has no
+     lasting effect. Same for boxMat/haloMat below. */
+  var sphereMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.96, depthWrite: false, fog: true });
   var sphereInstanced = new THREE.InstancedMesh(sphereGeo, sphereMat, sphereCount);
   allSpherePositions.forEach(function (pos, i) {
     dummy.position.copy(pos);
@@ -307,7 +311,7 @@
 
   /* Box nodes (InstancedMesh) — white base so setColorAt works correctly */
   var boxCount = allBoxPositions.length;
-  var boxMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.6, depthWrite: false, fog: true });
+  var boxMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.82, depthWrite: false, fog: true });
   var boxInstanced = new THREE.InstancedMesh(boxGeoBase, boxMat, boxCount);
   allBoxPositions.forEach(function (pos, i) {
     dummy.position.copy(pos);
@@ -323,7 +327,7 @@
   /* Halo rings (InstancedMesh) — white base so setColorAt works correctly */
   var haloCount = allHaloData.length;
   var haloGeo = new THREE.RingGeometry(1, 1.04, 32); // unit ring, scaled per instance
-  var haloMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.55, depthWrite: false, fog: true, side: THREE.DoubleSide });
+  var haloMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.74, depthWrite: false, fog: true, side: THREE.DoubleSide });
   var haloInstanced = new THREE.InstancedMesh(haloGeo, haloMat, haloCount);
   allHaloData.forEach(function (h, i) {
     dummy.position.set(0, 0, h.z);
@@ -362,7 +366,7 @@
     synapseGeo.setAttribute('position', new THREE.Float32BufferAttribute(synapsePoints, 3));
     synapseGeo.setAttribute('color', new THREE.Float32BufferAttribute(synapseColors, 3));
     var synapseLine = new THREE.LineSegments(synapseGeo,
-      new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.36, fog: true })
+      new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.58, fog: true })
     );
     networkGroup.add(synapseLine);
   }
@@ -394,13 +398,15 @@
     }
   });
 
+  var arcLine = null;
   if (arcPoints.length > 0) {
     var arcGeo = new THREE.BufferGeometry();
     arcGeo.setAttribute('position', new THREE.Float32BufferAttribute(arcPoints, 3));
     arcGeo.setAttribute('color', new THREE.Float32BufferAttribute(arcColors, 3));
-    networkGroup.add(new THREE.LineSegments(arcGeo,
-      new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.52, fog: true })
-    ));
+    arcLine = new THREE.LineSegments(arcGeo,
+      new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.78, fog: true })
+    );
+    networkGroup.add(arcLine);
   }
 
   /* ═════════════════════════════════════════════════════════ */
@@ -435,7 +441,7 @@
   var pGeo = new THREE.BufferGeometry();
   pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
   var particles = new THREE.Points(pGeo, new THREE.PointsMaterial({
-    size: 0.04, color: 0x968D7B, transparent: true, opacity: 0.75, depthWrite: false, fog: true,
+    size: 0.04, color: 0x968D7B, transparent: true, opacity: 0.92, depthWrite: false, fog: true,
   }));
   /* Base hue for the per-section hueShift nudge (see SEGMENT_MOTION). Copied
      from — never mutated in place — so the offset can't accumulate. */
@@ -445,6 +451,230 @@
   /* Network tilt */
   networkGroup.rotation.x = Math.PI / 14;
   networkGroup.rotation.y = -Math.PI / 8;
+
+  /* Framing. The network is built on the world axis (x=0, y=0) but at scroll 0
+     the camera sits at (0, 3, 32) aimed at the path's look-ahead point near
+     (0.6, 2.7, 30). That sight line runs right and down relative to the
+     structure, which therefore lands left of frame and gets clipped — the one
+     view every visitor is guaranteed to see, and the view the boot morph
+     resolves in.
+
+     The offset needed to centre it there is far too large to apply
+     statically: the camera path only wanders x within [-2, 3], so parking the
+     group at x≈9 would leave the camera flying *past* the tunnel instead of
+     through it for the whole drill. So the offset decays to zero over the
+     first slice of scroll — framed at the surface, back on-axis by the time
+     the descent actually begins. tick() drives it; these are the boot values
+     buildLattice measures against. */
+  /* Solved, not guessed: projecting every node instance through the boot
+     camera gives ~50px of horizontal and ~54px of vertical screen travel per
+     world unit at this distance. These values put the structure's centroid on
+     the middle of the plate's type column — open paper, where it actually
+     reads — instead of centred in the raw viewport, where it collided with
+     the opaque field panel and overflowed the bottom edge by ~175px. */
+  var HERO_FRAME_X = 8.9;
+  var HERO_FRAME_Y = 3.4;
+  /* Scroll fraction over which the framing hands back to the camera path.
+     Matched to the hero's own range in SECTIONS (0.00-0.10): the offset is
+     fully surrendered exactly as the first stratum takes over, so no stratum
+     is ever composed against a network that is still sliding. */
+  var HERO_FRAME_FADE = 0.10;
+  networkGroup.position.set(HERO_FRAME_X, HERO_FRAME_Y, 0);
+
+  /* ═════════════════════════════════════════════════════════ */
+  /* BOOT MORPH — ball/block lattice resolves into the network  */
+  /* ═════════════════════════════════════════════════════════ */
+
+  /* A flat, evenly-spaced grid of the same instances the network is built
+     from, sized to fill the frustum at scroll progress 0, that lerps into the
+     real layered structure once the loader hands off. Geometry only: the
+     camera is never touched, so this cannot fight __neuralSetProgress. No new
+     meshes, no new draw calls, no new dependency — the existing instances are
+     simply somewhere else for the hold-plus-morph window below. */
+
+  function clamp01(v) { return v < 0 ? 0 : v > 1 ? 1 : v; }
+
+  var MORPH_MS = 6300;
+  /* Held back from the surface-lock signal so the morph doesn't collide with
+     the loader clearing and the hero letter-assemble. It reads as its own
+     beat instead of a third thing happening at once. */
+  var MORPH_DELAY_MS = 2700;
+  /* Large enough that the blocks read as solid samples in the lattice rather
+     than as specks; still well under their resolved network scale so the
+     morph has somewhere to grow from. */
+  var LATTICE_BOX_SCALE = 0.42;
+  var morphT = 1;               // 1 = fully resolved network; the no-morph resting state
+  var morphState = 'off';       // 'off' | 'armed' | 'running' | 'done'
+  var morphStartedAt = 0;
+  function nowMs() { return (window.performance && performance.now) ? performance.now() : Date.now(); }
+  /* Wall-clock time this document has spent hidden, which stepMorph subtracts
+     so the morph measures *watched* time rather than elapsed time. Seeded at
+     module scope because a tab opened in the background is hidden from its
+     very first frame, and `visibilitychange` does NOT fire for a page that
+     loaded already-hidden — without this the 1.8s hold + 4.2s morph burns
+     through before the visitor ever switches to the tab, and they arrive at a
+     resolved network having seen none of it. Middle-click, "open in new tab"
+     from search results and restored sessions all land here. */
+  var hiddenSince = document.hidden ? nowMs() : 0;
+  var hiddenTotal = 0;
+  var latticeSpheres = [];
+  var latticeBoxes = [];
+
+  /* Skipped on the low tier: a device that already can't hold cadence should
+     spend its budget on the resting scene, not on a boot flourish. */
+  var morphEnabled = tier !== 'low';
+
+  function buildLattice() {
+    var total = sphereCount + boxCount;
+    if (total === 0) return;
+    /* Fill the frustum at the boot camera position with a roughly square grid.
+       The plane is built in WORLD space and converted per-point with
+       worldToLocal, so the group's rotation *and* its framing offset are both
+       accounted for — the lattice fills the screen regardless of where the
+       network itself sits.
+       Aspect comes from the window, not camera.aspect — resize() hasn't run
+       yet at this point in boot, so camera.aspect is still its constructor 1. */
+    var camPos = cameraPath.getPointAt(0);
+    var planeZ = camPos.z - 16;
+    var halfH = Math.tan((camera.fov * Math.PI / 180) / 2) * Math.abs(camPos.z - planeZ);
+    var halfW = halfH * Math.max(1, (window.innerWidth || 1) / (window.innerHeight || 1));
+    /* Centre the grid on the camera's own axis rather than the world origin,
+       so it reads as a full-frame field instead of one pushed off to a corner. */
+    var cx = camPos.x;
+    var cy = camPos.y;
+    var cols = Math.ceil(Math.sqrt(total * (halfW / halfH)));
+    var rows = Math.ceil(total / cols);
+    var stepX = (halfW * 2) / Math.max(1, cols - 1);
+    var stepY = (halfH * 2) / Math.max(1, rows - 1);
+
+    /* worldToLocal reads matrixWorld, which three.js only refreshes during
+       render — and buildLattice runs before the first one. Without this the
+       matrix is still identity and the conversion silently no-ops, so the
+       lattice ignores both the group's tilt and its framing offset. */
+    networkGroup.updateMatrixWorld(true);
+
+    latticeSpheres.length = 0;
+    latticeBoxes.length = 0;
+    /* Interleave the two meshes across the grid so the lattice reads as one
+       uniform field of mixed material samples rather than balls on one side
+       and blocks on the other. */
+    var si = 0, bi = 0;
+    for (var n = 0; n < total; n++) {
+      var col = n % cols;
+      var row = Math.floor(n / cols);
+      var v = new THREE.Vector3(cx - halfW + col * stepX, cy - halfH + row * stepY, planeZ);
+      networkGroup.worldToLocal(v);
+      var takeSphere = (n % 2 === 0 && si < sphereCount) || bi >= boxCount;
+      if (takeSphere && si < sphereCount) { latticeSpheres[si++] = v; }
+      else if (bi < boxCount) { latticeBoxes[bi++] = v; }
+      else if (si < sphereCount) { latticeSpheres[si++] = v; }
+    }
+  }
+
+  /* The single owner of every morph matrix write. t=0 lattice, t=1 network. */
+  function applyMorph(t) {
+    var i;
+    /* dummy is shared, and nothing in these loops rotates — set the resting
+       orientation once per call rather than once per instance. */
+    dummy.rotation.set(0, 0, 0);
+    dummy.scale.setScalar(1);
+    for (i = 0; i < sphereCount; i++) {
+      var lp = latticeSpheres[i] || allSpherePositions[i];
+      dummy.position.lerpVectors(lp, allSpherePositions[i], t);
+      dummy.updateMatrix();
+      sphereInstanced.setMatrixAt(i, dummy.matrix);
+    }
+    sphereInstanced.instanceMatrix.needsUpdate = true;
+
+    for (i = 0; i < boxCount; i++) {
+      var lb = latticeBoxes[i] || allBoxPositions[i];
+      dummy.position.lerpVectors(lb, allBoxPositions[i], t);
+      dummy.scale.set(
+        LATTICE_BOX_SCALE + (1 - LATTICE_BOX_SCALE) * t,
+        LATTICE_BOX_SCALE + (allBoxScales[i].y - LATTICE_BOX_SCALE) * t,
+        LATTICE_BOX_SCALE + (allBoxScales[i].z - LATTICE_BOX_SCALE) * t
+      );
+      dummy.updateMatrix();
+      boxInstanced.setMatrixAt(i, dummy.matrix);
+    }
+    boxInstanced.instanceMatrix.needsUpdate = true;
+
+    /* Halos are the "structure has settled" cue — they arrive last. */
+    var haloT = clamp01((t - 0.55) / 0.45);
+    for (i = 0; i < haloCount; i++) {
+      var h = allHaloData[i];
+      dummy.position.set(0, 0, h.z);
+      dummy.scale.set(h.radius * haloT, h.radius * haloT, 1);
+      dummy.updateMatrix();
+      haloInstanced.setMatrixAt(i, dummy.matrix);
+    }
+    haloInstanced.instanceMatrix.needsUpdate = true;
+
+    /* Lines can't be drawn in per-vertex without touching the buffer, so they
+       fade instead (per-vertex draw-in is explicitly out of scope). */
+    var lineT = clamp01((t - 0.6) / 0.4);
+    /* These three targets mirror the material constructors above; unlike the
+       sphere/box/halo set they are not rewritten by updateAtmosphere, so this
+       is the only other place they appear. Keep them in step or the network
+       snaps brightness the instant the morph finishes. */
+    if (synapseLine) synapseLine.material.opacity = 0.58 * lineT;
+    if (arcLine) arcLine.material.opacity = 0.78 * lineT;
+
+    particles.material.opacity = 0.92 * clamp01((t - 0.3) / 0.7);
+    pulseInstanced.visible = t >= 1;
+  }
+
+  function stepMorph() {
+    if (morphState !== 'running') return;
+    /* Deliberately reads the clock itself rather than taking tick()'s `now`:
+       under the GSAP ticker that value is elapsed-since-ticker-start, not a
+       performance.now() timestamp, so subtracting morphStartedAt from it
+       would yield a negative age and run the morph backwards. */
+    var now = nowMs();
+    /* The delay is subtracted here rather than deferred with a second
+       setTimeout so there is still exactly one clock and one owner of the
+       morph's progress. age < 0 simply holds at the lattice.
+       hiddenTotal discounts time the tab spent in the background, so the
+       morph always plays in front of someone. */
+    var age = (now - morphStartedAt - hiddenTotal) - MORPH_DELAY_MS;
+    if (age < 0) return;
+    var raw = Math.min(1, age / MORPH_MS);
+    /* power3.inOut, inlined — the morph must not depend on GSAP being present. */
+    var eased = raw < 0.5 ? 4 * raw * raw * raw : 1 - Math.pow(-2 * raw + 2, 3) / 2;
+    morphT = eased;
+    applyMorph(morphT);
+    if (raw >= 1) {
+      morphState = 'done';
+      morphT = 1;
+    }
+  }
+
+  function beginMorph() {
+    if (morphState !== 'armed') return;
+    morphStartedAt = nowMs();
+    morphState = 'running';
+  }
+
+  if (morphEnabled) {
+    buildLattice();
+    morphT = 0;
+    morphState = 'armed';
+    applyMorph(0);
+    /* Latch first, event second. script.js sets window.__surfaceLocked before
+       dispatching, and this module is lazy-loaded on idle — so by the time it
+       runs the event may already have come and gone. Checking the flag is what
+       stops the lattice being stranded on screen forever. */
+    if (window.__surfaceLocked) {
+      beginMorph();
+    } else {
+      window.addEventListener('hero:surface-lock', beginMorph, { once: true });
+      /* Belt and braces: if the loader never signals at all (its own ceiling
+         timer failing, a JS error upstream), resolve anyway rather than
+         leaving a visitor looking at a permanent dot grid. beginMorph's
+         'armed' guard makes the later of the two calls a no-op. */
+      setTimeout(beginMorph, 3000);
+    }
+  }
 
   /* ═════════════════════════════════════════════════════════ */
   /* INPUT & RESIZE                                            */
@@ -509,6 +739,26 @@
     }, { passive: true });
   }
 
+  /* Render resolution. Unlike `antialias` and `powerPreference` — which are
+     WebGLRenderer *constructor* options and genuinely do need a new GL context
+     to change — setPixelRatio is live-adjustable, so a device that turns out
+     mid-session to be unable to hold cadence can shed fill-rate cost, which on
+     a fragment-bound scene like this one is the single largest lever available
+     after cadence itself.
+
+     Deliberately a one-way ratchet *below* the boot value, never above it: a
+     device that is coping sees exactly the resolution it always did, and only
+     one that has demonstrably failed (the frame-time watcher stepped its tier
+     down) trades background sharpness for frame rate. That is the same trade
+     tier-low devices already take at boot, just applied on evidence rather
+     than on the hardware guess. On a DPR-1 display this is a no-op. */
+  var bootDprCap = isLowEnd ? 1 : Math.min(window.devicePixelRatio || 1, 2);
+  var dprFloorByTier = { low: 1, med: 1.5, high: 2 };
+  function renderDprCap() {
+    var want = Math.min(window.devicePixelRatio || 1, dprFloorByTier[tier] || 2);
+    return Math.min(bootDprCap, want);
+  }
+
   function resize() {
     resizeRafId = 0;
     viewW = window.innerWidth || 1;
@@ -516,7 +766,7 @@
     camera.aspect = viewW / viewH;
     camera.updateProjectionMatrix();
     renderer.setSize(viewW, viewH, false);
-    renderer.setPixelRatio(isLowEnd ? 1 : Math.min(window.devicePixelRatio || 1, 2));
+    renderer.setPixelRatio(renderDprCap());
     if (smokeEnabled) {
       /* Perf: smoke noise is rendered at half the canvas's device-pixel
          resolution, then upscaled by the GPU when composited — the FBM
@@ -567,12 +817,19 @@
 
     /* Boost node opacity during dark sections so colored nodes glow through
        the semi-transparent dark panels (darkness: 0=light, 1=dark section) */
-    var baseSpOp = 0.82;
-    var baseBxOp = 0.60;
-    var baseHaOp = 0.55;
-    sphereMat.opacity = baseSpOp + (1.0 - baseSpOp) * darkness * 0.7;
-    boxMat.opacity    = baseBxOp + (1.0 - baseBxOp) * darkness * 0.6;
-    haloMat.opacity   = baseHaOp + (1.0 - baseHaOp) * darkness * 0.5;
+    var baseSpOp = 0.96;
+    var baseBxOp = 0.82;
+    var baseHaOp = 0.74;
+    /* The lattice rises in rather than popping to full strength. Multiplied
+       here — the single place these three opacities are written — so the morph
+       never has to fight this per-frame write. Resolves to 1 and stays there.
+       The floor is high because the plate substrate sits at 0.12 over the top
+       of all of this; anything dimmer and the mesh reads as page texture
+       rather than as a structure. */
+    var m = 0.84 + 0.16 * morphT;
+    sphereMat.opacity = (baseSpOp + (1.0 - baseSpOp) * darkness * 0.7) * m;
+    boxMat.opacity    = (baseBxOp + (1.0 - baseBxOp) * darkness * 0.6) * m;
+    haloMat.opacity   = (baseHaOp + (1.0 - baseHaOp) * darkness * 0.5) * m;
   }
 
   /* ═════════════════════════════════════════════════════════ */
@@ -586,11 +843,12 @@
   var frameInterval = tier === 'low' ? 33 : tier === 'med' ? 20 : 16; // ~30 / ~50 / ~60fps caps
 
   /* Live-adjustable on a devicetierchange event, without recreating the
-     WebGL context: render cadence and smoke cost. NOT live-adjustable:
+     WebGL context: render cadence, smoke cost, and render pixel ratio
+     (downward only — see renderDprCap). NOT live-adjustable:
      particle/pulse instance counts (baked into fixed-size THREE.js
-     geometry at init) and antialias/DPR (require a new context) — those
-     stay pinned to the tier this module booted with. A mid-session
-     downgrade still meaningfully reduces cost via cadence + smoke alone. */
+     geometry at init) and antialias/powerPreference (constructor options —
+     these do require a new context) — those stay pinned to the tier this
+     module booted with. */
   function handleDeviceTierChange(e) {
     var t = e.detail && e.detail.tier;
     if (!t) return;
@@ -599,10 +857,10 @@
     smokeEnabled = tier !== 'low';
     smokeQuarterRes = tier === 'med';
     smokeFrameSkip = tier === 'med';
-    /* Re-run resize() so the smoke render target is (re)sized for the new
-       state: it applies the new smokeQuarterRes resolution, and — critically —
-       sizes the target the first time smoke turns on after booting in 'low'
-       (the setSize call lives behind `if (smokeEnabled)` in resize()). */
+    /* Re-run resize() so the new state is applied: the smoke render target's
+       smokeQuarterRes resolution, the render pixel ratio for the new tier,
+       and — critically — sizing the target the first time smoke turns on after
+       booting in 'low' (that setSize lives behind `if (smokeEnabled)`). */
     resize();
   }
   window.addEventListener('devicetierchange', handleDeviceTierChange);
@@ -645,6 +903,15 @@
     /* Network rotation */
     networkGroup.rotation.y = -Math.PI / 8 + mouse.x * 0.08 + scrollProgress * 0.3;
     networkGroup.rotation.x = Math.PI / 14 + mouse.y * 0.04;
+
+    /* Hero framing hands back to the camera path as the descent starts. */
+    var frameFade = 1 - Math.min(1, scrollProgress / HERO_FRAME_FADE);
+    networkGroup.position.x = HERO_FRAME_X * frameFade;
+    networkGroup.position.y = HERO_FRAME_Y * frameFade;
+
+    /* Boot morph — runs before the pulse pass so pulseInstanced.visible is
+       already correct for this frame. No-op once resolved. */
+    stepMorph();
 
     /* Pulses — update InstancedMesh matrices */
     var pulseNeedsUpdate = false;
@@ -701,7 +968,11 @@
   }
 
   function start() {
-    if (running || disposed) return;
+    /* document.hidden is checked here, not only in the visibilitychange
+       handler: that event never fires for a document that was already hidden
+       when it loaded, so a background tab would otherwise run the full render
+       loop — and burn the boot morph — with nobody watching. */
+    if (running || disposed || document.hidden) return;
     running = true;
     lastRender = 0;
     if (useGsapTicker) window.gsap.ticker.add(tick);
@@ -758,12 +1029,22 @@
   camera.position.copy(initPos);
   camera.lookAt(cameraPath.getPointAt(lookAheadDelta));
 
+  /* One synchronous frame so the canvas is never blank behind the loader —
+     safe to do while hidden, it's a single draw rather than a running loop. */
   renderer.render(scene, camera);
   document.body.classList.add('has-neural-depth');
   start();
 
   window.addEventListener('resize', scheduleResize, { passive: true });
-  function handleVisibilityChange() { if (document.hidden) stop(); else start(); }
+  function handleVisibilityChange() {
+    if (document.hidden) {
+      if (!hiddenSince) hiddenSince = nowMs();
+      stop();
+    } else {
+      if (hiddenSince) { hiddenTotal += nowMs() - hiddenSince; hiddenSince = 0; }
+      start();
+    }
+  }
   document.addEventListener('visibilitychange', handleVisibilityChange);
   window.addEventListener('pagehide', dispose, { once: true });
 })();

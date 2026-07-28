@@ -41,8 +41,13 @@
 }
 
 :root {
-  --heading-primary: #B04B19;
-  --heading-accent: #556429;
+  /* Semantic heading system: the structural word sits in ink; the accent word
+     carries the section's *discipline* color (survey terracotta by default,
+     validated teal on the dark training/interface strata — overridden per
+     section below, next to the strata rules). Replaces the old fixed
+     orange/olive pair that had no semantic rationale. */
+  --heading-primary: var(--ink);
+  --heading-accent: var(--survey);
   --paper: #EDE7DA;
   --paper-deep: #DDD3C0;
   --ink: #1A2B3C;
@@ -51,7 +56,11 @@
   --survey: #B24F20;
   --survey-text: #85350E;
   --survey-glow: rgba(178, 79, 32, 0.34);
+  --reticle: #BE6D45; /* searchlight ring — survey 80% + paper 20%, baked from color-mix; hero-flow mirrors it brightened for the dark panel */
+  --field-coarse: rgba(244, 240, 232, 0.42);
+  --field-fine: rgba(240, 168, 104, 0.78);
   --validated: #2A6054;
+  --validated-bright: #75C4A4; /* dark-strata heading accent — same teal hue as the hero-flow palette, lifted for legibility on navy */
   --datum: #3D72A4;
   --depth-line: rgba(26, 43, 60, 0.12);
   --dark-bg: rgba(18, 26, 38, 0.72);
@@ -111,9 +120,16 @@
   --hero-role: #3C6176;
   --hero-panel-top: #1C2938;
   --hero-panel-bottom: #121A26;
+  --plate-line: rgba(26, 43, 60, 0.28);
   --gold: #D8A246;
 
-  --font-display: "Aldrich", ui-monospace, 'SFMono-Regular', monospace;
+  /* Aldrich is a wide, squared geometric sans. The old fallback stack was
+     ui-monospace/SFMono — a large metric mismatch, so if the woff2 ever fails
+     the nameplate and every stratum title reflow into something much narrower
+     and quite different in character. Verdana and Trebuchet are the widest
+     faces reliably present across platforms, which keeps the fallback close
+     in both measure and tone. */
+  --font-display: "Aldrich", Verdana, "Trebuchet MS", "DejaVu Sans", sans-serif;
   --font-body: "Switzer", -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-mono: "Martian Mono", ui-monospace, monospace;
 
@@ -141,7 +157,11 @@
   --survey: oklch(58% 0.18 42);
   --survey-text: oklch(42% 0.14 42);
   --survey-glow: oklch(58% 0.18 42 / 0.34);
+  --reticle: color-mix(in oklch, var(--survey) 80%, var(--paper)); /* searchlight ring — survey 80% + paper 20% */
+  --field-coarse: color-mix(in oklch, var(--paper) 42%, transparent);
+  --field-fine: color-mix(in oklch, var(--survey) 78%, transparent);
   --validated: oklch(49% 0.12 170);
+  --validated-bright: oklch(72% 0.12 170); /* dark-strata heading accent */
   --datum: oklch(50% 0.09 235);
   --depth-line: oklch(24% 0.044 248 / 0.12);
   --dark-bg: oklch(18% 0.038 250 / 0.72);
@@ -194,19 +214,29 @@
   --cap-generation: oklch(58% 0.13 78);
   --cap-infra: oklch(47% 0.12 200);
   --cap-agents: oklch(48% 0.13 168);
-  --cap-fill: color-mix(in oklch, var(--cap) 7%, transparent);
-  --cap-glow: color-mix(in oklch, var(--cap) 60%, transparent);
-  --cap-border: color-mix(in oklch, var(--cap) 55%, transparent);
+  /* --cap-fill/-glow/-border are NOT declared here: they derive from --cap,
+     which only exists on .capability. A var() inside a custom-property
+     *declaration* resolves at the element that declares it, so putting these
+     on :root made all three guaranteed-invalid and they inherited as invalid,
+     silently killing hover tint, the focus ring, the diamond glow and the
+     tool-chip highlight. They live on .capability below instead — which also
+     gets each domain its own accent instead of the flat terracotta the
+     non-oklch fallback (lines 116-118) has to settle for. */
   --survey-dotted: color-mix(in oklch, var(--survey) 70%, transparent);
   --hero-role: color-mix(in oklch, var(--datum) 58%, var(--ink) 42%);
   --hero-panel-top: oklch(23% 0.04 252);
   --hero-panel-bottom: oklch(15% 0.03 254);
+  --plate-line: oklch(24% 0.044 248 / 0.28);
   --gold: oklch(80% 0.11 64);
   }
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { -webkit-font-smoothing: antialiased; scroll-behavior: auto; overflow-x: hidden; }
+/* color-scheme: light is declared, not left to default. Without it, an
+   OS-dark visitor gets dark-rendered form controls, scrollbars and focus
+   rings over a light paper page. This site has no dark-scheme variant by
+   design, so it should say so. */
+html { -webkit-font-smoothing: antialiased; scroll-behavior: auto; overflow-x: hidden; color-scheme: light; }
 
 body {
   font-family: var(--font-body);
@@ -277,6 +307,24 @@ button, input, textarea { font: inherit; color: inherit; }
 :focus-visible { outline: 2px solid var(--survey); outline-offset: 3px; }
 .mono { font-family: var(--font-mono); }
 
+/* Links use four short corner marks rather than a generic full rectangle when
+   keyboard focus selects a project affordance. */
+.stratum__link:focus-visible,
+.capability__proof:focus-visible,
+.contact-card__email:focus-visible,
+.contact-card__socials a:focus-visible,
+.mm-replay:focus-visible {
+  outline: none;
+  background-image:
+    linear-gradient(var(--reticle), var(--reticle)), linear-gradient(var(--reticle), var(--reticle)),
+    linear-gradient(var(--reticle), var(--reticle)), linear-gradient(var(--reticle), var(--reticle)),
+    linear-gradient(var(--reticle), var(--reticle)), linear-gradient(var(--reticle), var(--reticle)),
+    linear-gradient(var(--reticle), var(--reticle)), linear-gradient(var(--reticle), var(--reticle));
+  background-size: 11px 1px, 1px 11px, 11px 1px, 1px 11px, 11px 1px, 1px 11px, 11px 1px, 1px 11px;
+  background-position: left top, left top, right top, right top, left bottom, left bottom, right bottom, right bottom;
+  background-repeat: no-repeat;
+}
+
 .skip-link {
   position: absolute; left: -9999px; top: 0; z-index: 9999;
   padding: 0.65rem 1rem; background: var(--ink); color: var(--dark-ink);
@@ -342,7 +390,13 @@ button, input, textarea { font: inherit; color: inherit; }
   min-height: 1em;
 }
 .loader__depth {
-  font-size: 0.55rem; letter-spacing: 0.1em; color: var(--ink-faint);
+  /* --ink-faint measured 2.2:1 against the paper here (needs 4.5:1 at 8.8px)
+     — the one genuine contrast failure in the loader. --ink-soft is 6.08:1
+     and is already the site's secondary-text token, so this needs no new
+     value. .loader__name (13.7:1) and .loader__status (7.53:1) were both
+     fine; axe flagged all three only because it could not resolve what was
+     behind the overlay. */
+  font-size: 0.55rem; letter-spacing: 0.1em; color: var(--ink-soft);
 }
 
 .loader__bar {
@@ -463,8 +517,19 @@ body { scrollbar-width: thin; scrollbar-color: rgba(26, 43, 60, 0.12) transparen
 /* The gauge is drill instrumentation — its fill/marker/labels are only
    ever updated by the desktop scroll engine. A wide touch tablet or a
    reduced-motion desktop used to get a visible, functional-looking,
-   permanently-dead gauge here. */
-@media (min-width: 1024px) { html.can-depth-drill .depth-gauge { display: flex; } }
+   permanently-dead gauge here, hence gating on can-depth-drill.
+
+   The width floor matches the drill's own floor (768px, per __canDepthDrill)
+   rather than 1024px. It was 1024, which left 768-1023px mouse users running
+   the full fixed 3D drill with no progress indicator and no navigation
+   affordance at all — the 1-9 shortcuts exist but are undiscoverable. Below
+   1024 it tucks in tighter and drops the metre labels, keeping the track,
+   fill and marker: the instrument reads, without crowding a narrow window. */
+@media (min-width: 768px) { html.can-depth-drill .depth-gauge { display: flex; } }
+@media (min-width: 768px) and (max-width: 1023px) {
+  html.can-depth-drill .depth-gauge { right: 1rem; height: 52vh; }
+  html.can-depth-drill .depth-gauge__labels { display: none; }
+}
 
 .depth-gauge__track {
   width: 4px; height: 100%; position: relative;
@@ -535,16 +600,20 @@ body { scrollbar-width: thin; scrollbar-color: rgba(26, 43, 60, 0.12) transparen
 }
 
 .depth-gauge__labels {
-  position: relative; z-index: 2; height: 100%;
+  /* Explicit width: the labels are absolutely positioned (zero-contribution
+     to flow), so without this the container collapses to 0 and labels anchored
+     at left:0 grow rightward off the viewport edge. A real width + right-anchor
+     (below) makes them flow *inward* from a fixed point, never clipping. */
+  position: relative; z-index: 2; height: 100%; width: 3.6rem;
   display: flex; flex-direction: column;
 }
 
 .depth-gauge__label {
-  position: absolute; left: 0;
+  position: absolute; right: 0; text-align: right;
   font-family: var(--font-mono);
   font-size: 0.55rem;
   letter-spacing: 0.06em;
-  color: rgba(26, 43, 60, 0.55); /* was 0.35 — failed WCAG AA against the paper background at this font-size */
+  color: rgba(26, 43, 60, 0.72); /* 5.2:1 over --paper at 8.8px — clears WCAG AA (0.55 measured 3.3:1, still failing) */
   white-space: nowrap;
   transform: translateY(-50%);
   transition: transform var(--dur-press) var(--ease-out), color 0.3s ease, font-weight 0.3s ease;
@@ -563,7 +632,7 @@ body { scrollbar-width: thin; scrollbar-color: rgba(26, 43, 60, 0.12) transparen
 
 body.is-dark .depth-gauge__track { background: rgba(244, 240, 232, 0.08); }
 body.is-dark .depth-gauge__marker { border-color: var(--dark-bg); }
-body.is-dark .depth-gauge__label { color: rgba(244, 240, 232, 0.5); } /* was 0.3 — raised for WCAG AA contrast */
+body.is-dark .depth-gauge__label { color: rgba(244, 240, 232, 0.72); } /* headroom for the translucent --dark-bg (0.72 alpha) letting the canvas lighten the backdrop */
 body.is-dark .depth-gauge__label.is-active { color: var(--survey); }
 
 /* ═══════════════════════════════════════════════════════════ */
@@ -661,6 +730,17 @@ html.can-depth-drill .stratum.is-active {
   text-shadow: 0 2px 20px var(--black-58);
 }
 
+/* Heading accents follow the section discipline carried by the SECTIONS
+   manifest: survey work in terracotta, validated dark strata in teal, and
+   proof/data moments in gold. The fallback remains survey for unspecialised
+   surfaces such as the hero and contact card. */
+#perception, #infrastructure, #journey { --heading-accent: var(--survey); }
+#training, #interface {
+  --heading-primary: var(--dark-ink);
+  --heading-accent: var(--validated-bright);
+}
+#proof { --heading-accent: var(--gold); }
+
 /* ═══════════════════════════════════════════════════════════ */
 /* WINDOWED FRAME — frosted glass panel around each stratum   */
 /* ═══════════════════════════════════════════════════════════ */
@@ -727,6 +807,25 @@ html.can-depth-drill .stratum.is-active {
   opacity: 0.35;
   z-index: 10;
 }
+
+/* A restrained LayerCAM-inspired surface, used only on the perception
+   stratum. It reads as attention heatmap grain rather than a generic sitewide
+   texture and stays behind the actual content. */
+.attention-grain {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.16;
+  background-image:
+    radial-gradient(circle at 18% 24%, rgba(178, 79, 32, 0.5) 0 1px, transparent 1.8px),
+    radial-gradient(circle at 72% 61%, rgba(61, 114, 164, 0.34) 0 1px, transparent 1.9px),
+    radial-gradient(ellipse at 28% 38%, rgba(178, 79, 32, 0.18), transparent 42%),
+    radial-gradient(ellipse at 74% 64%, rgba(61, 114, 164, 0.14), transparent 46%);
+  background-size: 13px 13px, 17px 17px, 100% 100%, 100% 100%;
+  mix-blend-mode: multiply;
+}
+#perception .stratum__inner { position: relative; z-index: 1; }
 
 #hero .stratum__inner {
   max-width: 1220px;
@@ -796,7 +895,7 @@ html.can-depth-drill .stratum.is-active {
 .stratum--dark .stratum__id { color: var(--dark-ink-soft); }
 
 .stratum__title {
-  font-family: var(--font-display); font-weight: 700;
+  font-family: var(--font-display); font-weight: 400;
   font-size: 2rem;
   line-height: 0.98; letter-spacing: -0.02em;
   margin-bottom: 1rem;
@@ -807,6 +906,16 @@ html.can-depth-drill .stratum.is-active {
 
 .stratum__desc { font-size: 1rem; line-height: 1.75; color: var(--ink-soft); margin-bottom: 1.1rem; max-width: 42ch; }
 .stratum--dark .stratum__desc { color: var(--dark-ink-soft); }
+.stratum__desc strong { font-weight: 700; color: var(--ink); }
+.stratum--dark .stratum__desc strong { color: var(--dark-ink); }
+.stratum__desc em { font-style: normal; color: var(--survey-text); font-weight: 600; }
+.stratum--dark .stratum__desc em { color: #E8B86D; }
+.stratum__desc code {
+  font-family: var(--font-mono); font-size: 0.82em;
+  padding: 0.08em 0.34em; border-radius: 3px;
+  background: var(--survey-08); color: var(--survey-text);
+}
+.stratum--dark .stratum__desc code { background: rgba(232, 116, 40, 0.12); color: #E8B86D; }
 
 .stratum__tags { display: flex; flex-wrap: wrap; gap: 0.45rem; margin-bottom: 1.35rem; }
 .stratum__tags span {
@@ -836,25 +945,146 @@ html.can-depth-drill .stratum.is-active {
 .stratum__link:hover { color: var(--survey); }
 .stratum--dark .stratum__link { color: rgba(244, 240, 232, 0.8); }
 
+/* Row holding the live-demo CTA + repo link. */
+.stratum__links { display: flex; flex-wrap: wrap; align-items: center; gap: 0.35rem 1.4rem; }
+
+/* Prominent "live deploy" affordance — a filled, bracketed button with a
+   live-pulse dot, distinct from the dotted-underline repo link. Only used
+   on strata that actually have a public deployment (perception, training). */
+.stratum__link--live {
+  text-decoration: none;
+  padding: 0.55rem 1rem;
+  border: 1px solid var(--survey);
+  border-radius: 5px;
+  background: var(--survey-08);
+  color: var(--survey-text);
+  box-shadow: inset 0 0 0 1px var(--cream-50);
+  transition: color 0.25s ease, background-color 0.25s ease, transform var(--dur-press) var(--ease-out);
+}
+.stratum__link--live::before {
+  content: ""; display: inline-block; width: 6px; height: 6px; margin-right: 0.5rem;
+  border-radius: 50%; background: var(--survey);
+  box-shadow: 0 0 0 0 var(--survey-glow);
+  animation: live-pulse 2.4s ease-out infinite;
+}
+.stratum__link--live:hover { background: var(--survey-14); color: var(--survey); }
+.stratum--dark .stratum__link--live {
+  color: #E8B86D; background: rgba(232, 116, 40, 0.10);
+  border-color: rgba(232, 116, 40, 0.7); box-shadow: none;
+}
+@keyframes live-pulse {
+  0%   { box-shadow: 0 0 0 0 var(--survey-glow); }
+  70%  { box-shadow: 0 0 0 6px rgba(178, 79, 32, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(178, 79, 32, 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .stratum__link--live::before { animation: none; }
+}
+
 /* ═══════════════════════════════════════════════════════════ */
 /* HERO                                                       */
 /* ═══════════════════════════════════════════════════════════ */
 
+/* The hero is ONE framed instrument object with an internal seam, not a
+   text column beside a floating card. Below 900px the plate wrappers go
+   display:contents (see the mobile block) and the document-flow hero
+   underneath is what renders — the plate is a depth-drill affordance. */
 .hero-layout {
-  display: grid; grid-template-columns: 1fr; gap: 2rem; align-items: center;
+  display: flex; justify-content: center; align-items: center;
   position: relative;
 }
 
-@media (min-width: 900px) {
-  .hero-layout { grid-template-columns: minmax(0, 1.05fr) minmax(340px, 0.95fr); gap: clamp(2rem, 5vw, 4.8rem); }
+.hero-plate {
+  position: relative;
+  width: 100%;
+  max-width: 1220px;
+  /* Substrate lives on .hero-plate__paper, not here — see below. */
+  background: transparent;
+  border: 1px solid var(--plate-line);
+  box-shadow: 0 18px 60px var(--ink-07);
+  /* Gives the plate its own stacking context so the z-index:-1 substrate
+     lands at the bottom of *this* box rather than escaping behind the
+     page's own background layers. */
+  isolation: isolate;
 }
 
-.hero__left { display: flex; flex-direction: column; align-items: flex-start; }
+/* The plate's paper substrate. Negative z-index inside the plate's stacking
+   context puts it below the in-flow rails/body and the absolutely-positioned
+   brackets, but above everything outside the plate.
+
+   Opaque by default on purpose: every path that never runs the boot morph —
+   no WebGL, lite background, low tier, reduced motion, JS disabled entirely —
+   gets a solid plate with no further rules and no chance of being stranded
+   translucent. The morph is what makes it start clear, not what makes it
+   end solid. */
+.hero-plate__paper {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--paper);
+  opacity: 1;
+}
+
+/* Translucent wherever there is a live network behind it to show through.
+     .bg-webgl        already excludes reduced-motion, Save-Data and no-hover
+                      devices (they resolve to 'lite' or 'off' in the head).
+     .can-depth-drill excludes every layout where the plate isn't a plate.
+
+   Deliberately NOT gated on tier. An earlier version added :not(.tier-low)
+   so the plate would fall back to solid on weak devices — but the rolling
+   frame-time watcher steps the tier down under exactly the load that
+   scrolling the drill produces, so the selector stopped matching mid-session
+   and the plate visibly snapped opaque on the way back up to the hero. The
+   substrate is a fixed property of the plate, not a performance dial; it
+   costs nothing per frame, so nothing about it should react to tier. */
+html.bg-webgl.can-depth-drill .hero-plate__paper { opacity: 0.08; }
+
+/* .depth-gauge is position:fixed at right:2.5rem and is ~70px wide (4px track
+   + 0.5rem gap + 3.6rem labels), so it occupies the rightmost ~110px. A centred
+   1220px plate clears it by only ~16px at 1512px and not at all between roughly
+   1300-1400px. Yield the gauge its lane explicitly rather than trusting the
+   centring maths. Scoped to the same 1024px floor that reveals the gauge. */
+@media (min-width: 1024px) {
+  .hero-plate { max-width: min(1220px, 100vw - 16rem); }
+}
+
+/* ── instrument chrome: rails ── */
+.hero-plate__rail {
+  display: flex; align-items: center;
+  gap: clamp(0.9rem, 2.2vw, 2.1rem);
+  min-height: 38px;
+  padding: 0 clamp(0.9rem, 1.8vw, 1.5rem);
+  font-family: var(--font-mono); font-weight: 500;
+  font-size: 0.6rem; letter-spacing: 0.12em; text-transform: uppercase;
+  color: rgba(26, 43, 60, 0.5);
+  white-space: nowrap;
+}
+.hero-plate__rail--top { border-bottom: 1px solid var(--ink-18); }
+.hero-plate__rail--bottom { border-top: 1px solid var(--ink-18); justify-content: space-between; }
+.hero-plate__cell--key { color: var(--survey-text); }
+.hero-plate__cell--state { margin-left: auto; color: var(--survey-text); }
+
+/* ── the seam: one grid, no gutter, no negative margin ── */
+.hero-plate__body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 460px;
+  align-items: stretch;
+  /* Reserved before the reveal or morph ever runs — CLS budget is 0. */
+  min-height: clamp(380px, 52vh, 520px);
+}
+
+.hero__left {
+  display: flex; flex-direction: column; align-items: flex-start;
+  min-width: 0;
+  padding: clamp(1.5rem, 2.8vw, 2.5rem) clamp(1.3rem, 2.2vw, 2.1rem);
+}
 
 .hero__name {
   display: flex; flex-direction: column;
-  font-family: var(--font-display); font-weight: 800;
-  line-height: 0.86; letter-spacing: -0.02em;
+  /* Aldrich is a single-weight (400) face — heft comes from -webkit-text-stroke,
+     not font-weight synthesis. One weight in the hero per the type-discipline rule. */
+  font-family: var(--font-display); font-weight: 400;
+  line-height: 0.9; letter-spacing: -0.02em;
   margin-bottom: 0.4rem;
   text-shadow: 0 10px 42px var(--ink-07);
 }
@@ -862,10 +1092,12 @@ html.can-depth-drill .stratum.is-active {
 .hero__word { display: flex; }
 .hero__char {
   display: inline-block;
-  font-size: 4.4rem;
-  font-weight: 900;
+  /* Larger floor than the previous clamp (it has to anchor the plate), lower
+     ceiling (it now lives inside padded chrome, not the open viewport). */
+  font-size: clamp(4.2rem, 6.6vw, 5.8rem);
+  font-weight: 400;
   color: var(--heading-primary);
-  -webkit-text-stroke: 1.2px currentColor;
+  -webkit-text-stroke: clamp(1.4px, 0.2vw, 2.2px) currentColor;
 }
 .hero__word--accent .hero__char { color: var(--heading-accent); }
 
@@ -877,41 +1109,105 @@ html.can-depth-drill .stratum.is-active {
 }
 
 @media (min-width: 768px) {
-  .hero__char { font-size: 7.2rem; font-weight: 900; -webkit-text-stroke: 2px currentColor; }
+  /* .hero__char size/weight now handled by the responsive clamp above */
   .stratum__title { font-size: 2.45rem; }
 }
 
 @media (min-width: 1200px) {
-  .hero__char { font-size: 9.6rem; font-weight: 900; -webkit-text-stroke: 2.5px currentColor; }
   .stratum__title { font-size: 2.85rem; }
   .stratum__title--center { font-size: 3rem; }
 }
 
 @media (min-width: 900px) and (max-height: 760px) {
-  .hero__char { font-size: 8.0rem; font-weight: 900; -webkit-text-stroke: 2px currentColor; }
   .stratum__title { font-size: 2.35rem; }
 }
 
 .hero__role { font-size: 0.7rem; letter-spacing: 0.13em; text-transform: uppercase; color: var(--hero-role); margin: 0.55rem 0 1.25rem; }
 
-.hero__tagline { font-size: 1.04rem; line-height: 1.72; color: var(--ink-soft); max-width: 38ch; margin-bottom: 1.15rem; }
+/* Tightened measure so the tagline forms a clean block above the manifest
+   instead of trailing off across the plate. */
+.hero__tagline { font-size: clamp(1.15rem, 1.35vw, 1.32rem); line-height: 1.58; font-weight: 500; color: var(--ink-soft); max-width: 34ch; margin-bottom: 1.2rem; }
 .hero__tagline strong { font-weight: 700; color: var(--ink); border-bottom: 1px dotted var(--survey); }
 
-.hero__right { display: flex; align-items: center; justify-content: center; }
+/* ── manifest: the hero finally asserting what the work is ──
+   Rows are real anchors so they navigate with JS disabled; script.js upgrades
+   them to scroll-progress moves and asserts each depth against SECTIONS. */
+.hero-manifest {
+  list-style: none;
+  width: 100%;
+  margin-top: auto;
+  padding-top: clamp(1rem, 2.2vh, 1.6rem);
+  border-top: 1px solid var(--ink-18);
+}
+.hero-manifest__row { display: flex; align-items: center; gap: 0.6rem; }
+.hero-manifest__jump {
+  position: relative;
+  flex: 1 1 auto;
+  display: grid;
+  grid-template-columns: 4.1rem minmax(0, 1fr) auto;
+  align-items: center; gap: 0.85rem;
+  min-height: 38px;
+  padding: 0.25rem 0.35rem;
+  text-decoration: none; color: inherit;
+  border-bottom: 1px solid var(--ink-08);
+  transition: background-color 0.2s ease;
+}
+.hero-manifest__row:last-child .hero-manifest__jump { border-bottom: 0; }
+.hero-manifest__jump:hover { background: var(--survey-08); }
+.hero-manifest__code { font-size: 0.66rem; font-weight: 600; letter-spacing: 0.06em; color: var(--survey-text); }
+/* Switzer, not Aldrich — Aldrich is never used below ~1rem. */
+.hero-manifest__name { font-size: 0.86rem; font-weight: 600; color: var(--ink); }
+.hero-manifest__depth { font-size: 0.62rem; letter-spacing: 0.08em; color: var(--ink-soft); }
+.hero-manifest__badge {
+  flex: 0 0 auto;
+  display: inline-flex; align-items: center;
+  min-height: 34px; padding: 0 0.5rem;
+  font-size: 0.58rem; letter-spacing: 0.1em;
+  text-decoration: none; color: var(--ink-soft);
+  border: 1px solid var(--ink-12); border-radius: 3px;
+  transition: border-color 0.2s ease, color 0.2s ease;
+}
+.hero-manifest__badge:hover { border-color: var(--ink-22); color: var(--ink); }
+.hero-manifest__badge--live { color: var(--validated); border-color: rgba(42, 96, 84, 0.32); }
+.hero-manifest__badge--live:hover { color: var(--validated); border-color: var(--validated); }
 
-/* Dark "scan field" panel — houses the point-cloud specimen */
+/* Bracketed selection language — the same visual primitive as the searchlight
+   and pipe-card bounding boxes, reserved for actual keyboard selection. */
+.capability:focus-visible {
+  outline: none;
+  box-shadow: inset 3px 0 0 var(--cap), inset 0 0 0 1px var(--cap-border);
+}
+.capability:focus-visible::before,
+.capability:focus-visible::after,
+.hero-manifest__jump:focus-visible::after {
+  content: "";
+  position: absolute;
+  inset: 5px 0;
+  pointer-events: none;
+  border: 1px solid var(--cap);
+  opacity: 0.72;
+  clip-path: polygon(0 0, 18px 0, 18px 1px, 1px 1px, 1px 18px, 0 18px, 0 0, 100% 0, 100% 18px, calc(100% - 1px) 18px, calc(100% - 1px) 1px, calc(100% - 18px) 1px, calc(100% - 18px) 0, 0 0, 0 100%, 18px 100%, 18px calc(100% - 1px), 1px calc(100% - 1px), 1px calc(100% - 18px), 0 calc(100% - 18px), 0 100%, 100% 100%, 100% calc(100% - 18px), calc(100% - 1px) calc(100% - 18px), calc(100% - 1px) calc(100% - 1px), calc(100% - 18px) calc(100% - 1px), calc(100% - 18px) 100%);
+}
+.hero-manifest__jump:focus-visible {
+  outline: none;
+  --cap: var(--survey);
+  background: var(--survey-08);
+}
+.hero-manifest__badge:focus-visible { outline: 2px solid var(--survey); outline-offset: 2px; }
+
+.hero__right { display: flex; border-left: 1px solid var(--plate-line); }
+
+/* Dark "scan field" panel — the plate's field half, flush to the seam. */
 .hero__image-wrap {
-  position: relative; width: min(92%, 430px); aspect-ratio: 1;
+  position: relative; width: 100%; height: auto; min-height: 0;
   overflow: hidden;
   background: linear-gradient(158deg, var(--hero-panel-top) 0%, var(--hero-panel-bottom) 100%);
-  border: 1px solid var(--cream-10);
-  border-radius: 6px;
+  border: 0;
+  border-radius: 0;
   box-shadow:
-    0 22px 70px var(--black-40),
     inset 0 0 60px var(--black-50),
     inset 0 0 0 1px var(--cream-05);
   isolation: isolate;
-  margin-right: -2rem;
 }
 
 /* ── live generative flow field ── */
@@ -947,43 +1243,146 @@ html.can-depth-drill .stratum.is-active {
   100% { top: 100%; opacity: 0; }
 }
 .hero__image-wrap::after {
-  content: "FLOW FIELD · CURL-NOISE · LIVE";
+  content: "ATTENTION FIELD · COARSE → FINE";
   position: absolute; left: 0.75rem; bottom: 0.68rem; z-index: 4;
   font-family: var(--font-mono); font-size: 0.55rem; letter-spacing: 0.1em;
-  color: var(--gold); opacity: 0.8;
+  color: var(--survey); opacity: 0.8;
   text-shadow: 0 1px 8px rgba(12, 18, 27, 0.6);
 }
 
+.hero__surface-tag {
+  position: absolute;
+  left: 0.75rem;
+  top: 0.75rem;
+  z-index: 4;
+  font-size: 0.55rem;
+  letter-spacing: 0.1em;
+  color: var(--reticle);
+  opacity: 0;
+  transform: translateY(5px);
+  transition: opacity 0.4s ease, transform 0.7s var(--ease-expo);
+}
+body.is-surface-locked .hero__surface-tag { opacity: 1; transform: none; }
+
 @media (prefers-reduced-motion: reduce) {
   .hero__scanline { animation: none; }
+  .hero__surface-tag { opacity: 1; transform: none; }
 }
 
+/* Promoted from panel decoration to the plate's identity primitive: four
+   corner arms on the plate's own outer edge. Each is its own element so all
+   four can draw in independently at boot. */
 .survey-brackets {
   position: absolute; inset: -6px; pointer-events: none; z-index: 5;
 }
-.survey-brackets::before, .survey-brackets::after {
-  content: ""; position: absolute;
-  width: 18px; height: 18px;
+.survey-brackets span {
+  position: absolute;
+  width: 26px; height: 26px;
   border-color: var(--survey); border-style: solid; border-width: 0;
 }
-.survey-brackets::before { top: 0; left: 0; border-top-width: 2px; border-left-width: 2px; }
-.survey-brackets::after { bottom: 0; right: 0; border-bottom-width: 2px; border-right-width: 2px; }
+.survey-brackets span:nth-child(1) { top: 0; left: 0; border-top-width: 2px; border-left-width: 2px; }
+.survey-brackets span:nth-child(2) { top: 0; right: 0; border-top-width: 2px; border-right-width: 2px; }
+.survey-brackets span:nth-child(3) { bottom: 0; right: 0; border-bottom-width: 2px; border-right-width: 2px; }
+.survey-brackets span:nth-child(4) { bottom: 0; left: 0; border-bottom-width: 2px; border-left-width: 2px; }
 
+/* Lives in the bottom rail now — a cell in the instrument, not an orphan
+   floating in the gap the plate no longer has. */
 .hero__scroll-cue {
-  position: absolute; bottom: clamp(1rem, 4vh, 2.5rem);
-  left: 50%; transform: translateX(-50%);
-  display: flex; flex-direction: column; align-items: center; gap: 0.4rem;
-  font-size: 0.6rem; letter-spacing: 0.14em; color: rgba(26, 43, 60, 0.4);
+  display: flex; align-items: center; gap: 0.5rem;
+  font-size: 0.6rem; letter-spacing: 0.14em; color: rgba(26, 43, 60, 0.5);
   animation: cue-pulse 2.5s ease-in-out infinite;
 }
-.hero__scroll-cue svg { animation: cue-arrow 2.5s ease-in-out infinite; }
+.hero__scroll-cue svg { width: 11px; height: 16px; animation: cue-arrow 2.5s ease-in-out infinite; }
 
 @media (max-width: 899px) {
   .hero__scroll-cue { display: none; }
 }
 
 @keyframes cue-pulse { 0%, 100% { opacity: 0.35; } 50% { opacity: 0.8; } }
-@keyframes cue-arrow { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(5px); } }
+@keyframes cue-arrow { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(4px); } }
+
+/* ── responsive ladder (§3.1) ── */
+@media (max-width: 1279px) {
+  .hero-plate__body { grid-template-columns: minmax(0, 1fr) 380px; }
+}
+@media (max-width: 1023px) {
+  .hero-plate__body { grid-template-columns: minmax(0, 1fr) 320px; }
+  /* Top rail keeps only its key cell and the state readout. */
+  .hero-plate__rail--top .hero-plate__cell:not(.hero-plate__cell--key):not(.hero-plate__cell--state) { display: none; }
+  .hero-manifest__jump { grid-template-columns: 4.1rem minmax(0, 1fr); }
+  .hero-manifest__depth { display: none; }
+}
+
+/* Below 900px the plate stops being a two-column plate: the wrappers become
+   display:contents and the hero linearises (field first, stacked type
+   below). The plate *layout* is a depth-drill affordance — but the plate's
+   instrument chrome is the hero's identity, so the rails are linearised
+   along with everything else rather than deleted. See the rail rules below. */
+@media (max-width: 899px) {
+  .hero-plate,
+  .hero-plate__body { display: contents; }
+  .survey-brackets { display: none; } /* they frame a plate box that no longer exists */
+  /* Must be explicit, not incidental: `display: contents` hoists the paper
+     layer out of the plate, so its `position: absolute; inset: 0` would
+     resolve against .stratum__inner and paint an opaque sheet over the
+     whole mobile hero. There is no plate to develop here anyway. */
+  .hero-plate__paper { display: none; }
+
+  /* ── The plate's telemetry rails, linearised ──
+     These used to be display:none below 900px, which cost the phone hero the
+     thing that makes it read as a survey instrument rather than a heading
+     over a canvas: SURVEY PLATE 00, the live field readout, the strata
+     count. All of it was already in the DOM and already correct — it was
+     simply hidden. Rebuilt as full-width strips that bracket the hero.
+
+     Order: the top rail is pulled above .hero__right (which itself carries
+     order:-1 so the field leads on touch), reproducing the desktop reading
+     top-to-bottom — plate header, field, nameplate, strata footer. */
+  .hero-plate__rail {
+    display: flex;
+    padding-left: 0;
+    padding-right: 0;
+    min-height: 32px;
+    font-size: 0.55rem;
+    letter-spacing: 0.1em;
+    gap: 0.9rem;
+  }
+  #hero .hero-plate__rail--top { order: -2; }
+  /* The state cell ("STATIC"/"RESOLVE") is the desktop drill's own status and
+     has no meaning without the drill; the surface depth is already printed
+     over the field itself as .hero__surface-tag. What is worth the width is
+     the live field readout — real runtime state (tier + the particle pool
+     this device actually built), which is exactly the kind of honest
+     instrumentation the rest of the page is built on. */
+  #hero .hero-plate__rail--top .hero-plate__cell--state { display: none; }
+  #hero .hero-plate__rail--top #hero-rail-field {
+    display: block;
+    margin-left: auto;
+    color: var(--survey-text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  #hero .hero-plate__rail--bottom { justify-content: flex-start; }
+
+  .hero-layout {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: clamp(1.4rem, 5vw, 2rem);
+  }
+  .hero__left { padding: 0; }
+  .hero__right { border-left: 0; }
+  .hero__image-wrap {
+    aspect-ratio: 16 / 9;
+    border: 1px solid var(--cream-10);
+    border-radius: 6px;
+    box-shadow:
+      0 22px 70px var(--black-40),
+      inset 0 0 60px var(--black-50),
+      inset 0 0 0 1px var(--cream-05);
+  }
+  .hero-manifest { margin-top: 0; }
+}
 
 /* ═══════════════════════════════════════════════════════════ */
 /* AERIAL STAGE (Searchlight ROI)                             */
@@ -1116,8 +1515,11 @@ html.can-depth-drill .pipe-card { opacity: 0; transform: translateY(12px); }
   margin: 0.3rem 0;
 }
 .pipe-card__bbox span {
-  position: absolute; top: -10px; left: -1px; background: var(--survey); color: var(--dark-ink);
-  font-size: 6px; padding: 0 3px; line-height: 1.4;
+  position: absolute; top: -13px; left: -1px; background: var(--survey); color: var(--dark-ink);
+  /* Was 6px — unreadable. Still deliberately tiny (it stands in for the label
+     a detector draws over a bounding box) but now legible. `top` re-derived
+     from the taller line box so it keeps sitting flush on the bbox edge. */
+  font-size: 8.5px; padding: 0 3px; line-height: 1.4;
 }
 
 .pipe-card--api {
@@ -1149,9 +1551,13 @@ html.can-depth-drill .pipe-card { opacity: 0; transform: translateY(12px); }
 .pipe-card--db {
   background: var(--ink); color: var(--dark-ink); font-size: 0.55rem;
 }
-.pipe-card__header { font-size: 0.5rem; opacity: 0.4; border-bottom: 1px solid rgba(244, 240, 232, 0.06); padding-bottom: 0.15rem; margin-bottom: 0.2rem; }
-.pipe-table { width: 100%; border-collapse: collapse; font-size: 0.5rem; }
-.pipe-table td { padding: 0.05rem 0.2rem; border-bottom: 1px solid rgba(244, 240, 232, 0.04); }
+.pipe-card__header { font-size: 0.58rem; opacity: 0.4; border-bottom: 1px solid rgba(244, 240, 232, 0.06); padding-bottom: 0.15rem; margin-bottom: 0.2rem; }
+/* 0.55rem, not the 0.58rem the neighbouring micro-labels moved to: this table
+   sits in a fixed-width mock DB card and 0.58 pushed it 8px past the card's
+   edge. 0.55rem is the tier already used by the rest of the page's instrument
+   labels, and the tighter cell padding buys back the difference. */
+.pipe-table { width: 100%; border-collapse: collapse; font-size: 0.55rem; table-layout: fixed; }
+.pipe-table td { padding: 0.05rem 0.14rem; border-bottom: 1px solid rgba(244, 240, 232, 0.04); overflow-wrap: anywhere; }
 .db-new { color: #8fd4b8; background: rgba(143, 212, 184, 0.06); }
 .pipe-card--db .pipe-card__name { color: rgba(244, 240, 232, 0.35); }
 
@@ -1266,11 +1672,11 @@ html.can-depth-drill .journey-era__card { clip-path: inset(100% 0 0 0); }
 .journey-era[data-stratum="crystal"] .journey-era__marker { border-color: #1e7b65; box-shadow: 0 0 0 6px rgba(30,123,101,0.22); }
 
 .journey-era__year { font-size: 0.6rem; letter-spacing: 0.08em; color: var(--survey-text); display: block; margin-bottom: 0.1rem; }
-.journey-era__tag { font-size: 0.5rem; letter-spacing: 0.12em; color: var(--ink-faint); text-transform: uppercase; display: block; margin-bottom: 0.4rem; }
-.journey-era__card h3 { font-family: var(--font-display); font-size: 0.95rem; font-weight: 700; color: var(--ink); margin-bottom: 0.3rem; }
+.journey-era__tag { font-size: 0.58rem; letter-spacing: 0.12em; color: var(--ink-faint); text-transform: uppercase; display: block; margin-bottom: 0.4rem; }
+.journey-era__card h3 { font-family: var(--font-body); font-size: 0.95rem; font-weight: 600; color: var(--ink); margin-bottom: 0.3rem; }
 .journey-era__card p { font-size: 0.65rem; line-height: 1.5; color: var(--ink-soft); margin-bottom: 0.5rem; }
 .journey-era__minerals { display: flex; flex-wrap: wrap; gap: 0.25rem; justify-content: center; }
-.journey-era__minerals span { font-family: var(--font-mono); font-size: 0.5rem; padding: 0.15rem 0.35rem; border: 1px solid var(--ink-12); border-radius: 3px; color: var(--ink-faint); }
+.journey-era__minerals span { font-family: var(--font-mono); font-size: 0.58rem; padding: 0.15rem 0.35rem; border: 1px solid var(--ink-12); border-radius: 3px; color: var(--ink-faint); }
 
 .journey-seismic {
   width: 100%; height: 50px;
@@ -1289,6 +1695,7 @@ html.can-depth-drill .journey-era__card { clip-path: inset(100% 0 0 0); }
   text-align: left;
   display: flex;
   flex-direction: column;
+  list-style: none; /* real <ul> now (was div[role=list]); flex already suppresses markers, this is belt-and-braces for the no-flex/print path */
 }
 
 .capability-log__note {
@@ -1321,6 +1728,19 @@ html.can-depth-drill .capability { opacity: 0; transform: translateY(16px); }
 .capability--infra      { --cap: var(--cap-infra); }         /* datum teal-blue */
 .capability--agents     { --cap: var(--cap-agents); }        /* sage */
 
+/* The three derived accents. These must be declared HERE, not on :root —
+   a var() in a custom-property declaration resolves against the element that
+   declares it, and --cap only exists on .capability. Declaring them at :root
+   made them permanently invalid. Browsers without oklch/color-mix keep the
+   literal terracotta fallbacks from the base :root block. */
+@supports (color: oklch(50% 0.1 50)) {
+  .capability {
+    --cap-fill: color-mix(in oklch, var(--cap) 7%, transparent);
+    --cap-glow: color-mix(in oklch, var(--cap) 60%, transparent);
+    --cap-border: color-mix(in oklch, var(--cap) 55%, transparent);
+  }
+}
+
 .capability:hover,
 .capability:focus-visible {
   background: var(--cap-fill);
@@ -1352,8 +1772,8 @@ html.can-depth-drill .capability { opacity: 0; transform: translateY(16px); }
   gap: 0.35rem 1rem; margin-bottom: 0.55rem;
 }
 .capability__domain {
-  font-family: var(--font-display);
-  font-weight: 700; font-size: 1.75rem;
+  font-family: var(--font-body);
+  font-weight: 600; font-size: 1.35rem;
   text-transform: uppercase; letter-spacing: -0.02em;
   line-height: 1; color: var(--ink); margin: 0;
 }
@@ -1395,7 +1815,7 @@ html.can-depth-drill .capability__tools li { opacity: 0; }
 
 @media (max-width: 600px) {
   .capability { grid-template-columns: 2.2rem 1fr; gap: 0.85rem; padding: 1.1rem 0.2rem 1.25rem; }
-  .capability__domain { font-size: 1.5rem; }
+  .capability__domain { font-size: 1.2rem; }
 }
 
 /* ═══════════════════════════════════════════════════════════ */
@@ -1491,7 +1911,13 @@ html.can-depth-drill .stat-card__bar-fill { transform: scaleX(0); }
   position: relative;
   width: 100%;
   max-width: 1280px;
-  min-height: 540px;
+  /* Capped against the viewport, not a flat 540px. #contact has no
+     .stratum__inner to scroll and .strata clips overflow, so on a short
+     desktop window (can-depth-drill allows down to 480px tall) a rigid 540px
+     card plus its margins simply lost its top and bottom edges with no way to
+     recover them — 12px top / 8px bottom already gone at 520px. The card is a
+     flex column with space-between, so it absorbs the reduction gracefully. */
+  min-height: min(540px, calc(100dvh - 2 * clamp(1.2rem, 3vw, 2.5rem)));
   margin: clamp(1.2rem, 3vw, 2.5rem);
   padding: clamp(2.2rem, 4vw, 3.5rem);
   border-radius: 20px;
@@ -1561,7 +1987,7 @@ html.can-depth-drill .stat-card__bar-fill { transform: scaleX(0); }
 .contact-card__email {
   display: inline-block;
   font-size: 0.82rem;
-  color: #85350E;
+  color: var(--survey-text);
   text-decoration: none;
   border-bottom: 1px solid transparent;
   transition: transform var(--dur-press) var(--ease-out), color 0.25s ease, border-color 0.25s ease;
@@ -1570,14 +1996,14 @@ html.can-depth-drill .stat-card__bar-fill { transform: scaleX(0); }
 }
 
 .contact-card__email:hover {
-  color: #B24F20;
-  border-bottom-color: #B24F20;
+  color: var(--survey);
+  border-bottom-color: var(--survey);
 }
 
 .contact-card__top-right {
   font-size: 0.72rem;
   letter-spacing: 0.06em;
-  color: #7B5A3C;
+  color: var(--ink-soft);
   opacity: 0.7;
   white-space: nowrap;
   padding-top: 0.3rem;
@@ -1597,7 +2023,7 @@ html.can-depth-drill .stat-card__bar-fill { transform: scaleX(0); }
 .contact-card__lead {
   font-size: 0.82rem;
   line-height: 1.6;
-  color: #5A4032;
+  color: var(--ink-soft);
   max-width: 38ch;
   margin: 0;
   text-shadow: 0 1px 6px rgba(240, 234, 214, 0.7);
@@ -1612,7 +2038,7 @@ html.can-depth-drill .stat-card__bar-fill { transform: scaleX(0); }
 
 .contact-card__socials a {
   font-size: 0.78rem;
-  color: #5A4032;
+  color: var(--ink-soft);
   text-decoration: none;
   transition: transform var(--dur-press) var(--ease-out), color 0.25s ease;
   white-space: nowrap;
@@ -1620,7 +2046,7 @@ html.can-depth-drill .stat-card__bar-fill { transform: scaleX(0); }
 }
 
 .contact-card__socials a:hover {
-  color: #B24F20;
+  color: var(--survey);
 }
 
 
@@ -1741,28 +2167,100 @@ html.can-depth-drill .stat-card__bar-fill { transform: scaleX(0); }
     overflow: visible;
   }
 
-  .hero-layout {
-    gap: clamp(1.4rem, 5vw, 2rem);
+  /* Layout collapse (plate -> document flow) is handled by the <=899px block
+     in the HERO section; this block only carries the phone-specific overrides
+     on top of it. */
+
+  /* The hero instrument leads on touch: full-bleed, wide, and tall enough to
+     communicate the auto-resolving sweep before the nameplate arrives. */
+  #hero .hero__right {
+    order: -1;
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
   }
 
   .hero__char {
     font-size: clamp(2.4rem, 14vw, 3.4rem);
-    font-weight: 900;
+    font-weight: 400;
     letter-spacing: -0.02em;
     -webkit-text-stroke: 1px currentColor;
   }
 
   .hero__tagline {
-    font-size: 1rem;
+    font-size: clamp(1.05rem, 4.4vw, 1.18rem);
     line-height: 1.62;
     max-width: 34ch;
   }
 
   .hero__image-wrap {
-    width: min(88vw, 320px);
-    aspect-ratio: 1;
-    margin-right: 0;
+    width: 100%;
+    height: min(40vh, 360px);
+    min-height: 250px;
+    aspect-ratio: auto;
     align-self: center;
+    border-left: 0;
+    border-right: 0;
+    border-radius: 0;
+  }
+
+  /* Multi-step project visuals become deliberate touch galleries instead of
+     compressed desktop stacks. The architecture SVG is the second snap point
+     for each project; native scrolling keeps this free of a persistent rAF. */
+  #perception .stratum__visual,
+  #training .stratum__visual {
+    position: relative;
+    display: flex;
+    gap: 0.75rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-inline: contain;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: 0.1rem;
+    padding-bottom: 0.45rem;
+    touch-action: pan-x pan-y;
+    scrollbar-width: thin;
+  }
+  #perception .stratum__visual > .aerial-stage,
+  #perception .stratum__visual > .arch-figure,
+  #training .stratum__visual > .seam-stage,
+  #training .stratum__visual > .arch-figure {
+    flex: 0 0 min(86vw, 26rem);
+    width: min(86vw, 26rem);
+    scroll-snap-align: start;
+  }
+  #perception .stratum__visual > .arch-figure,
+  #training .stratum__visual > .arch-figure {
+    margin-top: 0;
+  }
+  #perception .stratum__visual::after,
+  #training .stratum__visual::after {
+    content: "SWIPE  →  ARCHITECTURE";
+    position: absolute;
+    right: 0.55rem;
+    bottom: 0.65rem;
+    padding: 0.3rem 0.45rem;
+    font: 500 0.5rem/1 var(--font-mono);
+    letter-spacing: 0.08em;
+    color: var(--ink-soft);
+    background: rgba(244, 240, 232, 0.76);
+    pointer-events: none;
+  }
+  #training .stratum__visual::after {
+    color: rgba(244, 240, 232, 0.72);
+    background: rgba(18, 26, 38, 0.72);
+  }
+
+  /* Discipline blocks replace the desktop 3-D atmosphere in document flow. */
+  #perception { background: rgba(178, 79, 32, 0.08); }
+  #training { background: rgba(18, 36, 47, 0.9); }
+  #infrastructure { background: rgba(61, 114, 164, 0.07); }
+  #interface { background: rgba(25, 34, 49, 0.9); }
+  #journey { background: rgba(178, 79, 32, 0.045); }
+  #skills { background: rgba(61, 114, 164, 0.045); }
+  #proof { background: rgba(216, 162, 70, 0.07); }
+  #training .stratum__window,
+  #interface .stratum__window {
+    background: transparent;
   }
 
   .stratum__grid,
@@ -2026,10 +2524,36 @@ html.can-depth-drill .stat-card__bar-fill { transform: scaleX(0); }
     display: none !important;
   }
 
-  .hero__scroll-cue,
-  .fog-vignette {
+  .hero__scroll-cue {
     display: none;
   }
+
+  /* The fog vignette stays ON at phone widths. It was the single largest
+     reason the phone layout read flat next to the desktop one: every other
+     atmospheric layer (grain, the lite neural field, the per-section dark
+     washes) survives here, and this is the one that supplies depth — it is
+     what makes the paper feel lit from the centre rather than evenly
+     printed. It is also nearly free: one fixed, static gradient layer that
+     is painted once and thereafter only composited. --fog-opacity is only
+     ever written by the desktop scroll engine, so on a phone it holds its
+     fallback and never repaints at all.
+     Widened core and lowered opacity because a phone viewport is tall and
+     narrow — the desktop's `transparent 40%` would crush the top and bottom
+     of the readable column. */
+  .fog-vignette {
+    background: radial-gradient(ellipse at center, transparent 58%, rgba(240, 235, 224, 0.5) 100%);
+    opacity: 0.42;
+  }
+  /* Same rule the grain layer already follows: the weakest devices drop the
+     layer outright rather than paying for a cheap version of it. */
+  html.tier-low .fog-vignette { display: none; }
+
+  /* #fluid-canvas is a fixed, full-viewport canvas for the desktop cursor
+     tracer. index.html never fetches fluid-cursor.js on touch-first devices
+     and the module self-disables anyway, so on a phone this was a
+     full-screen compositing layer that nothing ever draws a single pixel
+     into. */
+  html.touch-first #fluid-canvas { display: none; }
 
   .journey-era,
   .capability,
@@ -2053,10 +2577,64 @@ html.can-depth-drill .stat-card__bar-fill { transform: scaleX(0); }
   }
 }
 
+/* Touch-first tablets keep the document-flow fallback's project visuals
+   legible too: the instrument stays wide and the architecture panels become
+   native snap points instead of shrinking into an unreadable desktop row. */
+@media (min-width: 768px) and (max-width: 1023px) {
+  html.touch-first #perception .stratum__visual,
+  html.touch-first #training .stratum__visual {
+    display: flex;
+    gap: 0.9rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-inline: contain;
+    scroll-snap-type: x mandatory;
+    padding-bottom: 0.55rem;
+    touch-action: pan-x pan-y;
+    scrollbar-width: thin;
+  }
+  html.touch-first #perception .stratum__visual > .aerial-stage,
+  html.touch-first #perception .stratum__visual > .arch-figure,
+  html.touch-first #training .stratum__visual > .seam-stage,
+  html.touch-first #training .stratum__visual > .arch-figure {
+    flex: 0 0 min(58vw, 34rem);
+    width: min(58vw, 34rem);
+    scroll-snap-align: start;
+  }
+  html.touch-first #perception .stratum__visual > .arch-figure,
+  html.touch-first #training .stratum__visual > .arch-figure {
+    margin-top: 0;
+  }
+  html.touch-first #perception .stratum__visual::after,
+  html.touch-first #training .stratum__visual::after {
+    content: "SWIPE  →  ARCHITECTURE";
+    position: absolute;
+    right: 0.7rem;
+    bottom: 0.75rem;
+    padding: 0.35rem 0.5rem;
+    font: 500 0.52rem/1 var(--font-mono);
+    letter-spacing: 0.08em;
+    color: var(--ink-soft);
+    background: rgba(244, 240, 232, 0.78);
+    pointer-events: none;
+  }
+  html.touch-first #training .stratum__visual::after {
+    color: rgba(244, 240, 232, 0.72);
+    background: rgba(18, 26, 38, 0.72);
+  }
+  html.touch-first #perception { background: rgba(178, 79, 32, 0.08); }
+  html.touch-first #training { background: rgba(18, 36, 47, 0.9); }
+  html.touch-first #infrastructure { background: rgba(61, 114, 164, 0.07); }
+  html.touch-first #interface { background: rgba(25, 34, 49, 0.9); }
+  html.touch-first #journey { background: rgba(178, 79, 32, 0.045); }
+  html.touch-first #skills { background: rgba(61, 114, 164, 0.045); }
+  html.touch-first #proof { background: rgba(216, 162, 70, 0.07); }
+}
+
 @media (max-width: 360px) {
   .hero__char {
     font-size: clamp(2.0rem, 13vw, 2.8rem);
-    font-weight: 900;
+    font-weight: 400;
     letter-spacing: -0.02em;
     -webkit-text-stroke: 1px currentColor;
   }
@@ -2100,8 +2678,14 @@ html.can-depth-drill .stat-card__bar-fill { transform: scaleX(0); }
   padding: 0.45rem 0.6rem;
   border: 1px solid var(--ink-13);
   border-radius: 4px;
-  background: rgba(247, 244, 238, 0.82);
-  backdrop-filter: blur(6px);
+  /* Opaque, not translucent-plus-backdrop-filter. This HUD is fixed over a
+     scrolling page, so a backdrop-filter forces the compositor to re-sample
+     and blur what's behind it every single frame of every scroll — the exact
+     per-frame cost that was deliberately removed in three other places in
+     this stylesheet. It survived here, on the phone HUD, i.e. on the weakest
+     devices in the fleet. At 0.82 alpha over paper the blur was contributing
+     almost nothing visually; a solid paper fill reads the same. */
+  background: #F7F4EE;
   pointer-events: none;
   opacity: 0;
   transform: translateY(6px);
@@ -2110,12 +2694,20 @@ html.can-depth-drill .stat-card__bar-fill { transform: scaleX(0); }
 .mm-depth.is-visible { opacity: 1; transform: none; }
 .mm-depth__value { font-size: 0.72rem; font-weight: 600; color: var(--survey); }
 .mm-depth__label { font-size: 0.52rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-soft); }
-body.is-dark .mm-depth { background: rgba(18, 26, 38, 0.82); border-color: var(--cream-16); }
+body.is-dark .mm-depth { background: #121A26; border-color: var(--cream-16); }
 body.is-dark .mm-depth__label { color: rgba(244, 240, 232, 0.6); }
 
 .mm-replay {
   display: inline-flex; align-items: center; justify-content: center;
   min-height: 44px; min-width: 44px;
+  /* Sized to its label, never stretched. The button now sits outside the
+     swipe gallery (see addReplayButton), which means its parent is a grid /
+     stretch-aligned flex column — without these it inflates into a
+     full-width slab that reads as a primary action rather than a small
+     secondary control. */
+  align-self: flex-start;
+  justify-self: start;
+  width: fit-content;
   margin-top: 0.5rem; padding: 0 0.9rem;
   font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase;
   color: var(--ink-soft);
@@ -2125,7 +2717,7 @@ body.is-dark .mm-depth__label { color: rgba(244, 240, 232, 0.6); }
   transition: transform var(--dur-press) var(--ease-out), border-color 0.2s ease, color 0.2s ease;
 }
 .mm-replay:active { transform: scale(0.96); }
-.mm-replay:focus-visible { outline: 2px solid var(--survey); outline-offset: 2px; }
+.mm-replay:focus-visible { outline: none; outline-offset: 2px; }
 .stratum--dark .mm-replay { color: rgba(244, 240, 232, 0.7); border-color: var(--cream-16); }
 
 /* Journey vertical line draw-in (pseudo-element — needs a class hook). */
@@ -2149,8 +2741,22 @@ html:not(.can-depth-drill) .journey-track.mm-line-grow::before {
 /* ═══════════════════════════════════════════════════════════ */
 
 @media (prefers-reduced-motion: reduce) {
-  html { scroll-behavior: auto; }
   .hero__scroll-cue, .hero__scroll-cue svg { animation: none; }
+  /* Both of these are `infinite` and were running regardless of the
+     preference — WCAG 2.2.2. The spinner freezes mid-arc and the terminal
+     caret stays solid, so both still read as "working"/"a prompt" without
+     perpetual motion. */
+  .spinner { animation: none !important; }
+  .tcursor { animation: none !important; opacity: 1; }
+  /* The plate renders already-drawn: no bracket draw-in, no rail/manifest
+     stagger. script.js also skips those beats — this is the CSS half, so the
+     resting state is correct even before (or without) JS. */
+  .survey-brackets span,
+  .hero-plate__cell,
+  .hero-manifest__row { opacity: 1 !important; transform: none !important; }
+  /* bg-webgl is already forced 'off' under reduced motion, so the develop
+     rule can't match — this is the belt-and-braces half. */
+  .hero-plate__paper { opacity: 1 !important; }
   .loader { display: none; }
   .tline, .journey-era, .capability, .stat-card, .pipe-card { opacity: 1 !important; transform: none !important; }
   .capability .capability__tools li { opacity: 1 !important; }
@@ -2163,8 +2769,13 @@ html:not(.can-depth-drill) .journey-track.mm-line-grow::before {
 /* ═══════════════════════════════════════════════════════════ */
 
 @media print {
+  /* .scroll-spacer is 1000vh of nothing whose only job is to give the master
+     ScrollTrigger somewhere to scrub. html:not(.can-depth-drill) already
+     collapses it, but a desktop keeps the can-depth-drill class when it
+     prints, so it survived into the print output as ~1000vh of blank trailing
+     pages. */
   .paper-grain, .fog-vignette, .depth-gauge,
-  .skip-link, #fluid-canvas,
+  .skip-link, #fluid-canvas, .scroll-spacer,
   #neural-bg-canvas, .loader, .transition-layer { display: none !important; }
   body { background: #FAF8F3; color: #142236; }
   .strata { position: relative; perspective: none; }

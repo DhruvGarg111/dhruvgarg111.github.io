@@ -158,7 +158,15 @@
     if (REPLAY_HANDLERS[id]) REPLAY_HANDLERS[id]();
   };
 
-  /* ── Replay button factory (in-flow, after the stage element) ── */
+  /* ── Replay button factory (in-flow, after the stage element) ──
+     Placement has to clear the swipe gallery. Below 900px .stratum__visual is
+     a horizontal scroll-snap strip, and for Searchlight and Neural Canvas the
+     stage element is a direct child of it — so inserting "after the stage"
+     wedged the 44px button between two snap points as a third flex item with
+     no snap alignment of its own, and swiping from the image to the
+     architecture diagram had to traverse it. Walk up out of any snap container
+     first and insert after that instead, so the button lands in normal flow
+     under the whole gallery. */
   function addReplayButton(afterEl, stageId, label) {
     if (!afterEl || !REPLAY_HANDLERS[stageId]) return;
     var btn = document.createElement('button');
@@ -167,7 +175,15 @@
     btn.textContent = '↺ replay';
     btn.setAttribute('aria-label', label);
     btn.addEventListener('click', function () { window.__mmReplay(stageId); });
-    afterEl.insertAdjacentElement('afterend', btn);
+
+    var anchor = afterEl;
+    for (var hops = 0; hops < 4 && anchor.parentElement; hops++) {
+      var parentStyle = window.getComputedStyle(anchor.parentElement);
+      var snaps = (parentStyle.scrollSnapType || 'none') !== 'none';
+      if (!snaps) break;
+      anchor = anchor.parentElement;
+    }
+    anchor.insertAdjacentElement('afterend', btn);
   }
 
   /* ═══ Section choreography registrations (Phases 3 & 4 append here) ═══ */
@@ -326,7 +342,13 @@
     });
   })();
 
-  /* Proof: preserve a screen-reader final value while visible numbers count up. */
+  /* Proof: the visible numbers count up from zero; the accessible values come
+     from the authored .sr-only summary under the cluster ("200+ open source
+     contributions, 500+ …"), which carries the suffixes and units. This used
+     to also inject a per-card .sr-only span holding the bare target, so screen
+     readers heard "200, 500, 1730" and then the whole summary again — and the
+     injected copies dropped the "+". The markup now carries aria-hidden on
+     each .stat-count, so there is exactly one spoken source. */
   (function () {
     var section = $('#proof');
     if (!section) return;
@@ -340,11 +362,6 @@
         var counter = card.querySelector('.stat-count');
         if (!counter) return;
         var target = parseInt(counter.getAttribute('data-count'), 10) || 0;
-        var accessibleValue = document.createElement('span');
-        accessibleValue.className = 'sr-only';
-        accessibleValue.textContent = String(target);
-        counter.setAttribute('aria-hidden', 'true');
-        counter.insertAdjacentElement('afterend', accessibleValue);
         counter.textContent = '0';
         var bar = card.querySelector('.stat-card__bar-fill');
         if (bar) bar.style.setProperty('transform', 'scaleX(0)', 'important');
@@ -385,7 +402,7 @@
     if (flow && window.__isTouchFirst) {
       flow.setAttribute(
         'aria-label',
-        'A live generative vector field - thousands of particles drifting through curl noise. Tap or drag across the panel to bend the flow into a swirl.'
+        'A live attention field - thousands of particles drifting through curl noise. On touch, a searchlight sweeps automatically and resolves the coarse field into sharper detail; tap or drag to drop a core sample.'
       );
     }
   })();
