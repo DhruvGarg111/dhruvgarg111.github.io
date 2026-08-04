@@ -1407,6 +1407,48 @@
     scrollableRefreshRaf = requestAnimationFrame(refreshScrollableInners);
   }
 
+  /* ─── Nested-scroll edge handoff ───
+     The fixed desktop drill uses .stratum__inner as a small overflow viewport
+     on short screens. Let it consume the wheel while it has content left, but
+     once it reaches an edge explicitly return the gesture to the document.
+     Native scroll chaining usually does this, but transformed fixed overlays
+     make it inconsistent between browsers and input devices. The page remains
+     the sole owner of the gesture at an edge, so ScrollTrigger keeps moving.
+
+     This runs only in the fine-pointer desktop drill. Touch/document-flow
+     visitors keep the browser's normal scrolling behaviour unchanged. */
+  function initNestedScrollHandoff() {
+    document.addEventListener('wheel', function (e) {
+      if (e.defaultPrevented || e.ctrlKey || e.metaKey || e.altKey || e.shiftKey || !e.deltaY) return;
+
+      var target = e.target;
+      if (!target || typeof target.closest !== 'function') return;
+      var inner = target.closest('.stratum__inner');
+      if (!inner || !inner.closest('.stratum.is-active')) return;
+
+      var maxScroll = inner.scrollHeight - inner.clientHeight;
+      if (maxScroll <= 1) return;
+
+      var atTop = inner.scrollTop <= 1;
+      var atBottom = inner.scrollTop >= maxScroll - 1;
+      if (!((e.deltaY < 0 && atTop) || (e.deltaY > 0 && atBottom))) return;
+
+      /* Wheel deltas may be reported in lines or pages; window.scrollBy uses
+         pixels, so preserve the gesture's physical distance before handing it
+         to the master page scroller. */
+      var delta = e.deltaY;
+      if (e.deltaMode === WheelEvent.DOM_DELTA_LINE) {
+        var lineHeight = parseFloat(window.getComputedStyle(inner).lineHeight);
+        delta *= isFinite(lineHeight) ? lineHeight : 16;
+      } else if (e.deltaMode === WheelEvent.DOM_DELTA_PAGE) {
+        delta *= window.innerHeight;
+      }
+
+      e.preventDefault();
+      window.scrollBy({ top: delta, left: 0, behavior: 'auto' });
+    }, { passive: false });
+  }
+
   /* ═════════════════════════════════════════════════════════ */
   /* KEYBOARD NAV                                              */
   /* ═════════════════════════════════════════════════════════ */
@@ -1631,7 +1673,10 @@
     initHero();
     initHeroManifest();
 
-    if (canRunDepthEngine) initKeyboard();
+    if (canRunDepthEngine) {
+      initKeyboard();
+      initNestedScrollHandoff();
+    }
 
     if (canRunDepthEngine) {
       buildSectionTimelines();
