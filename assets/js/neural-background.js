@@ -807,9 +807,9 @@
     var darkness = 0;
     var fade = 0.025;
     if (sectionManifest.length) {
-      sectionManifest.forEach(function (section) {
-        darkness = Math.max(darkness, sectionDarkness(section, progress, fade));
-      });
+      for (var si = 0; si < sectionManifest.length; si++) {
+        darkness = Math.max(darkness, sectionDarkness(sectionManifest[si], progress, fade));
+      }
     } else {
       darkness = Math.max(darkness, sectionDarkness(activeSection, progress, fade));
     }
@@ -915,7 +915,8 @@
 
     /* Pulses — update InstancedMesh matrices */
     var pulseNeedsUpdate = false;
-    pulses.forEach(function (pulse, idx) {
+    for (var idx = 0; idx < pulses.length; idx++) {
+      var pulse = pulses[idx];
       pulse.prog += pulse.speed;
       if (pulse.prog >= 1) {
         pulse.layer++;
@@ -931,7 +932,7 @@
       dummy.updateMatrix();
       pulseInstanced.setMatrixAt(idx, dummy.matrix);
       pulseNeedsUpdate = true;
-    });
+    }
     if (pulseNeedsUpdate) pulseInstanced.instanceMatrix.needsUpdate = true;
 
     /* Particles — drift speed and ambient hue react to the active section's

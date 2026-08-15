@@ -324,40 +324,37 @@
   document.addEventListener('mouseleave', handleMouseLeave);
 
   function drawConnections(now, theme) {
-    ctx.lineWidth = 1.0;
+    if (particles.length < 2) return;
     theme = theme || readTheme();
     var minDist = config.connectionDist * config.connectionDist;
-    var maxJ, connCount;
-    
+    ctx.lineWidth = 1.0;
+    ctx.strokeStyle = theme.connection;
+    ctx.beginPath();
+    var drawn = 0;
+
     for (var i = 0; i < particles.length; i++) {
       var pi = particles[i];
-      var ageI = now - pi.birth;
-      var pctI = 1.0 - (ageI / pi.life);
-      connCount = 0;
-      maxJ = Math.min(particles.length, i + 12);
-      
+      var connCount = 0;
+      var maxJ = Math.min(particles.length, i + 12);
+
       for (var j = i + 1; j < maxJ; j++) {
         var pj = particles[j];
         var dx = pi.x - pj.x;
         var dy = pi.y - pj.y;
         var dist = dx * dx + dy * dy;
-        
+
         if (dist < minDist) {
-          var ageJ = now - pj.birth;
-          var pctJ = 1.0 - (ageJ / pj.life);
-          var d = Math.sqrt(dist);
-          var distPct = 1.0 - (d / config.connectionDist);
-          
-          ctx.strokeStyle = theme.connection;
-          ctx.globalAlpha = distPct * Math.min(pctI, pctJ) * 0.58;
-          ctx.beginPath();
           ctx.moveTo(pi.x, pi.y);
           ctx.lineTo(pj.x, pj.y);
-          ctx.stroke();
+          drawn++;
           connCount++;
           if (connCount >= 4) break;
         }
       }
+    }
+    if (drawn > 0) {
+      ctx.globalAlpha = 0.38;
+      ctx.stroke();
     }
   }
 

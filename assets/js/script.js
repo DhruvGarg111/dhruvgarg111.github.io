@@ -114,10 +114,15 @@
   /* Normal scroll updates and direct depth-gauge interactions use different
      paths. Keep the slider's numeric and spoken values in one shared writer
      so assistive technology never receives a percentage with a stale label. */
+  var lastAria = { val: -1, sec: -1 };
   function updateDepthGaugeAria(progress) {
     var track = els.depthGaugeTrack;
     if (!track) return;
-    track.setAttribute('aria-valuenow', Math.round(progress * 100));
+    var val = Math.round(progress * 100);
+    if (val === lastAria.val && currentSection === lastAria.sec) return;
+    lastAria.val = val;
+    lastAria.sec = currentSection;
+    track.setAttribute('aria-valuenow', val);
     var sec = SECTIONS[currentSection] || SECTIONS[0];
     track.setAttribute(
       'aria-valuetext',

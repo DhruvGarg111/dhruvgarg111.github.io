@@ -1,23 +1,36 @@
 (function () {
   'use strict';
 
-  /* Mobile motion controller — the touch-first counterpart of the desktop
-     drill engine. Runs ONLY on linear-flow, motion-OK profiles. One
+  /* Mobile motion & tactile instrument controller.
+     Runs ONLY on linear-flow, motion-OK profiles. One
      IntersectionObserver + WAAPI; no ScrollTrigger, no persistent rAF loop.
 
-     Ownership contract with script.js's initMobile(): initMobile is the
-     always-on baseline finalizer (everything readable, counters at final
-     values). This module runs later (idle) and selectively OVERRIDES via
-     inline styles — but only on sections still entirely below the viewport,
-     so already-painted content never flashes hidden. If this file never
-     loads (old browser, network), the baseline stands. */
+     Delivers:
+     - Specimen Slab telemetry & active tracking
+     - Mini Depth Rod with live sliding bead & scrub
+     - Stratum Quick-Jump Drawer
+     - Dual-Mode Instrument Tabs (01 APPARATUS / 02 ARCHITECTURE)
+     - Tap-to-Inspect High-Res Architecture Lightbox
+     - Replay reset logic with clean state preservation
+     - Seismic Wave and section entry choreographies
+  */
 
   if (window.__canDepthDrill) return;                     // desktop drill owns motion
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   if (!('IntersectionObserver' in window) || !Element.prototype.animate) return;
 
   var EASE_EXPO = 'cubic-bezier(0.16, 1, 0.3, 1)';
-  var sections = Array.isArray(window.__groundTruthSections) ? window.__groundTruthSections : [];
+  var sections = Array.isArray(window.__groundTruthSections) ? window.__groundTruthSections : [
+    { id: 'hero', depth: '0m', label: 'Surface', atmosphereDark: false },
+    { id: 'perception', depth: '1200m', label: 'Perception', atmosphereDark: false },
+    { id: 'training', depth: '2400m', label: 'Training', atmosphereDark: true },
+    { id: 'infrastructure', depth: '3600m', label: 'Infrastructure', atmosphereDark: false },
+    { id: 'interface', depth: '4800m', label: 'Interface', atmosphereDark: true },
+    { id: 'journey', depth: '6000m', label: 'Journey', atmosphereDark: false },
+    { id: 'skills', depth: '7200m', label: 'Capabilities', atmosphereDark: false },
+    { id: 'proof', depth: '8400m', label: 'Proof', atmosphereDark: false },
+    { id: 'contact', depth: '9000m', label: 'Contact Core', atmosphereDark: true }
+  ];
   var sectionById = {};
   sections.forEach(function (s) { sectionById[s.id] = s; });
 
@@ -29,13 +42,10 @@
   }
 
   /* Generic staged reveal: hide via inline styles now (stage), animate to
-     natural state on first entry. Inline styles beat every stylesheet rule
-     — no !important arms race with the mobile/reduced-motion overrides. */
+     natural state on first entry. */
   function stage(els, distance) {
     var offset = distance === undefined ? 14 : distance;
     els.forEach(function (el) {
-      /* The mobile safety net uses !important final states. Override it only
-         while this controller owns a staged element, then release it again. */
       el.style.setProperty('opacity', '0', 'important');
       el.style.setProperty('transform', 'translateY(' + offset + 'px)', 'important');
     });
@@ -65,18 +75,207 @@
     });
   }
 
-  /* ── Depth readout (non-interactive) ─────────────────────── */
+  /* ── Depth readout (Floating interactive pill) ───────────── */
   var readout = null, readoutValue = null, readoutLabel = null;
   function buildReadout() {
-    readout = document.createElement('div');
+    if (document.querySelector('.mm-depth')) return;
+    readout = document.createElement('button');
+    readout.type = 'button';
     readout.className = 'mm-depth';
-    readout.setAttribute('aria-hidden', 'true');
+    readout.setAttribute('aria-label', 'Open stratum navigation drawer');
     readout.innerHTML = '<span class="mm-depth__value mono"></span><span class="mm-depth__label mono"></span>';
+    readout.addEventListener('click', function () { openStratumDrawer(); });
     document.body.appendChild(readout);
     readoutValue = $('.mm-depth__value', readout);
     readoutLabel = $('.mm-depth__label', readout);
   }
 
+  /* ── Mobile Mini Depth Rod (Right rail wayfinder) ────────── */
+  var depthRod = null, depthBead = null, depthTicks = [];
+  function buildMobileDepthRod() {
+    if (document.querySelector('.mm-depth-rod')) return;
+    depthRod = document.createElement('aside');
+    depthRod.className = 'mm-depth-rod';
+    depthRod.setAttribute('aria-label', 'Depth gauge indicator');
+
+    var ticksHtml = sections.map(function (s, i) {
+      var topPct = Math.round((i / (sections.length - 1)) * 96 + 2);
+      var shortDepth = s.depth === '0m' ? '0m' : s.depth === '9000m' ? '9.0k' : (parseInt(s.depth, 10) / 1000).toFixed(1) + 'k';
+      return '<span class="mm-depth-tick mono' + (i === 0 ? ' is-active' : '') + '" data-section="' + s.id + '" style="top:' + topPct + '%">' + shortDepth + '</span>';
+    }).join('');
+
+    depthRod.innerHTML =
+      '<div class="mm-depth-rod__track">' +
+        '<div class="mm-depth-rod__bead" id="mm-depth-bead" title="Tap to open stratum jump drawer"></div>' +
+      '</div>' +
+      '<div class="mm-depth-rod__ticks">' + ticksHtml + '</div>';
+
+    document.body.appendChild(depthRod);
+    depthBead = $('#mm-depth-bead', depthRod);
+    depthTicks = $$('.mm-depth-tick', depthRod);
+
+    if (depthBead) {
+      depthBead.addEventListener('click', function (e) {
+        e.stopPropagation();
+        openStratumDrawer();
+      });
+    }
+
+    depthTicks.forEach(function (tick) {
+      tick.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var secId = tick.getAttribute('data-section');
+        var target = document.getElementById(secId);
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    });
+  }
+
+  /* ── Stratum Quick-Jump Drawer ───────────────────────────── */
+  var drawer = null;
+  var drawerOpener = null;
+  function buildStratumDrawer() {
+    if (document.querySelector('.mm-drawer')) return;
+    drawer = document.createElement('div');
+    drawer.className = 'mm-drawer';
+    drawer.setAttribute('role', 'dialog');
+    drawer.setAttribute('aria-modal', 'true');
+    drawer.setAttribute('aria-label', 'Stratum Core Sample Navigation');
+
+    var listHtml = sections.map(function (s, i) {
+      var num = i < 10 ? '0' + i : String(i);
+      return '<li class="mm-drawer__item">' +
+        '<a href="#' + s.id + '" class="mm-drawer__link mono' + (i === 0 ? ' is-active' : '') + '" data-section="' + s.id + '">' +
+          '<span class="mm-drawer__depth">' + s.depth + '</span>' +
+          '<span class="mm-drawer__name">' + s.label + '</span>' +
+          '<span class="mm-drawer__tag">' + num + '</span>' +
+        '</a>' +
+      '</li>';
+    }).join('');
+
+    drawer.innerHTML =
+      '<div class="mm-drawer__backdrop"></div>' +
+      '<div class="mm-drawer__panel">' +
+        '<div class="mm-drawer__header">' +
+          '<span class="mm-drawer__title mono">CORE SAMPLE DRILL · 9 STRATA</span>' +
+          '<button type="button" class="mm-drawer__close mono" aria-label="Close navigation drawer">✕ CLOSE</button>' +
+        '</div>' +
+        '<ul class="mm-drawer__list">' + listHtml + '</ul>' +
+      '</div>';
+
+    document.body.appendChild(drawer);
+
+    $('.mm-drawer__backdrop', drawer).addEventListener('click', closeStratumDrawer);
+    $('.mm-drawer__close', drawer).addEventListener('click', closeStratumDrawer);
+
+    $$('.mm-drawer__link', drawer).forEach(function (link) {
+      link.addEventListener('click', function (e) {
+        e.preventDefault();
+        var secId = link.getAttribute('data-section');
+        var target = document.getElementById(secId);
+        closeStratumDrawer();
+        if (target) {
+          setTimeout(function () {
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }, 120);
+        }
+      });
+    });
+
+    window.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && drawer.classList.contains('is-open')) {
+        closeStratumDrawer();
+      }
+    });
+  }
+
+  function openStratumDrawer() {
+    if (!drawer) return;
+    drawerOpener = document.activeElement;
+    drawer.classList.add('is-open');
+    document.body.style.overflow = 'hidden';
+    $$('.mm-drawer__link', drawer).forEach(function (link) {
+      link.classList.toggle('is-active', link.getAttribute('data-section') === activeId);
+    });
+    /* aria-modal without a focus move leaves keyboard users on the page
+       behind the dialog; land on the active stratum link. */
+    var activeLink = $('.mm-drawer__link.is-active', drawer) || $('.mm-drawer__close', drawer);
+    if (activeLink) activeLink.focus();
+  }
+
+  function closeStratumDrawer() {
+    if (!drawer) return;
+    drawer.classList.remove('is-open');
+    document.body.style.removeProperty('overflow');
+    if (drawerOpener && drawerOpener.focus) drawerOpener.focus();
+    drawerOpener = null;
+  }
+
+  /* ── Fullscreen Architecture SVG Lightbox Modal ─────────── */
+  var lightbox = null, lightboxImg = null, lightboxCaption = null;
+  var lightboxOpener = null;
+  function buildLightbox() {
+    if (document.querySelector('.mm-lightbox')) return;
+    lightbox = document.createElement('div');
+    lightbox.className = 'mm-lightbox';
+    lightbox.setAttribute('role', 'dialog');
+    lightbox.setAttribute('aria-modal', 'true');
+    lightbox.setAttribute('aria-label', 'System Architecture Diagram Inspection');
+
+    /* No src on the img until one is assigned: an empty src attribute
+       resolves against the document URL and some browsers fetch it. */
+    lightbox.innerHTML =
+      '<div class="mm-lightbox__backdrop"></div>' +
+      '<div class="mm-lightbox__content">' +
+        '<div class="mm-lightbox__header">' +
+          '<span class="mm-lightbox__title mono">SYSTEM ARCHITECTURE · INSPECT</span>' +
+          '<button type="button" class="mm-lightbox__close mono" aria-label="Close architecture view">✕ CLOSE</button>' +
+        '</div>' +
+        '<div class="mm-lightbox__viewport">' +
+          '<img class="mm-lightbox__img" alt="" />' +
+        '</div>' +
+        '<div class="mm-lightbox__caption mono"></div>' +
+      '</div>';
+
+    document.body.appendChild(lightbox);
+    lightboxImg = $('.mm-lightbox__img', lightbox);
+    lightboxCaption = $('.mm-lightbox__caption', lightbox);
+
+    $('.mm-lightbox__backdrop', lightbox).addEventListener('click', closeLightbox);
+    $('.mm-lightbox__close', lightbox).addEventListener('click', closeLightbox);
+
+    window.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && lightbox.classList.contains('is-open')) {
+        closeLightbox();
+      }
+    });
+  }
+
+  function openArchLightbox(imgSrc, captionText, altText, opener) {
+    if (!lightbox || !lightboxImg) return;
+    lightboxOpener = opener || null;
+    lightboxImg.alt = altText || 'System architecture diagram';
+    lightboxImg.src = imgSrc;
+    if (lightboxCaption) lightboxCaption.textContent = captionText || 'High-resolution system architecture specification.';
+    lightbox.classList.add('is-open');
+    document.body.style.overflow = 'hidden';
+    /* role=dialog + aria-modal without moving focus strands keyboard/screen-
+       reader users on the page behind the modal. */
+    var closeBtn = $('.mm-lightbox__close', lightbox);
+    if (closeBtn) closeBtn.focus();
+  }
+
+  function closeLightbox() {
+    if (!lightbox) return;
+    lightbox.classList.remove('is-open');
+    document.body.style.removeProperty('overflow');
+    if (lightboxOpener && lightboxOpener.focus) lightboxOpener.focus();
+    lightboxOpener = null;
+  }
+
+  /* ── Active Section & Progress Tracking ──────────────────── */
   var announcer = document.getElementById('section-announcer');
   var activeId = null;
   function setActiveSection(id) {
@@ -84,15 +283,38 @@
     activeId = id;
     var sec = sectionById[id];
     if (!sec) return;
+
     if (readoutValue) { readoutValue.textContent = sec.depth; readoutLabel.textContent = sec.label; }
     if (readout) readout.classList.toggle('is-visible', id !== 'hero');
+    if (depthRod) depthRod.classList.toggle('is-visible', id !== 'hero');
+
     document.body.classList.toggle('is-dark', !!sec.atmosphereDark);
     if (announcer) announcer.textContent = sec.label + ', ' + sec.depth;
+
+    depthTicks.forEach(function (tick) {
+      tick.classList.toggle('is-active', tick.getAttribute('data-section') === id);
+    });
+
     pushToBackground();
   }
 
-  /* ── Background feed (neural-lite) ───────────────────────── */
+  /* ── Background feed (neural-lite) & mini depth rod ─────── */
   var docProgress = 0;
+  var maxScroll = 0;
+  var trackEl = null;
+  var trackH = 0;
+
+  function refreshScrollMetrics() {
+    maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+    if (!trackEl && depthRod) { trackEl = $('.mm-depth-rod__track', depthRod); }
+    if (trackEl) { trackH = trackEl.clientHeight; }
+  }
+  window.addEventListener('resize', refreshScrollMetrics, { passive: true });
+  /* scrollHeight keeps growing as below-fold images/fonts settle — without
+     these the bead's travel range is computed from a half-laid-out page. */
+  window.addEventListener('load', refreshScrollMetrics);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(refreshScrollMetrics);
+
   function pushToBackground() {
     if (!window.__neuralSetProgress) return;
     window.__neuralSetProgress(docProgress, activeId ? sectionById[activeId] || null : null);
@@ -103,8 +325,12 @@
     scrollScheduled = true;
     requestAnimationFrame(function () {
       scrollScheduled = false;
-      var max = document.documentElement.scrollHeight - window.innerHeight;
-      docProgress = max > 0 ? Math.max(0, Math.min(1, window.scrollY / max)) : 0;
+      if (!maxScroll) refreshScrollMetrics();
+      docProgress = maxScroll > 0 ? Math.max(0, Math.min(1, window.scrollY / maxScroll)) : 0;
+      if (depthBead) {
+        var offsetPx = trackH ? (docProgress * (trackH * 0.96) + trackH * 0.02) : (docProgress * 200);
+        depthBead.style.setProperty('--bead-offset', offsetPx.toFixed(1) + 'px');
+      }
       pushToBackground();
     });
   }, { passive: true });
@@ -118,21 +344,18 @@
   }, { rootMargin: '-40% 0px -40% 0px' });
   stratumEls.forEach(function (el) { activeIO.observe(el); });
 
-  /* ── One-time entry choreography ─────────────────────────── */
-  /* Phase 3/4 tasks push handlers here: { stageEl, prep(), play(), replayable } */
-  var CHOREO = [];                       // filled by registerChoreo below + Phase 3/4 blocks
-  var REPLAY_HANDLERS = {};              // stageId -> play()
+  /* ── Choreography System with State Reset ─────────────────── */
+  var CHOREO = [];
+  var CHOREO_MAP = {}; // id -> { prep, play }
 
   function registerChoreo(id, rootEl, prep, play, replayable) {
     if (!rootEl) return;
+    CHOREO_MAP[id] = { prep: prep, play: play };
     if (!belowViewport(rootEl)) {
-      /* Already painted — never re-hide. Replay stays available. */
-      if (replayable) REPLAY_HANDLERS[id] = play;
       return;
     }
     prep();
     CHOREO.push({ id: id, el: rootEl, play: play });
-    if (replayable) REPLAY_HANDLERS[id] = play;
     entryIO.observe(rootEl);
   }
 
@@ -145,53 +368,138 @@
       }
     });
   }, {
-    /* Low threshold on purpose: several strata are 2-3 viewports tall in
-       linear flow, so a high intersectionRatio is structurally unreachable
-       for them — a 0.35 threshold would never fire. Demo registrations
-       observe their small stage elements instead of whole sections for
-       precise timing; this low threshold covers the tall narrative ones. */
     threshold: 0.1,
     rootMargin: '0px 0px -10% 0px'
   });
 
   window.__mmReplay = function (id) {
-    if (REPLAY_HANDLERS[id]) REPLAY_HANDLERS[id]();
+    if (CHOREO_MAP[id]) {
+      if (CHOREO_MAP[id].prep) CHOREO_MAP[id].prep();
+      requestAnimationFrame(function () {
+        if (CHOREO_MAP[id].play) CHOREO_MAP[id].play();
+      });
+    }
   };
 
-  /* ── Replay button factory (in-flow, after the stage element) ──
-     Placement has to clear the swipe gallery. Below 900px .stratum__visual is
-     a horizontal scroll-snap strip, and for Searchlight and Neural Canvas the
-     stage element is a direct child of it — so inserting "after the stage"
-     wedged the 44px button between two snap points as a third flex item with
-     no snap alignment of its own, and swiping from the image to the
-     architecture diagram had to traverse it. Walk up out of any snap container
-     first and insert after that instead, so the button lands in normal flow
-     under the whole gallery. */
-  function addReplayButton(afterEl, stageId, label) {
-    if (!afterEl || !REPLAY_HANDLERS[stageId]) return;
-    var btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'mm-replay mono';
-    btn.textContent = '↺ replay';
-    btn.setAttribute('aria-label', label);
-    btn.addEventListener('click', function () { window.__mmReplay(stageId); });
+  /* ── Dual-Mode Instrument Tabs & Actions Factory ──────────── */
+  function setupProjectVisualTabs(sectionId, stageId, replayLabel) {
+    var sec = document.getElementById(sectionId);
+    if (!sec) return;
+    var visual = $('.stratum__visual', sec);
+    if (!visual) return;
 
-    var anchor = afterEl;
-    for (var hops = 0; hops < 4 && anchor.parentElement; hops++) {
-      var parentStyle = window.getComputedStyle(anchor.parentElement);
-      var snaps = (parentStyle.scrollSnapType || 'none') !== 'none';
-      if (!snaps) break;
-      anchor = anchor.parentElement;
+    if (sec.querySelector('.mm-instrument-bar')) return;
+
+    var archFig = $('.arch-figure', visual);
+
+    /* The tabs only make sense while .stratum__visual is a horizontal
+       scroll-snap gallery — and that CSS lives in the max-width:767px block.
+       On touch tablets (768px+) mobile-motion still runs, but the visual is
+       normal stacked flow there, so a tab bar would highlight on tap while
+       scrolling nothing. Replay/inspect still apply everywhere. */
+    var galleryMode = window.matchMedia('(max-width: 767px)').matches;
+
+    // Create instrument wrapper
+    var instrumentWrap = document.createElement('div');
+    instrumentWrap.className = 'stratum__instrument';
+
+    visual.parentNode.insertBefore(instrumentWrap, visual);
+
+    // 1. Injected segmented tab bar (gallery widths only — see above)
+    if (galleryMode) {
+      var tabGroup = document.createElement('div');
+      tabGroup.className = 'mm-instrument-bar';
+      tabGroup.setAttribute('role', 'tablist');
+      tabGroup.setAttribute('aria-label', 'Visual Instrument Mode');
+
+      tabGroup.innerHTML =
+        '<button type="button" role="tab" class="mm-tab is-active mono" aria-selected="true" data-tab="stage">' +
+          '<span class="mm-tab__dot"></span> 01 APPARATUS' +
+        '</button>' +
+        (archFig ? '<button type="button" role="tab" class="mm-tab mono" aria-selected="false" data-tab="arch">02 ARCHITECTURE</button>' : '');
+
+      instrumentWrap.appendChild(tabGroup);
     }
-    anchor.insertAdjacentElement('afterend', btn);
+    instrumentWrap.appendChild(visual);
+
+    if (galleryMode) {
+      var tabs = $$('.mm-tab', instrumentWrap);
+      var tabStage = tabs[0];
+      var tabArch = tabs[1];
+
+      if (tabStage) {
+        tabStage.addEventListener('click', function () {
+          visual.scrollTo({ left: 0, behavior: 'smooth' });
+          setActiveTab(0);
+        });
+      }
+      if (tabArch) {
+        tabArch.addEventListener('click', function () {
+          visual.scrollTo({ left: visual.offsetWidth || 340, behavior: 'smooth' });
+          setActiveTab(1);
+        });
+      }
+
+      function setActiveTab(index) {
+        tabs.forEach(function (t, i) {
+          var active = i === index;
+          t.classList.toggle('is-active', active);
+          t.setAttribute('aria-selected', active ? 'true' : 'false');
+        });
+      }
+
+      // Sync tabs when swiping horizontally
+      var visualW = visual.offsetWidth || 1;
+      window.addEventListener('resize', function () { visualW = visual.offsetWidth || 1; }, { passive: true });
+      visual.addEventListener('scroll', function () {
+        var scrollFraction = visual.scrollLeft / visualW;
+        setActiveTab(scrollFraction >= 0.5 ? 1 : 0);
+      }, { passive: true });
+    }
+
+    // 2. Injected Action Controls underneath visual
+    var actionsBar = document.createElement('div');
+    actionsBar.className = 'mm-stage-actions';
+
+    var replayBtn = document.createElement('button');
+    replayBtn.type = 'button';
+    replayBtn.className = 'mm-replay mono';
+    replayBtn.textContent = '↺ replay';
+    replayBtn.setAttribute('aria-label', replayLabel || 'Replay animation');
+    replayBtn.addEventListener('click', function () { window.__mmReplay(stageId); });
+    actionsBar.appendChild(replayBtn);
+
+    if (archFig) {
+      var inspectBtn = document.createElement('button');
+      inspectBtn.type = 'button';
+      inspectBtn.className = 'mm-expand-arch mono';
+      inspectBtn.textContent = '⤢ INSPECT ARCHITECTURE';
+      inspectBtn.setAttribute('aria-label', 'Inspect high-resolution architecture diagram');
+
+      var archImg = $('img', archFig);
+      var figCap = $('figcaption', archFig);
+      var imgSrc = archImg ? archImg.src : '';
+      var altText = archImg ? archImg.alt : '';
+      var captionText = figCap ? figCap.textContent : '';
+
+      inspectBtn.addEventListener('click', function () {
+        openArchLightbox(imgSrc, captionText, altText, inspectBtn);
+      });
+
+      archFig.style.cursor = 'pointer';
+      archFig.addEventListener('click', function () {
+        openArchLightbox(imgSrc, captionText, altText, inspectBtn);
+      });
+
+      actionsBar.appendChild(inspectBtn);
+    }
+
+    instrumentWrap.appendChild(actionsBar);
   }
 
-  /* ═══ Section choreography registrations (Phases 3 & 4 append here) ═══ */
-  window.__mmRegister = registerChoreo;
-  window.__mmAddReplay = addReplayButton;
-  window.__mmHelpers = { $: $, $$: $$, stage: stage, reveal: reveal, EASE_EXPO: EASE_EXPO };
+  /* ═══ Section Choreographies ════════════════════════════════ */
 
-  /* Searchlight: coarse-to-fine region-of-interest sweep. */
+  /* Stratum I: Searchlight */
   (function () {
     var stageEl = $('#aerial-stage');
     var sharp = $('.aerial-stage__sharp', stageEl);
@@ -218,10 +526,10 @@
       }
     }
     registerChoreo('searchlight', stageEl, prep, play, true);
-    addReplayButton(stageEl, 'searchlight', 'Replay the coarse-to-fine detection sweep');
+    setupProjectVisualTabs('perception', 'searchlight', 'Replay the coarse-to-fine detection sweep');
   })();
 
-  /* Neural Canvas: style-transfer seam sweep. */
+  /* Stratum II: Neural Canvas */
   (function () {
     var stageEl = $('#seam-stage');
     var styleLayer = $('.seam-stage__style', stageEl);
@@ -249,39 +557,27 @@
       }
     }
     registerChoreo('seam', stageEl, prep, play, true);
-    addReplayButton(stageEl, 'seam', 'Replay the style-transfer seam sweep');
+    setupProjectVisualTabs('training', 'seam', 'Replay the style-transfer seam sweep');
   })();
 
-  /* PixelQueue: sequential cards and connectors. */
+  /* Stratum III: PixelQueue */
   (function () {
     var pipeline = $('#pipeline');
     if (!pipeline) return;
     var cards = $$('.pipe-card', pipeline);
-    var connectors = $$('.pipe-connector svg line', pipeline);
     if (!cards.length) return;
 
     function prep() {
       stage(cards);
-      connectors.forEach(function (line) { line.style.opacity = '0'; });
     }
     function play() {
-      reveal(cards, 140);
-      connectors.forEach(function (line, index) {
-        line.style.opacity = '';
-        line.animate(
-          [
-            { opacity: 0, strokeDashoffset: 40, strokeDasharray: '40 40' },
-            { opacity: 1, strokeDashoffset: 0, strokeDasharray: '40 40' },
-          ],
-          { duration: 320, delay: 120 + index * 140, easing: 'linear', fill: 'backwards' }
-        );
-      });
+      reveal(cards, 120);
     }
     registerChoreo('pipeline', pipeline, prep, play, true);
-    addReplayButton(pipeline, 'pipeline', 'Replay the annotation pipeline build-up');
+    setupProjectVisualTabs('infrastructure', 'pipeline', 'Replay the annotation pipeline build-up');
   })();
 
-  /* PyGOG: the transcript remains in the DOM while its lines enter in order. */
+  /* Stratum IV: PyGOG CLI */
   (function () {
     var terminal = $('#terminal');
     if (!terminal) return;
@@ -297,31 +593,52 @@
     }
     function play() {
       hideLines();
-      reveal(lines, 170, 6, function (line) { line.classList.add('is-typed'); });
+      reveal(lines, 160, 6, function (line) { line.classList.add('is-typed'); });
     }
     registerChoreo('terminal', terminal, prep, play, true);
-    addReplayButton(terminal, 'terminal', 'Replay the terminal session');
+    setupProjectVisualTabs('interface', 'terminal', 'Replay the terminal session');
   })();
 
-  /* Journey: one-time depth line and era cascade. */
+  /* Stratum V: Journey with Seismic Wave */
   (function () {
     var track = $('.journey-track');
+    var seismic = $('.journey-seismic');
     if (!track) return;
     var eras = $$('.journey-era', track);
 
+    /* The seismic element is a <polyline>, not a <path> — and its length is
+       ~1062 units, so the dash window has to cover 1200 (the authored value
+       desktop GSAP animates from). A shorter window leaves the line's tail
+       permanently drawn at the start of the "sweep". */
     function prep() {
       track.classList.add('mm-line-pending');
       stage(eras);
+      if (seismic) {
+        var line = $('.journey-seismic__line', seismic);
+        if (line) {
+          line.style.strokeDasharray = '1200';
+          line.style.strokeDashoffset = '1200';
+        }
+      }
     }
     function play() {
       track.classList.remove('mm-line-pending');
       track.classList.add('mm-line-grow');
-      reveal(eras, 160);
+      reveal(eras, 150);
+      if (seismic) {
+        var line = $('.journey-seismic__line', seismic);
+        if (line) {
+          line.animate(
+            [{ strokeDashoffset: '1200' }, { strokeDashoffset: '0' }],
+            { duration: 1800, easing: 'cubic-bezier(0.16, 1, 0.3, 1)', fill: 'forwards' }
+          );
+        }
+      }
     }
     registerChoreo('journey', track, prep, play, false);
   })();
 
-  /* Capabilities: cascade plus a short touch-only sample highlight. */
+  /* Stratum VI: Capabilities */
   (function () {
     var section = $('#skills');
     if (!section) return;
@@ -342,13 +659,7 @@
     });
   })();
 
-  /* Proof: the visible numbers count up from zero; the accessible values come
-     from the authored .sr-only summary under the cluster ("200+ open source
-     contributions, 500+ …"), which carries the suffixes and units. This used
-     to also inject a per-card .sr-only span holding the bare target, so screen
-     readers heard "200, 500, 1730" and then the whole summary again — and the
-     injected copies dropped the "+". The markup now carries aria-hidden on
-     each .stat-count, so there is exactly one spoken source. */
+  /* Stratum VII: Proof */
   (function () {
     var section = $('#proof');
     if (!section) return;
@@ -369,9 +680,9 @@
       });
     }
     function play() {
-      reveal(cards, 150);
+      reveal(cards, 140);
       counters.forEach(function (item, index) {
-        var startsAt = performance.now() + 200 + index * 150;
+        var startsAt = performance.now() + 200 + index * 140;
         var duration = 700;
         function step(now) {
           var progress = Math.max(0, Math.min(1, (now - startsAt) / duration));
@@ -386,7 +697,7 @@
     registerChoreo('proof', section, prep, play, false);
   })();
 
-  /* Contact is deliberately restrained: the only moving element is its card. */
+  /* Stratum VIII: Contact */
   (function () {
     var section = $('#contact');
     var card = section && $('.contact-card', section);
@@ -396,7 +707,7 @@
     registerChoreo('contact', card, prep, play, false);
   })();
 
-  /* The existing flow field already supports touch; make its instructions match. */
+  /* Flow field touch instructions */
   (function () {
     var flow = document.getElementById('hero-flow');
     if (flow && window.__isTouchFirst) {
@@ -407,8 +718,12 @@
     }
   })();
 
+  /* Initialize Instruments */
   buildReadout();
-  /* Initial state for visitors landing mid-page (anchor links). */
+  buildMobileDepthRod();
+  buildStratumDrawer();
+  buildLightbox();
+
   docProgress = (function () {
     var max = document.documentElement.scrollHeight - window.innerHeight;
     return max > 0 ? Math.max(0, Math.min(1, window.scrollY / max)) : 0;

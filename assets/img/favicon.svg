@@ -1,48 +1,15 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
-    <style>
-        .hair { stroke: #1B2A22; stroke-width: 1.5; fill: none; stroke-linecap: round; }
-        .glasses { stroke: #1B2A22; stroke-width: 1.8; fill: none; }
-        .bridge { stroke: #1B2A22; stroke-width: 1.5; stroke-linecap: round; }
-        .reticle { stroke: #33CCFF; stroke-width: 0.8; stroke-dasharray: 2 1.5; }
-        .hud-dot { fill: #FF5B62; }
-        .blueprint-line { stroke: #1B2A22; stroke-width: 0.6; opacity: 0.2; }
-        
-        @media (prefers-color-scheme: dark) {
-            .hair { stroke: #F7F4EB; }
-            .glasses { stroke: #F7F4EB; }
-            .bridge { stroke: #F7F4EB; }
-            .blueprint-line { stroke: #F7F4EB; }
-        }
-    </style>
-    <!-- Background Technical Grid Lines -->
-    <line class="blueprint-line" x1="16" y1="0" x2="16" y2="32" />
-    <line class="blueprint-line" x1="0" y1="16" x2="32" y2="16" />
-    <circle class="blueprint-line" cx="16" cy="16" r="14" />
-
-    <!-- Curly Hair representation (Geometric arcs/circles clustered at the top and sides) -->
-    <!-- Top locks -->
-    <path class="hair" d="M8 12C6 10 7 7 9 7C11 7 11 9 13 9C15 9 14 6 16 6C18 6 18 8 20 8C22 8 21 5 23 5C25 5 26 8 24 10" />
-    <!-- Left locks -->
-    <path class="hair" d="M7 12C5 12 4 14 5 16C6 18 7 17 8 19" />
-    <!-- Right locks -->
-    <path class="hair" d="M25 12C27 12 28 14 27 16C26 18 25 17 24 19" />
-    
-    <!-- Glasses (Distinctive square frames) -->
-    <!-- Left frame -->
-    <rect class="glasses" x="8" y="14" width="7" height="6" rx="1" />
-    <!-- Right frame -->
-    <rect class="glasses" x="17" y="14" width="7" height="6" rx="1" />
-    <!-- Bridge -->
-    <line class="bridge" x1="15" y1="17" x2="17" y2="17" />
-    
-    <!-- Cybernetic HUD/Scanning target over the right lens -->
-    <circle class="reticle" cx="20.5" cy="17" r="4.5" />
-    <!-- Scanning crosshair ticks inside the right lens -->
-    <path class="reticle" d="M20.5 11V13M20.5 21V23M14.5 17H16.5M24.5 17H26.5" />
-    <!-- Active glowing red target dot in the center of the right lens -->
-    <circle class="hud-dot" cx="20.5" cy="17" r="1.2" />
-    
-    <!-- Small HUD coordinate text (vertical tiny indicators) -->
-    <rect x="2" y="24" width="3" height="3" fill="#33CCFF" opacity="0.8" />
-    <rect x="27" y="24" width="3" height="3" fill="#FF5B62" opacity="0.8" />
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none"><style>
+ .hair { stroke: #1B2A22; stroke-width: 1.5; fill: none; stroke-linecap: round; }
+ .glasses { stroke: #1B2A22; stroke-width: 1.8; fill: none; }
+ .bridge { stroke: #1B2A22; stroke-width: 1.5; stroke-linecap: round; }
+ .reticle { stroke: #33CCFF; stroke-width: 0.8; stroke-dasharray: 2 1.5; }
+ .hud-dot { fill: #FF5B62; }
+ .blueprint-line { stroke: #1B2A22; stroke-width: 0.6; opacity: 0.2; }
+ 
+ @media (prefers-color-scheme: dark) {
+ .hair { stroke: #F7F4EB; }
+ .glasses { stroke: #F7F4EB; }
+ .bridge { stroke: #F7F4EB; }
+ .blueprint-line { stroke: #F7F4EB; }
+ }
+ </style><!-- Background Technical Grid Lines --><line class="blueprint-line" x1="16" y1="0" x2="16" y2="32" /><line class="blueprint-line" x1="0" y1="16" x2="32" y2="16" /><circle class="blueprint-line" cx="16" cy="16" r="14" /><!-- Curly Hair representation (Geometric arcs/circles clustered at the top and sides) --><!-- Top locks --><path class="hair" d="M8 12C6 10 7 7 9 7C11 7 11 9 13 9C15 9 14 6 16 6C18 6 18 8 20 8C22 8 21 5 23 5C25 5 26 8 24 10" /><!-- Left locks --><path class="hair" d="M7 12C5 12 4 14 5 16C6 18 7 17 8 19" /><!-- Right locks --><path class="hair" d="M25 12C27 12 28 14 27 16C26 18 25 17 24 19" /><!-- Glasses (Distinctive square frames) --><!-- Left frame --><rect class="glasses" x="8" y="14" width="7" height="6" rx="1" /><!-- Right frame --><rect class="glasses" x="17" y="14" width="7" height="6" rx="1" /><!-- Bridge --><line class="bridge" x1="15" y1="17" x2="17" y2="17" /><!-- Cybernetic HUD/Scanning target over the right lens --><circle class="reticle" cx="20.5" cy="17" r="4.5" /><!-- Scanning crosshair ticks inside the right lens --><path class="reticle" d="M20.5 11V13M20.5 21V23M14.5 17H16.5M24.5 17H26.5" /><!-- Active glowing red target dot in the center of the right lens --><circle class="hud-dot" cx="20.5" cy="17" r="1.2" /><!-- Small HUD coordinate text (vertical tiny indicators) --><rect x="2" y="24" width="3" height="3" fill="#33CCFF" opacity="0.8" /><rect x="27" y="24" width="3" height="3" fill="#FF5B62" opacity="0.8" /></svg>

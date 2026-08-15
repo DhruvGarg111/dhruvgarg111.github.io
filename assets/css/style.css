@@ -40,6 +40,30 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: 'Martian Mono';
+  src: url('../fonts/MartianMono-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Martian Mono';
+  src: url('../fonts/MartianMono-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Martian Mono';
+  src: url('../fonts/MartianMono-SemiBold.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   /* Semantic heading system: the structural word sits in ink; the accent word
      carries the section's *discipline* color (survey terracotta by default,
@@ -1229,18 +1253,23 @@ html.bg-webgl.can-depth-drill .hero-plate__paper { opacity: 0.08; }
   background-size: 30px 30px;
 }
 .hero__scanline {
-  position: absolute; left: 0; right: 0; top: 0; height: 2px; z-index: 2;
+  position: absolute; left: 0; right: 0; top: 0; height: 100%; z-index: 2;
   pointer-events: none;
-  background: linear-gradient(90deg, transparent, var(--survey), transparent);
-  box-shadow: 0 0 12px var(--survey-glow);
   opacity: 0;
   animation: hero-scan 6s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+.hero__scanline::after {
+  content: "";
+  position: absolute; left: 0; right: 0; bottom: 0; height: 2px;
+  background: linear-gradient(90deg, transparent, var(--survey), transparent);
+  box-shadow: 0 0 12px var(--survey-glow);
 }
 @keyframes hero-scan {
-  0%   { top: 0%;   opacity: 0; }
+  0%   { transform: translate3d(0, -100%, 0); opacity: 0; }
   10%  { opacity: 0.85; }
   90%  { opacity: 0.85; }
-  100% { top: 100%; opacity: 0; }
+  100% { transform: translate3d(0, 0, 0); opacity: 0; }
 }
 .hero__image-wrap::after {
   content: "ATTENTION FIELD · COARSE → FINE";
@@ -1265,9 +1294,17 @@ html.bg-webgl.can-depth-drill .hero-plate__paper { opacity: 0.08; }
 body.is-surface-locked .hero__surface-tag { opacity: 1; transform: none; }
 
 @media (prefers-reduced-motion: reduce) {
-  .hero__scanline { animation: none; }
   .hero__surface-tag { opacity: 1; transform: none; }
 }
+
+/* The scanline is the drill's own progress cue. Where the drill never runs —
+   touch-first phones/tablets, reduced motion, no-JS — it was still sweeping
+   forever: an always-on GPU layer plus a 12px box-shadow repaint every frame
+   over the live field canvas. Gate on the capability class itself (set
+   synchronously pre-paint) rather than a width proxy, so the condition can't
+   drift from script.js's isDesktop. Base state is opacity:0, so killing the
+   animation removes it cleanly with no resting-state change. */
+html:not(.can-depth-drill) .hero__scanline { animation: none; }
 
 /* Promoted from panel decoration to the plate's identity primitive: four
    corner arms on the plate's own outer edge. Each is its own element so all
@@ -1319,42 +1356,54 @@ body.is-surface-locked .hero__surface-tag { opacity: 1; transform: none; }
    instrument chrome is the hero's identity, so the rails are linearised
    along with everything else rather than deleted. See the rail rules below. */
 @media (max-width: 899px) {
-  .hero-plate,
-  .hero-plate__body { display: contents; }
-  .survey-brackets { display: none; } /* they frame a plate box that no longer exists */
-  /* Must be explicit, not incidental: `display: contents` hoists the paper
-     layer out of the plate, so its `position: absolute; inset: 0` would
-     resolve against .stratum__inner and paint an opaque sheet over the
-     whole mobile hero. There is no plate to develop here anyway. */
+  .hero-plate {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    border: 1px solid var(--plate-line);
+    border-radius: 14px;
+    background: var(--paper);
+    background-image: radial-gradient(var(--ink-14) 0.75px, transparent 0.75px);
+    background-size: 16px 16px;
+    box-shadow:
+      0 0 0 1px var(--ink-06),
+      0 12px 36px -4px rgba(26, 43, 60, 0.1),
+      inset 0 1px 0 var(--white-60);
+    overflow: hidden;
+    isolation: isolate;
+    position: relative;
+  }
+
   .hero-plate__paper { display: none; }
 
-  /* ── The plate's telemetry rails, linearised ──
-     These used to be display:none below 900px, which cost the phone hero the
-     thing that makes it read as a survey instrument rather than a heading
-     over a canvas: SURVEY PLATE 00, the live field readout, the strata
-     count. All of it was already in the DOM and already correct — it was
-     simply hidden. Rebuilt as full-width strips that bracket the hero.
+  .survey-brackets {
+    display: block;
+    position: absolute;
+    inset: 4px;
+    pointer-events: none;
+    z-index: 5;
+  }
+  .survey-brackets span {
+    width: 16px;
+    height: 16px;
+    border-color: var(--survey);
+    opacity: 0.5;
+  }
 
-     Order: the top rail is pulled above .hero__right (which itself carries
-     order:-1 so the field leads on touch), reproducing the desktop reading
-     top-to-bottom — plate header, field, nameplate, strata footer. */
   .hero-plate__rail {
     display: flex;
-    padding-left: 0;
-    padding-right: 0;
-    min-height: 32px;
-    font-size: 0.55rem;
+    align-items: center;
+    padding: 0 clamp(0.75rem, 3vw, 1.25rem);
+    min-height: 36px;
+    font-size: 0.58rem;
     letter-spacing: 0.1em;
-    gap: 0.9rem;
+    gap: 0.85rem;
   }
-  #hero .hero-plate__rail--top { order: -2; }
-  /* The state cell ("STATIC"/"RESOLVE") is the desktop drill's own status and
-     has no meaning without the drill; the surface depth is already printed
-     over the field itself as .hero__surface-tag. What is worth the width is
-     the live field readout — real runtime state (tier + the particle pool
-     this device actually built), which is exactly the kind of honest
-     instrumentation the rest of the page is built on. */
-  #hero .hero-plate__rail--top .hero-plate__cell--state { display: none; }
+  #hero .hero-plate__rail--top {
+    order: 0;
+    border-bottom: 1px solid var(--ink-18);
+    background: rgba(244, 240, 232, 0.6);
+  }
   #hero .hero-plate__rail--top #hero-rail-field {
     display: block;
     margin-left: auto;
@@ -1362,26 +1411,63 @@ body.is-surface-locked .hero__surface-tag { opacity: 1; transform: none; }
     overflow: hidden;
     text-overflow: ellipsis;
   }
-  #hero .hero-plate__rail--bottom { justify-content: flex-start; }
+  #hero .hero-plate__rail--bottom {
+    order: 3;
+    border-top: 1px solid var(--ink-18);
+    background: rgba(244, 240, 232, 0.6);
+    justify-content: space-between;
+  }
+
+  .hero-plate__body {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    min-height: auto;
+    order: 1;
+  }
 
   .hero-layout {
     display: flex;
     flex-direction: column;
     align-items: stretch;
-    gap: clamp(1.4rem, 5vw, 2rem);
+    gap: 0;
+    width: 100%;
   }
-  .hero__left { padding: 0; }
-  .hero__right { border-left: 0; }
+
+  .hero__left {
+    padding: clamp(1rem, 3.5vw, 1.6rem) clamp(0.85rem, 3vw, 1.4rem) 0.5rem;
+    width: 100%;
+  }
+
+  .hero__right {
+    display: flex;
+    border-left: 0;
+    padding: 0 clamp(0.85rem, 3vw, 1.4rem);
+    width: 100%;
+    margin: 0.25rem 0 0.85rem;
+  }
+
   .hero__image-wrap {
-    aspect-ratio: 16 / 9;
-    border: 1px solid var(--cream-10);
-    border-radius: 6px;
+    width: 100%;
+    height: clamp(180px, 25vh, 220px);
+    min-height: 180px;
+    max-height: 230px;
+    aspect-ratio: auto;
+    border: 1px solid var(--dark-border);
+    border-radius: 8px;
+    background: #0B131E;
     box-shadow:
-      0 22px 70px var(--black-40),
+      0 12px 32px var(--black-40),
       inset 0 0 60px var(--black-50),
       inset 0 0 0 1px var(--cream-05);
   }
-  .hero-manifest { margin-top: 0; }
+
+  .hero-manifest {
+    width: 100%;
+    margin-top: 0.5rem;
+    padding-top: 0.65rem;
+    border-top: 1px solid var(--ink-18);
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════ */
@@ -2124,6 +2210,7 @@ html.can-depth-drill .stat-card__bar-fill { transform: scaleX(0); }
     overflow: visible;
     perspective: none;
     pointer-events: auto;
+    padding: 0.25rem 0 2.5rem;
   }
 
   .stratum {
@@ -2133,31 +2220,76 @@ html.can-depth-drill .stat-card__bar-fill { transform: scaleX(0); }
     opacity: 1 !important;
     transform: none !important;
     pointer-events: auto;
-    padding: clamp(2.4rem, 7vh, 4rem) clamp(1rem, 4.5vw, 1.4rem);
+    padding: 0.75rem clamp(0.5rem, 2.5vw, 0.85rem);
+    background: transparent !important;
   }
 
   #hero {
-    padding-top: clamp(2.6rem, 7vh, 4.2rem);
+    padding-top: calc(clamp(0.6rem, 2vh, 1.2rem) + env(safe-area-inset-top, 0px));
+    padding-bottom: 0.75rem;
   }
 
   #contact {
-    padding-bottom: max(clamp(5rem, 12vh, 7rem), calc(env(safe-area-inset-bottom, 0px) + 4rem));
+    padding-bottom: max(clamp(2rem, 5vh, 3.5rem), calc(env(safe-area-inset-bottom, 0px) + 2rem));
   }
 
+  /* ── Physical Specimen Slab Cards on Mobile ── */
   .stratum__window {
-    background: transparent;
-    border: 0;
-    border-radius: 0;
-    box-shadow: none;
+    background: var(--paper);
+    background-image: radial-gradient(var(--ink-14) 0.75px, transparent 0.75px);
+    background-size: 16px 16px;
+    border: 1px solid var(--cream-55);
+    border-radius: 14px;
+    box-shadow:
+      0 0 0 1px var(--ink-06),
+      0 8px 30px -4px rgba(26, 43, 60, 0.09),
+      inset 0 1px 0 var(--white-60);
     max-height: none;
-    overflow: visible;
-    padding: 0;
+    overflow: hidden;
+    padding: clamp(1.15rem, 4vw, 1.6rem);
     contain: none;
+    position: relative;
   }
 
-  .stratum__window::before,
+  .stratum--dark .stratum__window {
+    background: #121A26;
+    background-image: radial-gradient(rgba(244, 240, 232, 0.08) 0.75px, transparent 0.75px);
+    background-size: 16px 16px;
+    border: 1px solid var(--cream-16);
+    box-shadow:
+      0 0 0 1px var(--cream-04),
+      0 12px 36px -4px rgba(0, 0, 0, 0.45),
+      inset 0 1px 0 var(--cream-12);
+  }
+
+  .stratum__window::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--survey) 0%, transparent 60%);
+    opacity: 0.65;
+    border-radius: 14px 14px 0 0;
+    z-index: 2;
+  }
+
+  .stratum--dark .stratum__window::before {
+    background: linear-gradient(90deg, var(--survey) 0%, var(--validated) 60%, transparent 100%);
+    opacity: 0.6;
+  }
+
   .stratum__window::after {
-    display: none;
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 14px;
+    background: transparent;
+    pointer-events: none;
+    box-shadow:
+      inset 8px 8px 0 -6px var(--survey),
+      inset -8px -8px 0 -6px var(--survey);
+    opacity: 0.35;
+    z-index: 2;
   }
 
   .stratum__inner,
@@ -2165,18 +2297,6 @@ html.can-depth-drill .stat-card__bar-fill { transform: scaleX(0); }
     flex: none;
     max-height: none;
     overflow: visible;
-  }
-
-  /* Layout collapse (plate -> document flow) is handled by the <=899px block
-     in the HERO section; this block only carries the phone-specific overrides
-     on top of it. */
-
-  /* The hero instrument leads on touch: full-bleed, wide, and tall enough to
-     communicate the auto-resolving sweep before the nameplate arrives. */
-  #hero .hero__right {
-    order: -1;
-    width: 100vw;
-    margin-left: calc(50% - 50vw);
   }
 
   .hero__char {
@@ -2187,27 +2307,16 @@ html.can-depth-drill .stat-card__bar-fill { transform: scaleX(0); }
   }
 
   .hero__tagline {
-    font-size: clamp(1.05rem, 4.4vw, 1.18rem);
-    line-height: 1.62;
+    font-size: clamp(1.02rem, 4.2vw, 1.15rem);
+    line-height: 1.6;
     max-width: 34ch;
   }
 
-  .hero__image-wrap {
-    width: 100%;
-    height: min(40vh, 360px);
-    min-height: 250px;
-    aspect-ratio: auto;
-    align-self: center;
-    border-left: 0;
-    border-right: 0;
-    border-radius: 0;
-  }
-
-  /* Multi-step project visuals become deliberate touch galleries instead of
-     compressed desktop stacks. The architecture SVG is the second snap point
-     for each project; native scrolling keeps this free of a persistent rAF. */
+  /* ── Multi-step Visual Apparatus & Architecture Gallery ── */
   #perception .stratum__visual,
-  #training .stratum__visual {
+  #training .stratum__visual,
+  #infrastructure .stratum__visual,
+  #interface .stratum__visual {
     position: relative;
     display: flex;
     gap: 0.75rem;
@@ -2216,67 +2325,77 @@ html.can-depth-drill .stat-card__bar-fill { transform: scaleX(0); }
     overscroll-behavior-inline: contain;
     scroll-snap-type: x mandatory;
     scroll-padding-inline: 0.1rem;
-    padding-bottom: 0.45rem;
+    padding-bottom: 0.35rem;
     touch-action: pan-x pan-y;
-    scrollbar-width: thin;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
   }
+  #perception .stratum__visual::-webkit-scrollbar,
+  #training .stratum__visual::-webkit-scrollbar,
+  #infrastructure .stratum__visual::-webkit-scrollbar,
+  #interface .stratum__visual::-webkit-scrollbar {
+    display: none;
+  }
+
   #perception .stratum__visual > .aerial-stage,
   #perception .stratum__visual > .arch-figure,
   #training .stratum__visual > .seam-stage,
-  #training .stratum__visual > .arch-figure {
-    flex: 0 0 min(86vw, 26rem);
-    width: min(86vw, 26rem);
+  #training .stratum__visual > .arch-figure,
+  #infrastructure .stratum__visual > .pipeline,
+  #infrastructure .stratum__visual > .arch-figure,
+  #interface .stratum__visual > .terminal,
+  #interface .stratum__visual > .arch-figure {
+    flex: 0 0 100%;
+    width: 100%;
     scroll-snap-align: start;
   }
+
   #perception .stratum__visual > .arch-figure,
-  #training .stratum__visual > .arch-figure {
+  #training .stratum__visual > .arch-figure,
+  #infrastructure .stratum__visual > .arch-figure,
+  #interface .stratum__visual > .arch-figure {
     margin-top: 0;
   }
-  #perception .stratum__visual::after,
-  #training .stratum__visual::after {
-    content: "SWIPE  →  ARCHITECTURE";
-    position: absolute;
-    right: 0.55rem;
-    bottom: 0.65rem;
-    padding: 0.3rem 0.45rem;
-    font: 500 0.5rem/1 var(--font-mono);
-    letter-spacing: 0.08em;
-    color: var(--ink-soft);
-    background: rgba(244, 240, 232, 0.76);
-    pointer-events: none;
-  }
-  #training .stratum__visual::after {
-    color: rgba(244, 240, 232, 0.72);
-    background: rgba(18, 26, 38, 0.72);
-  }
 
-  /* Discipline blocks replace the desktop 3-D atmosphere in document flow. */
-  #perception { background: rgba(178, 79, 32, 0.08); }
-  #training { background: rgba(18, 36, 47, 0.9); }
-  #infrastructure { background: rgba(61, 114, 164, 0.07); }
-  #interface { background: rgba(25, 34, 49, 0.9); }
-  #journey { background: rgba(178, 79, 32, 0.045); }
-  #skills { background: rgba(61, 114, 164, 0.045); }
-  #proof { background: rgba(216, 162, 70, 0.07); }
-  #training .stratum__window,
-  #interface .stratum__window {
-    background: transparent;
-  }
+  /* Discipline background accents on mobile */
+  #perception { background: transparent; }
+  #training { background: transparent; }
+  #infrastructure { background: transparent; }
+  #interface { background: transparent; }
+  #journey { background: transparent; }
+  #skills { background: transparent; }
+  #proof { background: transparent; }
 
   .stratum__grid,
   .stratum__grid--reverse {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: clamp(1.25rem, 5vw, 1.8rem);
+    display: flex;
+    flex-direction: column;
+    gap: clamp(1.2rem, 4.5vw, 1.6rem);
   }
 
+  .stratum__grid .stratum__copy,
+  .stratum__grid--reverse .stratum__copy {
+    order: 1;
+  }
+
+  .stratum__grid .stratum__instrument,
+  .stratum__grid--reverse .stratum__instrument {
+    order: 2;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  /* Visual keeps flex-direction: row for horizontal apparatus ↔ architecture scroll-snap */
+  .stratum__grid .stratum__visual,
   .stratum__grid--reverse .stratum__visual {
     order: 2;
+    width: 100%;
   }
 
   .stratum__copy {
     max-width: none;
-    padding-top: 0.65rem;
+    padding-top: 0.35rem;
   }
 
   .stratum__title {
@@ -2287,9 +2406,9 @@ html.can-depth-drill .stat-card__bar-fill { transform: scaleX(0); }
   }
 
   .stratum__desc {
-    font-size: 0.98rem;
+    font-size: 0.96rem;
     line-height: 1.62;
-    max-width: 36ch;
+    max-width: 38ch;
   }
 
   .stratum__tags {
@@ -2306,36 +2425,62 @@ html.can-depth-drill .stat-card__bar-fill { transform: scaleX(0); }
     max-height: none;
     height: auto;
     aspect-ratio: 4 / 3;
+    min-height: 200px;
   }
 
   .seam-stage {
     height: auto;
     aspect-ratio: 4 / 2.6;
-    min-height: 170px;
+    min-height: 180px;
   }
 
   .arch-figure {
-    margin-top: 0.85rem;
+    margin-top: 0;
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--paper-58);
+    border: 1px solid var(--ink-10);
+    padding: 0.5rem;
+  }
+  .stratum--dark .arch-figure {
+    background: rgba(18, 26, 38, 0.85);
+    border-color: var(--cream-10);
+  }
+
+  .arch-figure img {
+    width: 100%;
+    height: auto;
+    max-height: 240px;
+    object-fit: contain;
+    display: block;
+    border-radius: 4px;
   }
 
   .arch-figure figcaption {
     white-space: normal;
     overflow-wrap: anywhere;
     line-height: 1.45;
+    font-size: 0.56rem;
+    margin-top: 0.45rem;
+    padding: 0 0.25rem;
   }
 
+  /* ── PixelQueue Compact Pipeline Grid on Mobile ── */
   .pipeline {
-    gap: 0.35rem;
-    margin-bottom: 0.8rem;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.55rem;
+    margin-bottom: 0.5rem;
   }
 
   .pipe-card {
     min-height: auto;
-    padding: 0.75rem;
+    padding: 0.65rem 0.6rem;
+    border-radius: 6px;
   }
 
   .pipe-connector {
-    height: 16px;
+    display: none;
   }
 
   .pipe-card__route,
@@ -2348,17 +2493,20 @@ html.can-depth-drill .stat-card__bar-fill { transform: scaleX(0); }
   .pipe-card__route,
   .pipe-card__json,
   .pipe-card__status {
-    font-size: 0.58rem;
+    font-size: 0.55rem;
   }
 
   .terminal {
     max-width: 100%;
+    border-radius: 8px;
+    overflow: hidden;
   }
 
   .terminal__body {
     padding: 0.85rem;
     font-size: clamp(0.62rem, 2.8vw, 0.72rem);
     line-height: 1.72;
+    min-height: 190px;
   }
 
   .tline {
@@ -2373,16 +2521,29 @@ html.can-depth-drill .stat-card__bar-fill { transform: scaleX(0); }
     white-space: nowrap;
   }
 
+  /* ── Journey Geological Timeline & Seismic Wave ── */
   .journey-timeline {
     width: 100%;
     max-width: 100%;
-    padding: 0.5rem 0 0;
+    padding: 0.25rem 0 0;
+  }
+
+  .journey-seismic {
+    display: block;
+    width: 100%;
+    height: 36px;
+    margin: 0.5rem 0 1.1rem;
+  }
+  .journey-seismic svg {
+    width: 100%;
+    height: 100%;
+    display: block;
   }
 
   .journey-track {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 1rem;
+    gap: 0.85rem;
     padding: 0;
   }
 
@@ -2399,7 +2560,7 @@ html.can-depth-drill .stat-card__bar-fill { transform: scaleX(0); }
   .journey-era {
     display: grid;
     grid-template-columns: 1rem minmax(0, 1fr);
-    gap: 0.85rem;
+    gap: 0.75rem;
     align-items: start;
     opacity: 1 !important;
     transform: none !important;
@@ -2415,6 +2576,7 @@ html.can-depth-drill .stat-card__bar-fill { transform: scaleX(0); }
     max-width: none;
     text-align: left;
     padding: 0.85rem 0.9rem;
+    border-radius: 8px;
     clip-path: none !important;
   }
 
@@ -2422,12 +2584,8 @@ html.can-depth-drill .stat-card__bar-fill { transform: scaleX(0); }
     justify-content: flex-start;
   }
 
-  .journey-seismic {
-    display: none;
-  }
-
   .capability-log__note {
-    margin-bottom: 1.2rem;
+    margin-bottom: 1.1rem;
     line-height: 1.5;
   }
 
@@ -2450,11 +2608,12 @@ html.can-depth-drill .stat-card__bar-fill { transform: scaleX(0); }
     line-height: 1.58;
   }
 
+  /* ── Proof Stat Cluster 2+1 Grid ── */
   .stat-cluster {
     display: grid;
-    grid-template-columns: 1fr;
-    gap: 0.85rem;
-    width: min(100%, 22rem);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+    width: 100%;
     margin-bottom: 0;
   }
 
@@ -2462,26 +2621,30 @@ html.can-depth-drill .stat-card__bar-fill { transform: scaleX(0); }
     width: 100%;
     border-radius: 10px;
   }
+  .stat-card:nth-child(3) {
+    grid-column: 1 / -1;
+  }
 
   .stat-card__inner {
-    padding: 1.35rem 1.1rem 1.1rem;
+    padding: 1.15rem 0.9rem 0.9rem;
   }
 
   .stat-card__value {
-    font-size: clamp(2.6rem, 14vw, 3.3rem);
+    font-size: clamp(2.2rem, 11vw, 2.8rem);
   }
 
   .stat-card__suffix {
-    font-size: 1.55rem;
+    font-size: 1.35rem;
   }
 
+  /* ── Varanasi Ghat Contact Postcard on Mobile ── */
   .contact-card {
-    min-height: 340px;
+    min-height: 360px;
     margin: 0;
-    padding: 1.35rem;
+    padding: clamp(1.15rem, 4vw, 1.5rem);
     padding-bottom: calc(1.35rem + env(safe-area-inset-bottom, 0px));
     border-radius: 14px;
-    background-position: 30% bottom;
+    background-position: 40% bottom;
   }
 
   .contact-card::before {
@@ -2490,9 +2653,9 @@ html.can-depth-drill .stat-card__bar-fill { transform: scaleX(0); }
     inset: 0;
     background: linear-gradient(
       180deg,
-      rgba(244, 240, 232, 0.76),
-      rgba(244, 240, 232, 0.48) 45%,
-      rgba(244, 240, 232, 0.7)
+      rgba(244, 240, 232, 0.82),
+      rgba(244, 240, 232, 0.52) 45%,
+      rgba(244, 240, 232, 0.75)
     );
     z-index: 1;
     pointer-events: none;
@@ -2508,6 +2671,23 @@ html.can-depth-drill .stat-card__bar-fill { transform: scaleX(0); }
 
   .contact-card__lead br {
     display: none;
+  }
+
+  .contact-card__bottom {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 1rem;
+    position: relative;
+    z-index: 2;
+    margin-top: auto;
+  }
+
+  .contact-card__socials {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.85rem;
   }
 
   .contact-card__socials a {
@@ -2528,31 +2708,11 @@ html.can-depth-drill .stat-card__bar-fill { transform: scaleX(0); }
     display: none;
   }
 
-  /* The fog vignette stays ON at phone widths. It was the single largest
-     reason the phone layout read flat next to the desktop one: every other
-     atmospheric layer (grain, the lite neural field, the per-section dark
-     washes) survives here, and this is the one that supplies depth — it is
-     what makes the paper feel lit from the centre rather than evenly
-     printed. It is also nearly free: one fixed, static gradient layer that
-     is painted once and thereafter only composited. --fog-opacity is only
-     ever written by the desktop scroll engine, so on a phone it holds its
-     fallback and never repaints at all.
-     Widened core and lowered opacity because a phone viewport is tall and
-     narrow — the desktop's `transparent 40%` would crush the top and bottom
-     of the readable column. */
   .fog-vignette {
     background: radial-gradient(ellipse at center, transparent 58%, rgba(240, 235, 224, 0.5) 100%);
     opacity: 0.42;
   }
-  /* Same rule the grain layer already follows: the weakest devices drop the
-     layer outright rather than paying for a cheap version of it. */
   html.tier-low .fog-vignette { display: none; }
-
-  /* #fluid-canvas is a fixed, full-viewport canvas for the desktop cursor
-     tracer. index.html never fetches fluid-cursor.js on touch-first devices
-     and the module self-disables anyway, so on a phone this was a
-     full-screen compositing layer that nothing ever draws a single pixel
-     into. */
   html.touch-first #fluid-canvas { display: none; }
 
   .journey-era,
@@ -2577,148 +2737,474 @@ html.can-depth-drill .stat-card__bar-fill { transform: scaleX(0); }
   }
 }
 
-/* Touch-first tablets keep the document-flow fallback's project visuals
-   legible too: the instrument stays wide and the architecture panels become
-   native snap points instead of shrinking into an unreadable desktop row. */
-@media (min-width: 768px) and (max-width: 1023px) {
-  html.touch-first #perception .stratum__visual,
-  html.touch-first #training .stratum__visual {
+/* ═══════════════════════════════════════════════════════════ */
+/* MOBILE MOTION & TACTILE INSTRUMENTS (mobile-motion.js)      */
+/* ═══════════════════════════════════════════════════════════ */
+
+/* ── Dual-Mode Instrument Tabs ──
+   The tab bar exists only while .stratum__visual is a horizontal snap
+   gallery — mobile-motion.js gates its creation on the same ≤767px boundary.
+   Keep the styles behind the same media query so the two never disagree
+   (they did once: tablets got live-looking tabs whose scrollTo() hit a
+   non-scrolling container). The actions bar stays global: replay/inspect are
+   injected on tablets too, where they work fine. */
+@media (max-width: 767px) {
+  .mm-instrument-bar {
     display: flex;
-    gap: 0.9rem;
-    overflow-x: auto;
-    overflow-y: hidden;
-    overscroll-behavior-inline: contain;
-    scroll-snap-type: x mandatory;
-    padding-bottom: 0.55rem;
-    touch-action: pan-x pan-y;
-    scrollbar-width: thin;
+    align-items: center;
+    gap: 0.35rem;
+    margin-bottom: 0.65rem;
+    padding: 0.2rem;
+    background: var(--ink-06);
+    border: 1px solid var(--ink-12);
+    border-radius: 6px;
+    width: fit-content;
   }
-  html.touch-first #perception .stratum__visual > .aerial-stage,
-  html.touch-first #perception .stratum__visual > .arch-figure,
-  html.touch-first #training .stratum__visual > .seam-stage,
-  html.touch-first #training .stratum__visual > .arch-figure {
-    flex: 0 0 min(58vw, 34rem);
-    width: min(58vw, 34rem);
-    scroll-snap-align: start;
+  .stratum--dark .mm-instrument-bar {
+    background: rgba(0, 0, 0, 0.35);
+    border-color: var(--cream-12);
   }
-  html.touch-first #perception .stratum__visual > .arch-figure,
-  html.touch-first #training .stratum__visual > .arch-figure {
-    margin-top: 0;
-  }
-  html.touch-first #perception .stratum__visual::after,
-  html.touch-first #training .stratum__visual::after {
-    content: "SWIPE  →  ARCHITECTURE";
-    position: absolute;
-    right: 0.7rem;
-    bottom: 0.75rem;
-    padding: 0.35rem 0.5rem;
-    font: 500 0.52rem/1 var(--font-mono);
+
+  .mm-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    min-height: 36px;
+    padding: 0 0.75rem;
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    font-weight: 500;
     letter-spacing: 0.08em;
+    text-transform: uppercase;
     color: var(--ink-soft);
-    background: rgba(244, 240, 232, 0.78);
-    pointer-events: none;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
   }
-  html.touch-first #training .stratum__visual::after {
-    color: rgba(244, 240, 232, 0.72);
-    background: rgba(18, 26, 38, 0.72);
-  }
-  html.touch-first #perception { background: rgba(178, 79, 32, 0.08); }
-  html.touch-first #training { background: rgba(18, 36, 47, 0.9); }
-  html.touch-first #infrastructure { background: rgba(61, 114, 164, 0.07); }
-  html.touch-first #interface { background: rgba(25, 34, 49, 0.9); }
-  html.touch-first #journey { background: rgba(178, 79, 32, 0.045); }
-  html.touch-first #skills { background: rgba(61, 114, 164, 0.045); }
-  html.touch-first #proof { background: rgba(216, 162, 70, 0.07); }
-}
-
-@media (max-width: 360px) {
-  .hero__char {
-    font-size: clamp(2.0rem, 13vw, 2.8rem);
-    font-weight: 400;
-    letter-spacing: -0.02em;
-    -webkit-text-stroke: 1px currentColor;
+  .stratum--dark .mm-tab {
+    color: rgba(244, 240, 232, 0.6);
   }
 
-  .arch-figure figcaption {
-    font-size: 0.55rem;
+  .mm-tab.is-active {
+    color: var(--survey-text);
+    background: var(--paper);
+    border-color: var(--ink-14);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  }
+  .stratum--dark .mm-tab.is-active {
+    color: var(--validated-bright);
+    background: #192332;
+    border-color: rgba(244, 240, 232, 0.16);
   }
 
-  .capability {
-    grid-template-columns: 1fr;
-    gap: 0.55rem;
-  }
-
-  .capability__index {
-    align-items: flex-start;
-    flex-direction: row;
-    padding-top: 0;
-  }
-
-  .capability__index::after {
-    margin-top: 0.25rem;
-  }
-
-  .contact-card {
-    padding: 1.15rem;
-    padding-bottom: calc(1.15rem + env(safe-area-inset-bottom, 0px));
-    min-height: 320px;
+  .mm-tab__dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: currentColor;
   }
 }
 
-/* ═══════════════════════════════════════════════════════════ */
-/* MOBILE MOTION (touch-first linear flow — mobile-motion.js)  */
-/* ═══════════════════════════════════════════════════════════ */
-
-.mm-depth {
-  position: fixed;
-  right: calc(0.9rem + env(safe-area-inset-right, 0px));
-  bottom: calc(0.9rem + env(safe-area-inset-bottom, 0px));
-  z-index: var(--z-hud);
-  display: flex; flex-direction: column; align-items: flex-end; gap: 0.1rem;
-  padding: 0.45rem 0.6rem;
-  border: 1px solid var(--ink-13);
-  border-radius: 4px;
-  /* Opaque, not translucent-plus-backdrop-filter. This HUD is fixed over a
-     scrolling page, so a backdrop-filter forces the compositor to re-sample
-     and blur what's behind it every single frame of every scroll — the exact
-     per-frame cost that was deliberately removed in three other places in
-     this stylesheet. It survived here, on the phone HUD, i.e. on the weakest
-     devices in the fleet. At 0.82 alpha over paper the blur was contributing
-     almost nothing visually; a solid paper fill reads the same. */
-  background: #F7F4EE;
-  pointer-events: none;
-  opacity: 0;
-  transform: translateY(6px);
-  transition: opacity 0.35s ease, transform 0.35s var(--ease-out);
+/* ── Stage Action Bar (Replay + Fullscreen Lightbox) ── */
+.mm-stage-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: 0.65rem;
+  width: 100%;
 }
-.mm-depth.is-visible { opacity: 1; transform: none; }
-.mm-depth__value { font-size: 0.72rem; font-weight: 600; color: var(--survey); }
-.mm-depth__label { font-size: 0.52rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-soft); }
-body.is-dark .mm-depth { background: #121A26; border-color: var(--cream-16); }
-body.is-dark .mm-depth__label { color: rgba(244, 240, 232, 0.6); }
 
-.mm-replay {
-  display: inline-flex; align-items: center; justify-content: center;
-  min-height: 44px; min-width: 44px;
-  /* Sized to its label, never stretched. The button now sits outside the
-     swipe gallery (see addReplayButton), which means its parent is a grid /
-     stretch-aligned flex column — without these it inflates into a
-     full-width slab that reads as a primary action rather than a small
-     secondary control. */
-  align-self: flex-start;
-  justify-self: start;
-  width: fit-content;
-  margin-top: 0.5rem; padding: 0 0.9rem;
-  font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase;
+.mm-replay,
+.mm-expand-arch {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 0.85rem;
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   color: var(--ink-soft);
   background: transparent;
-  border: 1px solid var(--ink-14); border-radius: 4px;
+  border: 1px solid var(--ink-14);
+  border-radius: 5px;
   cursor: pointer;
   transition: transform var(--dur-press) var(--ease-out), border-color 0.2s ease, color 0.2s ease;
 }
-.mm-replay:active { transform: scale(0.96); }
-.mm-replay:focus-visible { outline: none; outline-offset: 2px; }
-.stratum--dark .mm-replay { color: rgba(244, 240, 232, 0.7); border-color: var(--cream-16); }
+.mm-replay:active,
+.mm-expand-arch:active {
+  transform: scale(0.96);
+}
+.stratum--dark .mm-replay,
+.stratum--dark .mm-expand-arch {
+  color: rgba(244, 240, 232, 0.7);
+  border-color: var(--cream-16);
+}
+.mm-expand-arch {
+  color: var(--survey-text);
+  border-color: var(--survey);
+  background: var(--survey-08);
+}
+.stratum--dark .mm-expand-arch {
+  color: var(--validated-bright);
+  border-color: var(--validated);
+  background: rgba(42, 96, 84, 0.15);
+}
+
+/* ── Fullscreen Architecture SVG Lightbox Modal ── */
+.mm-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: env(safe-area-inset-top, 1rem) env(safe-area-inset-right, 1rem) env(safe-area-inset-bottom, 1rem) env(safe-area-inset-left, 1rem);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.28s ease;
+}
+.mm-lightbox.is-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+.mm-lightbox__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(10, 15, 24, 0.88);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+.mm-lightbox__content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  width: min(94vw, 560px);
+  max-height: 88vh;
+  background: #141E2C;
+  border: 1px solid rgba(244, 240, 232, 0.18);
+  border-radius: 12px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
+  overflow: hidden;
+}
+.mm-lightbox__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid rgba(244, 240, 232, 0.12);
+  background: rgba(18, 26, 38, 0.9);
+}
+.mm-lightbox__title {
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  color: var(--validated-bright);
+}
+.mm-lightbox__close {
+  min-height: 38px;
+  min-width: 38px;
+  padding: 0 0.65rem;
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.08em;
+  color: rgba(244, 240, 232, 0.75);
+  background: rgba(244, 240, 232, 0.08);
+  border: 1px solid rgba(244, 240, 232, 0.15);
+  border-radius: 4px;
+  cursor: pointer;
+}
+.mm-lightbox__close:active {
+  transform: scale(0.95);
+}
+.mm-lightbox__viewport {
+  flex: 1 1 auto;
+  overflow: auto;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  touch-action: pan-x pan-y pinch-zoom;
+}
+.mm-lightbox__img {
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+  border-radius: 6px;
+}
+.mm-lightbox__caption {
+  padding: 0.65rem 1rem;
+  font-size: 0.56rem;
+  line-height: 1.45;
+  color: rgba(244, 240, 232, 0.65);
+  border-top: 1px solid rgba(244, 240, 232, 0.08);
+  background: rgba(18, 26, 38, 0.9);
+}
+
+/* ── Mobile Mini Depth Rod on Right Rail ── */
+.mm-depth-rod {
+  position: fixed;
+  right: calc(0.35rem + env(safe-area-inset-right, 0px));
+  top: 18%;
+  height: 64%;
+  width: 22px;
+  z-index: var(--z-hud);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: auto;
+  user-select: none;
+  opacity: 0;
+  transform: translateX(8px);
+  transition: opacity 0.35s ease, transform 0.35s var(--ease-out);
+}
+.mm-depth-rod.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+.mm-depth-rod__track {
+  position: relative;
+  width: 2px;
+  height: 100%;
+  background: var(--ink-14);
+  border-radius: 1px;
+}
+body.is-dark .mm-depth-rod__track {
+  background: rgba(244, 240, 232, 0.16);
+}
+
+.mm-depth-rod__bead {
+  --bead-offset: 0px;
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 10px;
+  height: 10px;
+  transform: translate3d(-50%, calc(var(--bead-offset) - 5px), 0);
+  border-radius: 50%;
+  background: var(--survey);
+  box-shadow: 0 0 0 2px var(--paper), 0 0 8px var(--survey-glow);
+  cursor: pointer;
+  transition: transform 0.15s ease-out;
+  will-change: transform;
+}
+body.is-dark .mm-depth-rod__bead {
+  box-shadow: 0 0 0 2px #121A26, 0 0 8px var(--survey-glow);
+}
+
+.mm-depth-rod__ticks {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 14px;
+  width: 24px;
+}
+.mm-depth-tick {
+  position: absolute;
+  right: 0;
+  transform: translateY(-50%);
+  font-family: var(--font-mono);
+  font-size: 0.46rem;
+  letter-spacing: 0.04em;
+  color: var(--ink-soft);
+  cursor: pointer;
+  padding: 2px;
+}
+body.is-dark .mm-depth-tick {
+  color: rgba(244, 240, 232, 0.45);
+}
+.mm-depth-tick.is-active {
+  color: var(--survey);
+  font-weight: 700;
+}
+
+/* ── Mobile Floating Depth Pill (Tap to open Quick Jump) ── */
+.mm-depth {
+  position: fixed;
+  right: calc(0.75rem + env(safe-area-inset-right, 0px));
+  bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
+  z-index: var(--z-hud);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.1rem;
+  padding: 0.45rem 0.65rem;
+  border: 1px solid var(--ink-14);
+  border-radius: 6px;
+  background: #F7F4EE;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  pointer-events: auto;
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.35s ease, transform 0.35s var(--ease-out), background-color 0.2s ease;
+}
+.mm-depth:active {
+  transform: scale(0.96);
+}
+.mm-depth.is-visible {
+  opacity: 1;
+  transform: none;
+}
+.mm-depth__value {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--survey);
+}
+.mm-depth__label {
+  font-size: 0.52rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+body.is-dark .mm-depth {
+  background: #121A26;
+  border-color: var(--cream-16);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.4);
+}
+body.is-dark .mm-depth__label {
+  color: rgba(244, 240, 232, 0.6);
+}
+
+/* ── Stratum Quick-Jump Drawer ── */
+.mm-drawer {
+  position: fixed;
+  inset: 0;
+  z-index: 10001;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+.mm-drawer.is-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+.mm-drawer__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(10, 15, 24, 0.72);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+.mm-drawer__panel {
+  position: relative;
+  z-index: 1;
+  background: var(--paper);
+  background-image: radial-gradient(var(--ink-14) 0.75px, transparent 0.75px);
+  background-size: 16px 16px;
+  border-top: 1px solid var(--plate-line);
+  border-radius: 16px 16px 0 0;
+  padding: 1.25rem 1.15rem calc(1.5rem + env(safe-area-inset-bottom, 0px));
+  box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.25);
+  transform: translateY(100%);
+  transition: transform 0.32s var(--ease-out);
+  max-height: 82vh;
+  overflow-y: auto;
+}
+.stratum--dark .mm-drawer__panel,
+body.is-dark .mm-drawer__panel {
+  background: #121A26;
+  border-color: var(--cream-16);
+}
+.mm-drawer.is-open .mm-drawer__panel {
+  transform: translateY(0);
+}
+.mm-drawer__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  padding-bottom: 0.65rem;
+  border-bottom: 1px solid var(--ink-14);
+}
+body.is-dark .mm-drawer__header {
+  border-color: rgba(244, 240, 232, 0.12);
+}
+.mm-drawer__title {
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--survey-text);
+  font-weight: 600;
+}
+.mm-drawer__close {
+  min-height: 36px;
+  min-width: 36px;
+  padding: 0 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  color: var(--ink-soft);
+  background: transparent;
+  border: 1px solid var(--ink-14);
+  border-radius: 4px;
+  cursor: pointer;
+}
+body.is-dark .mm-drawer__close {
+  color: rgba(244, 240, 232, 0.7);
+  border-color: var(--cream-16);
+}
+
+.mm-drawer__list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 0;
+  margin: 0;
+}
+.mm-drawer__item {
+  width: 100%;
+}
+.mm-drawer__link {
+  display: grid;
+  grid-template-columns: 3.2rem minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.65rem;
+  min-height: 44px;
+  padding: 0.4rem 0.65rem;
+  border-radius: 6px;
+  text-decoration: none;
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 0.85rem;
+  border: 1px solid transparent;
+  transition: color 0.18s ease, background-color 0.18s ease, border-color 0.18s ease;
+}
+body.is-dark .mm-drawer__link {
+  color: var(--dark-ink);
+}
+.mm-drawer__link.is-active {
+  background: var(--survey-08);
+  border-color: var(--survey);
+  color: var(--survey-text);
+}
+body.is-dark .mm-drawer__link.is-active {
+  background: rgba(232, 116, 40, 0.15);
+  color: var(--validated-bright);
+}
+.mm-drawer__depth {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  color: var(--survey-text);
+}
+.mm-drawer__tag {
+  font-family: var(--font-mono);
+  font-size: 0.52rem;
+  letter-spacing: 0.08em;
+  color: var(--ink-soft);
+  text-transform: uppercase;
+}
 
 /* Journey vertical line draw-in (pseudo-element — needs a class hook). */
 html:not(.can-depth-drill) .journey-track.mm-line-pending::before {
@@ -2728,6 +3214,14 @@ html:not(.can-depth-drill) .journey-track.mm-line-grow::before {
   transform: scaleY(1);
   transition: transform 0.9s var(--ease-expo);
 }
+
+/* The seismic polyline is authored stroke-dashoffset:1200 (fully hidden) so
+   the desktop drill / mobile-motion can sweep it in. Outside the drill that
+   leaves it permanently hidden — an empty 36px band — for reduced-motion and
+   no-JS visitors. Presentation attributes lose to any stylesheet rule, and
+   mobile-motion re-hides it with an inline style before animating, so this
+   default only ever wins when no animator exists. */
+html:not(.can-depth-drill) .journey-seismic__line { stroke-dashoffset: 0; }
 
 /* Capability touch "sample" feedback — transient, JS-toggled, mirrors the
    desktop hover treatment without making non-controls look like buttons. */
@@ -2776,7 +3270,10 @@ html:not(.can-depth-drill) .journey-track.mm-line-grow::before {
      pages. */
   .paper-grain, .fog-vignette, .depth-gauge,
   .skip-link, #fluid-canvas, .scroll-spacer,
-  #neural-bg-canvas, .loader, .transition-layer { display: none !important; }
+  #neural-bg-canvas, .loader, .transition-layer,
+  /* Phone chrome injected by mobile-motion.js — fixed overlays that would
+     otherwise print (once per page, in some engines). */
+  .mm-depth, .mm-depth-rod, .mm-drawer, .mm-lightbox { display: none !important; }
   body { background: #FAF8F3; color: #142236; }
   .strata { position: relative; perspective: none; }
   .stratum { position: relative; opacity: 1 !important; transform: none !important; page-break-inside: avoid; }

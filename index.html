@@ -28,22 +28,9 @@
   <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
   <link rel="apple-touch-icon" href="assets/img/favicon.svg">
   <link rel="manifest" href="manifest.json">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Martian+Mono:wght@400;500;600&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
-  <noscript><link href="https://fonts.googleapis.com/css2?family=Martian+Mono:wght@400;500;600&display=swap" rel="stylesheet"></noscript>
-  <!-- All five faces render inside the first viewport, so all five are
-       preloaded. SemiBold (.hero-manifest__name, .capability__domain) and Bold
-       (.hero__tagline strong) were previously discovered only from the
-       stylesheet, which meant the hero's project list and the emphasised words
-       in the tagline swapped in late and reflowed the block that had just
-       finished animating in. -->
   <link rel="preload" href="assets/fonts/aldrich.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fonts/Switzer-Regular.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="preload" href="assets/fonts/Switzer-Medium.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="preload" href="assets/fonts/Switzer-SemiBold.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="preload" href="assets/fonts/Switzer-Bold.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="assets/css/style.css?v=13">
+  <link rel="stylesheet" href="assets/css/style.css?v=17">
   <script>
   /* Perf instrumentation — gated FPS/frame-time meter. Activate with ?fps=1.
      Self-contained, zero cost when inactive (single regex test). */
@@ -563,7 +550,7 @@
               <a class="stratum__link" href="https://github.com/DhruvGarg111/PixelQueue" target="_blank" rel="noopener noreferrer">View repository →</a>
             </div>
           </div>
-          <div class="stratum__visual">
+          <div class="stratum__visual" role="region" aria-label="PixelQueue visual steps — swipe between the pipeline and architecture on touch devices">
             <div class="pipeline" id="pipeline">
               <div class="pipe-card pipe-card--ui">
                 <div class="pipe-card__grid-bg"></div>
@@ -607,7 +594,7 @@
       <div class="stratum__inner">
         <div class="stratum__label mono">Stratum IV · 4800m</div>
         <div class="stratum__grid stratum__grid--reverse">
-          <div class="stratum__visual">
+          <div class="stratum__visual" role="region" aria-label="PyGOG visual steps — swipe between the terminal session and architecture on touch devices">
             <div class="terminal" id="terminal">
               <div class="terminal__chrome"><span class="tdot"></span><span class="tdot"></span><span class="tdot"></span><span class="terminal__title mono">pygog — agentic CLI</span></div>
               <div class="terminal__body">
@@ -804,7 +791,7 @@
             <div class="stat-card__texture"></div>
             <div class="stat-card__inner">
               <div class="stat-card__value mono">
-                <span class="stat-count" data-count="200" aria-hidden="true">200</span>
+                <span class="stat-count" data-count="250" aria-hidden="true">250</span>
                 <span class="stat-card__suffix">+</span>
               </div>
               <div class="stat-card__label mono">Open Source Contributions</div>
@@ -815,7 +802,7 @@
             <div class="stat-card__texture"></div>
             <div class="stat-card__inner">
               <div class="stat-card__value mono">
-                <span class="stat-count" data-count="500" aria-hidden="true">500</span>
+                <span class="stat-count" data-count="550" aria-hidden="true">550</span>
                 <span class="stat-card__suffix">+</span>
               </div>
               <div class="stat-card__label mono">LeetCode Questions Solved</div>
@@ -826,14 +813,15 @@
             <div class="stat-card__texture"></div>
             <div class="stat-card__inner">
               <div class="stat-card__value mono">
-                <span class="stat-count" data-count="1730" aria-hidden="true">1730</span>
+                <span class="stat-count" data-count="1760" aria-hidden="true">1760</span>
+                <span class="stat-card__suffix">+</span>
               </div>
               <div class="stat-card__label mono">LC Contest Rating</div>
               <div class="stat-card__bar"><div class="stat-card__bar-fill"></div></div>
             </div>
           </div>
         </div>
-        <span class="sr-only">200+ open source contributions, 500+ questions solved on LeetCode, 1730 LeetCode contest rating</span>
+        <span class="sr-only">250+ open source contributions, 550+ questions solved on LeetCode, 1760+ LeetCode contest rating</span>
       </div>
       </div>
     </section>
@@ -887,10 +875,10 @@
     <div class="transition-label mono" id="transition-label">DRILLING TO STRATUM II</div>
   </div>
 
-  <script defer src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js" crossorigin="anonymous" integrity="sha384-HOvlOYPIs/zjoIkWUGXkVmXsjr8GuZLV+Q+rcPwmJOVZVpvTSXQChiN4t9Euv9Vc"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js" crossorigin="anonymous" integrity="sha384-P8VzCVnT9NBUkMrpcIZrJbA7EBjJvh/fJS6PmP+4nLIM284DtsImIv8D0fFjIkeh"></script>
+  <script defer src="assets/vendor/gsap.min.js"></script>
+  <script defer src="assets/vendor/ScrollTrigger.min.js"></script>
   <script defer src="assets/js/hero-flow.js?v=9"></script>
-  <script defer src="assets/js/script.js?v=7"></script>
+  <script defer src="assets/js/script.js?v=8"></script>
   <script>
   /* Perf: three.js (~600KB) and its neural-background consumer, plus @mojs/core
      and splitting, aren't needed for first paint or for the core scroll/depth
@@ -924,11 +912,8 @@
          fast idle callback could load mobile-motion before neural-lite. */
       var liteReady = Promise.resolve();
       if (window.__bgMode === 'webgl') {
-        loadScript('https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js', {
-          integrity: 'sha384-CI3ELBVUz9XQO+97x6nwMDPosPR5XvsxW2ua7N1Xeygeh1IxtgqtCkGfQY9WWdHu',
-          crossorigin: 'anonymous'
-        }).then(function () {
-          return loadScript('assets/js/neural-background.js?v=7');
+        loadScript('assets/vendor/three.min.js').then(function () {
+          return loadScript('assets/js/neural-background.js?v=8');
         }).catch(function () { /* no THREE available — page works fine without the bg */ });
       } else if (window.__bgMode === 'lite') {
         liteReady = loadScript('assets/js/neural-lite.js?v=4').catch(function () {});
@@ -949,7 +934,7 @@
             }
             return;
           }
-          loadScript('assets/js/mobile-motion.js?v=3').catch(function () {});
+          loadScript('assets/js/mobile-motion.js?v=5').catch(function () {});
         }
         liteReady.then(function () {
           loadMobileMotionWhenBaselineIsReady(0);
@@ -969,15 +954,11 @@
          handlers as a global finger trail. Idle-load it only where a fine
          hover pointer exists and motion is OK. */
       if (window.__canDepthDrill) {
-        loadScript('https://cdn.jsdelivr.net/npm/@mojs/core@1.7.1/dist/mo.umd.min.js', {
-          integrity: 'sha384-mhL8ajiHMuHLBYm4rYiotXHCRSc7BS9whyLA8g0dbVemOdYfZd14yGJa/riwFW0M', crossorigin: 'anonymous'
-        }).catch(function () {});
-        loadScript('https://cdn.jsdelivr.net/npm/splitting@1.1.0/dist/splitting.min.js', {
-          integrity: 'sha384-4xKCEoe7sOCJeUwo9HheqN+yYVNglF+fjekGEZx4DcdgbJWToC2k5MgQ+6T9sfUT', crossorigin: 'anonymous'
-        }).catch(function () {});
+        loadScript('assets/vendor/mo.umd.min.js').catch(function () {});
+        loadScript('assets/vendor/splitting.min.js').catch(function () {});
       }
       if (!window.__isTouchFirst && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-        loadScript('assets/js/fluid-cursor.js?v=3').catch(function () {});
+        loadScript('assets/js/fluid-cursor.js?v=4').catch(function () {});
       }
     }
 
