@@ -32,7 +32,6 @@
     connectionDist: 85,
     nodeLife: 1200,      // in ms
     dampening: 0.96,
-    mouseRadius: 100,
     palette: [
       '#1E7B65', // Sage Green
       '#3D72A4', // Slate Blue
@@ -47,8 +46,16 @@
     ]
   };
 
+  /* Surveyor's chain (prototype, ?chain=1): every ~40px of cursor travel,
+     stamp one short perpendicular tick that fades with the trail — a
+     surveyor's chain being laid down. Off by default: whether it reads as
+     instrument or as dandruff is a screenshot decision, not a description
+     one. */
+  var CHAIN_ENABLED = /[?&]chain=1\b/.test(location.search);
+  var chain = { acc: 0, ticks: [], MAX: 24, SPACING: 40, LIFE: 900 };
+
   var particles = [];
-  var mouse = { x: 0, y: 0, lastX: 0, lastY: 0, active: false, speed: 0, angle: 0 };
+  var mouse = { x: 0, y: 0, lastX: 0, lastY: 0, active: false, speed: 0 };
   var lastTime = performance.now();
   var running = false;
   var rafId = 0;
@@ -66,14 +73,23 @@
   var heroPanel = document.getElementById('hero-image-wrap');
   var heroSection = document.getElementById('hero');
   var heroRect = null;
+  /* Perf: the hero panel's rect only matters while the hero is actually on
+     screen. On the desktop depth drill the hero is a fixed overlay that stays
+     "in the viewport" by geometry even when hidden at depth, so script.js's
+     groundtruth:herovis event tells us its true state — replacing the
+     per-scroll-frame getComputedStyle().opacity read that forced a style
+     flush right after the drill engine's opacity writes. On non-drill
+     layouts the event never fires and the panel's own geometry suffices
+     (it scrolls out of the viewport). */
+  var drillHeroActive = null; // null = no drill engine (flow layout)
+  window.addEventListener('groundtruth:herovis', function (e) {
+    drillHeroActive = !!(e.detail && e.detail.visible);
+    refreshHeroRect();
+  });
   function refreshHeroRect() {
-    // Only track the panel while the hero is actually visible up top — otherwise
-    // its faded/scaled ghost mid-page would dim the tracer over other sections.
-    if (heroPanel && heroSection && parseFloat(getComputedStyle(heroSection).opacity || '1') > 0.6) {
-      heroRect = heroPanel.getBoundingClientRect();
-    } else {
-      heroRect = null;
-    }
+    if (!heroPanel || !heroSection) { heroRect = null; return; }
+    if (drillHeroActive === false) { heroRect = null; return; }
+    heroRect = heroPanel.getBoundingClientRect();
   }
   function overHeroPanel(x, y) {
     return !!heroRect && x >= heroRect.left && x <= heroRect.right && y >= heroRect.top && y <= heroRect.bottom;
@@ -190,24 +206,29 @@
     return true;
   };
 
+  /* Perf: a fresh array per bbox particle per frame was small but avoidable
+     garbage — hoist the dash pattern once. */
+  var DASH = [2, 3];
+
   Particle.prototype.draw = function (now, theme) {
     var age = now - this.birth;
     var pct = 1.0 - (age / this.life);
     var opacity = pct * 0.95; // Brighter opacity
     theme = theme || readTheme();
 
-    ctx.save();
     if (this.type === 'bbox') {
-      // Draw technical dashed detection bounding box
+      // Draw technical dashed detection bounding box (needs its own transform)
+      ctx.save();
       ctx.translate(this.x, this.y);
       ctx.rotate(this.angle);
       ctx.strokeStyle = theme.bbox; // Terracotta Orange (Bright vs Normal)
       ctx.lineWidth = 1.5;
       ctx.globalAlpha = opacity * 1.0;
-      ctx.setLineDash([2, 3]);
+      ctx.setLineDash(DASH);
       ctx.strokeRect(-this.size, -this.size, this.size * 2, this.size * 2);
+      ctx.restore();
     } else {
-      // Draw standard perception node
+      // Draw standard perception node — direct style writes, no save/restore
       ctx.beginPath();
       ctx.arc(this.x, this.y, this.size * (0.4 + pct * 0.6), 0, Math.PI * 2);
       ctx.fillStyle = this.color;
@@ -216,13 +237,11 @@
 
       // Draw relative coordinates text next to node
       if (this.hasLabel && pct > 0.3) {
-        ctx.font = '500 8.5px "Martian Mono", ui-monospace, monospace';
         ctx.fillStyle = theme.label;
         ctx.globalAlpha = (pct - 0.3) / 0.7 * 0.95;
         ctx.fillText(this.label, this.x + 6, this.y + 2.5);
       }
     }
-    ctx.restore();
   };
 
   function spawnParticles(x, y, count, force) {
@@ -265,10 +284,20 @@
     var dist = Math.sqrt(dx * dx + dy * dy);
     
     mouse.speed = dist;
-    mouse.angle = Math.atan2(dy, dx);
     
     // Spawn nodes during movement (but not over the hero panel — it leads there)
     if (dist > 2 && !overHeroPanel(mouse.x, mouse.y)) {
+      // Chain ticks stamp at fixed travel intervals along the cursor's path
+      if (CHAIN_ENABLED) {
+        var moveAngle = Math.atan2(dy, dx);
+        chain.acc += dist;
+        while (chain.acc >= chain.SPACING) {
+          chain.acc -= chain.SPACING;
+          chain.ticks.push({ x: mouse.x, y: mouse.y, angle: moveAngle + Math.PI / 2, birth: performance.now() });
+          if (chain.ticks.length > chain.MAX) chain.ticks.shift();
+        }
+      }
+
       var vx = dx * 0.15;
       var vy = dy * 0.15;
 
@@ -358,6 +387,30 @@
     }
   }
 
+  function drawChainTicks(now, theme) {
+    /* Expiring ticks are compacted in place (write index) instead of
+       splice(i,1)-per-expired-tick: splice memmoves the tail on every expiry
+       — O(n) per call once ticks start dying. Same draw order, same visuals. */
+    var live = 0;
+    for (var i = 0; i < chain.ticks.length; i++) {
+      var t = chain.ticks[i];
+      var age = now - t.birth;
+      if (age > chain.LIFE) continue;
+      chain.ticks[live++] = t;
+      var pct = 1 - age / chain.LIFE;
+      var dx = Math.cos(t.angle) * 3.5, dy = Math.sin(t.angle) * 3.5;
+      ctx.beginPath();
+      ctx.moveTo(t.x - dx, t.y - dy);
+      ctx.lineTo(t.x + dx, t.y + dy);
+      ctx.strokeStyle = theme.cursor;
+      ctx.lineWidth = 1.2;
+      ctx.globalAlpha = pct * 0.55;
+      ctx.stroke();
+    }
+    chain.ticks.length = live;
+    ctx.globalAlpha = 1;
+  }
+
   function drawCursor(dt, theme) {
     if (!mouse.active) {
       return;
@@ -438,7 +491,18 @@
       ? deltaTime / 16.666
       : (now - lastTime) / 16.666;
     lastTime = now;
-    
+
+    /* Perf: set the label font once per frame — only if any labelled particle
+       will draw this frame — instead of re-parsing the font string inside
+       each labelled particle's draw(). */
+    var anyLabel = false;
+    for (var li = 0; li < particles.length; li++) {
+      if (particles[li].hasLabel) { anyLabel = true; break; }
+    }
+    if (anyLabel) {
+      ctx.font = '500 8.5px "Martian Mono", ui-monospace, monospace';
+    }
+
     // Clear canvas using cached dimensions
     ctx.clearRect(0, 0, width, height);
     var theme = readTheme();
@@ -458,6 +522,9 @@
     // Draw connecting lines
     drawConnections(now, theme);
 
+    // Surveyor's chain ticks (prototype flag)
+    if (CHAIN_ENABLED) drawChainTicks(now, theme);
+
     // Draw technical crosshair cursor
     drawCursor(dt, theme);
 
@@ -465,7 +532,7 @@
     var settled = Math.abs(cursorTarget.currentX - cursorTarget.x) < 0.25 &&
                   Math.abs(cursorTarget.currentY - cursorTarget.y) < 0.25;
 
-    if (particles.length === 0 && (!mouse.active || settled)) {
+    if (particles.length === 0 && (!CHAIN_ENABLED || chain.ticks.length === 0) && (!mouse.active || settled)) {
       ctx.clearRect(0, 0, width, height); // Clear final artifacts
       frameTheme = null;
       stop();
@@ -492,8 +559,11 @@
   window.addEventListener('resize', scheduleResizeCanvas, { passive: true });
 
   // Keep the hero-panel rect fresh as the page scrolls (the panel transforms).
+  // Perf: skip the per-scroll refresh entirely once the drill has left the hero
+  // (the panel is hidden at depth) — the herovis event re-enables it.
   var heroRectRaf = 0;
   window.addEventListener('scroll', function () {
+    if (drillHeroActive === false) return;
     if (!heroRectRaf) {
       heroRectRaf = requestAnimationFrame(function () { heroRectRaf = 0; refreshHeroRect(); });
     }

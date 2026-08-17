@@ -80,6 +80,7 @@
     training: ['assets/img/neural_canvas.svg'],
     infrastructure: ['assets/img/pixelqueue.svg'],
     interface: ['assets/img/pygog.svg'],
+    contact: ['assets/img/footer-1920.webp'],
   };
   var prefetched = {};
   function prefetchStratum(id) {
@@ -95,9 +96,8 @@
   }
 
   var currentSection = -1;
+  var lastHeroVis = true; // hero starts visible; the engine reports any change
   var announcedSectionId = null;
-  var scrollVelocity = 0;
-  var lastScrollY = 0;
   var sectionTimelines = {};
   var triggeredSections = new Set();
   var sectionVisible = new Array(SECTIONS.length).fill(false);
@@ -107,6 +107,27 @@
      section sitting at its settled z=0 state while scroll is momentarily
      paused/scrubbed). Avoids style recalc + string churn for no visual change. */
   var sectionDepthCache = SECTIONS.map(function () { return null; });
+
+  /* The gauge track stops being a styled scrollbar and becomes the core
+     pulled from the hole: one gradient whose bands ARE the manifest's
+     section ranges, separated by 1px hairlines, the two dark strata filled
+     darker. Honest data: proportions come straight from SECTIONS — nothing
+     is drawn that isn't true of the page. Shared with the mobile rod via
+     window.__coreColumnGradient so both scales draw the same geology. */
+  function buildCoreColumnGradient() {
+    if (!SECTIONS[0].band) return null;
+    var hairline = 'rgba(26, 43, 60, 0.30)';
+    var stops = [];
+    SECTIONS.forEach(function (sec, i) {
+      var top = (sec.start * 100).toFixed(2) + '%';
+      var bottom = (sec.end * 100).toFixed(2) + '%';
+      stops.push(sec.band + ' ' + top, sec.band + ' ' + bottom);
+      if (i < SECTIONS.length - 1) {
+        stops.push(hairline + ' ' + bottom, hairline + ' calc(' + bottom + ' + 1px)');
+      }
+    });
+    return 'linear-gradient(180deg, ' + stops.join(', ') + ')';
+  }
   var isDragging = false;
   var scrollTriggerInstance = null;
   var activeTweens = [];
@@ -147,6 +168,8 @@
       atmosphereDark: sec.atmosphereDark,
       seg: sec.seg,
       motion: sec.motion,
+      core: sec.core || null,
+      band: sec.band || null,
     };
   }
 
@@ -181,6 +204,43 @@
       lbl.setAttribute('role', 'button');
       lbl.setAttribute('tabindex', '0');
       lbl.setAttribute('aria-label', 'Go to ' + sec.label + ', ' + sec.depth);
+    });
+
+    /* Discipline accents live in CSS (one source, two-layer hex/oklch like
+       every other token). Read the computed values into the manifest so the
+       core-sample gauge bands, mobile rod, drawer sigils and favicon all
+       draw from one palette. serializedSections must be rebuilt after this
+       read — it was mapped at module init, before these fields existed. */
+    sectionEls.forEach(function (el, idx) {
+      if (!el) return;
+      var cs = getComputedStyle(el);
+      SECTIONS[idx].core = cs.getPropertyValue('--strata-accent').trim() || null;
+      SECTIONS[idx].band = cs.getPropertyValue('--strata-band').trim() || null;
+    });
+    serializedSections = SECTIONS.map(serializeSection);
+    /* backgroundImage only — the CSS background-color substrate stays
+       underneath, so the column reads as a paper-lit object even while the
+       page behind it descends into the dark strata. */
+    window.__coreColumnGradient = buildCoreColumnGradient();
+    if (window.__coreColumnGradient && els.depthGaugeTrack) {
+      els.depthGaugeTrack.style.backgroundImage = window.__coreColumnGradient;
+    }
+
+    /* Print field-report date. Stamped once at boot and refreshed on
+       beforeprint so the PDF carries the day it was printed. */
+    var printDateEl = document.getElementById('print-date');
+    function stampPrintDate() {
+      if (printDateEl) printDateEl.textContent = ' · ' + new Date().toISOString().slice(0, 10);
+    }
+    stampPrintDate();
+    window.addEventListener('beforeprint', function () {
+      stampPrintDate();
+      /* The drill zeroes stat counters for its scrubbed count-up — a print
+         before reaching Proof would otherwise ship "0+" to the PDF. The next
+         scrub tick re-syncs them on screen, so no afterprint restore needed. */
+      $$('.stat-count').forEach(function (el) {
+        el.textContent = el.getAttribute('data-count');
+      });
     });
     publishSectionManifest();
   }
@@ -223,6 +283,48 @@
     var sec = currentSection >= 0 ? serializedSections[currentSection] : null;
     window.__neuralSetProgress(progress, sec || null);
   }
+
+  /* Living favicon: the tab's reticle dot takes the active stratum's
+     discipline color as you descend — the one site surface visible while
+     the tab is backgrounded. The authored SVG is fetched once (same-origin,
+     and warm in the cache from rendering the tab icon) and recolored by
+     string replacement: one source of art, no duplicated SVG markup in JS.
+     Lazy on first call — a visitor who never leaves the surface never pays
+     the fetch. Sections without an accent (hero) restore the authored icon.
+     The apple-touch-icon link is left alone (iOS ignores SVG/data URIs). */
+  var faviconState = { text: null, link: null, failed: false, requested: false, pending: null };
+  function applyFavicon(color) {
+    faviconState.link.href = 'data:image/svg+xml,' + encodeURIComponent(faviconState.text.split('#FF5B62').join(color));
+  }
+  function initFaviconSwap() {
+    if (faviconState.requested) return;
+    faviconState.requested = true;
+    faviconState.link = document.querySelector('link[rel="icon"]');
+    if (!faviconState.link || !window.fetch) { faviconState.failed = true; return; }
+    window.fetch('assets/img/favicon.svg').then(function (res) {
+      if (!res.ok) throw new Error('favicon fetch failed');
+      return res.text();
+    }).then(function (text) {
+      if (text.indexOf('#FF5B62') === -1) throw new Error('favicon marker color missing');
+      faviconState.text = text;
+      if (faviconState.pending) {
+        applyFavicon(faviconState.pending);
+        faviconState.pending = null;
+      }
+    }).catch(function () { faviconState.failed = true; });
+  }
+  window.__groundTruthFavicon = function (sec) {
+    if (!sec) return;
+    if (!sec.core) {
+      /* Surface (or any accent-less section): restore the authored beacon. */
+      if (faviconState.link) faviconState.link.href = 'assets/img/favicon.svg';
+      return;
+    }
+    initFaviconSwap();
+    if (faviconState.failed) return;
+    if (!faviconState.text) { faviconState.pending = sec.core; return; }
+    applyFavicon(sec.core);
+  };
 
   /* ═════════════════════════════════════════════════════════ */
   /* SECTION VISIBILITY — z-axis depth transforms              */
@@ -287,6 +389,7 @@
         var opR = Math.round(op * 10000) / 10000;
         var rxR = Math.round(rx * 100) / 100;
         var ryR = Math.round(ry * 100) / 100;
+        var isSettled = zR === 0 && scR === 1 && opR === 1 && rxR === 0 && ryR === 0;
         var cached = sectionDepthCache[idx];
         if (!cached || cached.z !== zR || cached.sc !== scR || cached.rx !== rxR || cached.ry !== ryR) {
           el.style.transform = 'translateZ(' + zR.toFixed(1) + 'px) scale(' + scR.toFixed(4) + ') rotateX(' + rxR.toFixed(2) + 'deg) rotateY(' + ryR.toFixed(2) + 'deg)';
@@ -302,14 +405,26 @@
         } else {
           sectionDepthCache[idx] = { z: zR, sc: scR, op: opR, rx: rxR, ry: ryR };
         }
-        el.classList.add('is-active');
+        /* Perf: classList writes are no-ops when the class is already present,
+           but the DOMTokenList call itself still costs — dirty-check against
+           the same cache so nothing happens per tick once the section is
+           settled in its active state. */
+        if (!cached || cached.isActive !== true) {
+          el.classList.add('is-active');
+        }
+        if (cached) {
+          cached.isActive = true;
+          cached.isTransiting = !isSettled;
+        }
 
         /* Perf: only promote a GPU layer (will-change) while this section is
            transiently entering/exiting depth — not for the whole time it's
            "active" at rest (z=0). Caps how many composited layers are held
            at once during a long scroll through several sections. */
-        var isSettled = zR === 0 && scR === 1 && opR === 1 && rxR === 0 && ryR === 0;
-        el.classList.toggle('is-transiting', !isSettled);
+        var wasTransiting = cached ? cached.isTransiting === true : false;
+        if (wasTransiting !== !isSettled) {
+          el.classList.toggle('is-transiting', !isSettled);
+        }
 
         /* Seek section timeline */
         if (sectionTimelines[sec.id]) {
@@ -337,6 +452,22 @@
     /* ── Section change ── */
     if (newSection !== currentSection) {
       currentSection = newSection;
+
+      /* Perf: the hero flow-field canvas (hero-flow.js) is a fixed overlay
+         whose geometry stays in the viewport even when the drill has left the
+         hero, so its own IntersectionObserver can never park its loop. Tell it
+         when the hero actually enters/leaves the active range. Only the depth
+         engine dispatches; non-drill layouts never hear it. */
+      var heroVisible = newSection === 0;
+      if (heroVisible !== lastHeroVis) {
+        lastHeroVis = heroVisible;
+        window.dispatchEvent(new CustomEvent('groundtruth:herovis', { detail: { visible: heroVisible } }));
+      }
+
+      /* Inform listeners (e.g. the nested-scroll handoff's metric cache) that
+         the active stratum changed. */
+      document.dispatchEvent(new CustomEvent('stratumchange', { detail: { section: newSection } }));
+
       if (newSection >= 0 && !triggeredSections.has(newSection)) {
         triggeredSections.add(newSection);
         playTransitionEffect(newSection, SECTIONS[newSection]);
@@ -354,12 +485,15 @@
         /* Dark mode */
         document.body.classList.toggle('is-dark', sec.dark);
 
-        /* Fog vignette */
+        /* Fog vignette — write the gradient as a custom property so it layers
+           on top of the merged grain layer instead of replacing the element's
+           whole background (which would wipe the grain; see the .fog-vignette
+           merge note in style.css). */
         if (els.fogVignette) {
           if (sec.dark) {
-            els.fogVignette.style.background = 'radial-gradient(ellipse at center, transparent 34%, rgba(18,26,38,0.38) 100%)';
+            els.fogVignette.style.setProperty('--veil-gradient', 'radial-gradient(ellipse at center, transparent 34%, rgba(18,26,38,0.38) 100%)');
           } else {
-            els.fogVignette.style.background = 'radial-gradient(ellipse at center, transparent 40%, rgba(240,235,224,0.5) 100%)';
+            els.fogVignette.style.setProperty('--veil-gradient', 'radial-gradient(ellipse at center, transparent 40%, rgba(240,235,224,0.5) 100%)');
           }
         }
 
@@ -374,6 +508,7 @@
         setSectionAccessibility(newSection);
         announceSection(sec);
         window.__groundTruthCurrentSection = serializeSection(sec);
+        if (window.__groundTruthFavicon) window.__groundTruthFavicon(sec);
 
       }
     }
@@ -404,7 +539,7 @@
     if (activeTransitionTl) { activeTransitionTl.kill(); activeTransitionTl = null; }
     if (typeof gsap !== 'undefined') {
       var layer = $('#transition-layer');
-      if (layer) gsap.set(layer, { opacity: 0, clipPath: 'none', background: 'transparent' });
+      if (layer) gsap.set(layer, { opacity: 0, clipPath: 'none', background: 'transparent', visibility: 'hidden' });
     }
   }
 
@@ -481,6 +616,9 @@
     var tl = gsap.timeline({
       onComplete: function () { clearFx(); }
     });
+    /* The layer is visibility:hidden at rest (see .transition-layer in
+       style.css) — bring it back into the tree for the effect. */
+    tl.set(layer, { visibility: 'inherit' });
     /* Track the in-flight transition so a subsequent section change (which
        calls clearFx first) can kill it and reset the layer — see clearFx. */
     activeTransitionTl = tl;
@@ -818,10 +956,6 @@
   /* HUD UPDATES                                               */
   /* ═════════════════════════════════════════════════════════ */
 
-  /* Smoothed velocity — drives fog intensity */
-  var displayVelocity = 0;
-  var velocityRafId = 0;
-
   /* Depth-gauge track height is `60vh` (capped) — constant except on viewport
      resize, which doesn't cross the reload breakpoint. Cache it so updateHud()
      (hot scroll path) never forces a synchronous reflow reading clientHeight. */
@@ -839,6 +973,15 @@
     }
   }
 
+  /* Same caching treatment for the 1000vh scroll spacer: its offsetHeight is
+     constant except on resize, so jump/drag/keyboard paths read the cache
+     instead of forcing a synchronous layout every time. */
+  var spacerH = 0;
+  function measureSpacerHeight() {
+    var s = $('#scroll-spacer');
+    spacerH = s ? s.offsetHeight : 0;
+  }
+
   function updateHud(progress) {
     /* Depth gauge position — only update when pct changes */
     var pct = (progress * 100).toFixed(1);
@@ -850,19 +993,6 @@
       }
       prevHud.fill = pct;
     }
-  }
-
-  /* ═════════════════════════════════════════════════════════ */
-  /* FOG INTENSITY — reactive to scroll velocity               */
-  /* ═════════════════════════════════════════════════════════ */
-
-  function updateFogVelocity(speed) {
-    if (!els.fogVignette) return;
-    var intensity = clamp(0.3 + Math.abs(speed) * 0.3, 0.3, 0.85);
-    /* One write, not two. The CSS reads `opacity: var(--fog-opacity, 0.5)`,
-       so setting the custom property already drives it; the inline opacity
-       that followed just shadowed the rule it had itself fed. */
-    els.fogVignette.style.setProperty('--fog-opacity', intensity.toFixed(3));
   }
 
   /* ═════════════════════════════════════════════════════════ */
@@ -890,10 +1020,10 @@
       jump.setAttribute('aria-label', 'Go to ' + sec.label + ', ' + sec.depth);
       jump.addEventListener('click', function (e) {
         if (!isDesktop) return; // document flow: let the native hash jump work
-        var spacer = $('#scroll-spacer');
-        if (!spacer) return;
+        if (!spacerH) measureSpacerHeight();
+        if (!spacerH) return;
         e.preventDefault();
-        window.scrollTo({ top: sec.start * spacer.offsetHeight, behavior: prefersRM ? 'auto' : 'smooth' });
+        window.scrollTo({ top: sec.start * spacerH, behavior: prefersRM ? 'auto' : 'smooth' });
       });
     });
 
@@ -1002,6 +1132,22 @@
      local progress 0 = section just entered, 1 = about to exit.
      Internal animations should span 0-1 within the timeline. */
 
+  /* Sigil draw-in opens each section's timeline: the 14px authored glyph
+     dash-draws across the first 15% of local scroll — the site's stroke-draw
+     micro-pattern, same as the seismic line. pathLength=1 in the markup
+     keeps the dash math unitless; the paused fromTo's immediateRender
+     provides the hidden start state, and paths without GSAP never hide. */
+  function addSigilDraw(tl, sectionId) {
+    var sec = document.getElementById(sectionId);
+    var shapes = sec ? $$('.stratum__sigil [pathLength]', sec) : [];
+    if (!shapes.length) return;
+    tl.fromTo(shapes,
+      { strokeDashoffset: 1 },
+      { strokeDashoffset: 0, duration: 0.15, ease: 'power2.out' },
+      0
+    );
+  }
+
   function buildSectionTimelines() {
     if (typeof gsap === 'undefined') return;
 
@@ -1011,6 +1157,7 @@
       var roi = $('.aerial-stage__roi');
       if (!sharp) return;
       var tl = gsap.timeline({ paused: true });
+      addSigilDraw(tl, 'perception');
       /* Animate clip-path from tight crop to wider view */
       tl.fromTo(sharp,
         { clipPath: 'inset(35% 40% 40% 35%)' },
@@ -1033,6 +1180,7 @@
       var stage = $('.seam-stage');
       if (!styleLayer || !stage) return;
       var tl = gsap.timeline({ paused: true });
+      addSigilDraw(tl, 'training');
       var stageW = stage.offsetWidth || 400;
       tl.fromTo(styleLayer,
         { clipPath: 'inset(0 100% 0 0)' },
@@ -1050,6 +1198,7 @@
       var connectors = $$('#pipeline .pipe-connector svg line');
       if (cards.length === 0) return;
       var tl = gsap.timeline({ paused: true });
+      addSigilDraw(tl, 'infrastructure');
       cards.forEach(function (card, i) {
         tl.fromTo(card,
           { opacity: 0, y: 20 },
@@ -1074,6 +1223,7 @@
       var lines = $$('#terminal .tline');
       if (lines.length === 0) return;
       var tl = gsap.timeline({ paused: true });
+      addSigilDraw(tl, 'interface');
       lines.forEach(function (line, i) {
         var pos = i / lines.length;
         tl.call(function () { line.classList.add('is-typed'); }, null, pos);
@@ -1093,9 +1243,22 @@
       var seismicLine = document.querySelector('.journey-seismic__line');
       if (!eras.length) return;
       var tl = gsap.timeline({ paused: true });
+      addSigilDraw(tl, 'journey');
+
+      /* The surveyed bore draws first — the line the eras hang on — then
+         the seismic trace sweeps through behind it (moved off 0 so the two
+         stroke-draws don't compete). */
+      var borePath = document.querySelector('.journey-bore__path');
+      if (borePath) {
+        tl.fromTo(borePath,
+          { strokeDashoffset: 1000 },
+          { strokeDashoffset: 0, duration: 0.3, ease: 'power2.inOut' },
+          0
+        );
+      }
 
       if (seismicLine) {
-        tl.to(seismicLine, { strokeDashoffset: 0, duration: 0.6, ease: 'power2.inOut' }, 0);
+        tl.to(seismicLine, { strokeDashoffset: 0, duration: 0.6, ease: 'power2.inOut' }, 0.2);
       }
 
       eras.forEach(function (era, i) {
@@ -1118,6 +1281,7 @@
       if (!rows.length) return;
 
       var tl = gsap.timeline({ paused: true });
+      addSigilDraw(tl, 'skills');
 
       rows.forEach(function (row, i) {
         var pos = 0.06 + i * 0.18;
@@ -1148,6 +1312,7 @@
       var cards = $$('.stat-card');
       if (!cards.length) return;
       var tl = gsap.timeline({ paused: true });
+      addSigilDraw(tl, 'proof');
 
       cards.forEach(function (card, i) {
         /* data-count on the .stat-count span is the single source for this
@@ -1207,14 +1372,15 @@
     if (!track || !marker) return;
 
     function getProgressFromY(clientY) {
-      var rect = track.getBoundingClientRect();
+      var rect = dragTrackRect || track.getBoundingClientRect();
       return clamp((clientY - rect.top) / rect.height, 0, 1);
     }
+    /* Perf: the track rect is constant during a drag — cache it at dragstart
+       so each mousemove doesn't force a layout read interleaved with the
+       writes below. */
+    var dragTrackRect = null;
 
     function scrollToProgress(progress) {
-      var spacer = $('#scroll-spacer');
-      if (!spacer) return;
-      var spacerH = spacer.offsetHeight;
       window.scrollTo({ top: progress * spacerH, behavior: 'auto' });
     }
 
@@ -1235,6 +1401,7 @@
       /* Only respond to left click */
       if (e.button !== 0) return;
       isDragging = true;
+      dragTrackRect = track.getBoundingClientRect();
       marker.classList.add('is-dragging');
       if (fill) fill.classList.add('is-dragging');
       document.body.style.userSelect = 'none';
@@ -1263,6 +1430,7 @@
     function onDragEnd() {
       if (!isDragging) return;
       isDragging = false;
+      dragTrackRect = null;
       marker.classList.remove('is-dragging');
       if (fill) fill.classList.remove('is-dragging');
       document.body.style.userSelect = '';
@@ -1291,6 +1459,7 @@
 
     track.addEventListener('touchstart', function (e) {
       isDragging = true;
+      dragTrackRect = track.getBoundingClientRect();
       marker.classList.add('is-dragging');
       if (fill) fill.classList.add('is-dragging');
       bindDragMove();
@@ -1316,11 +1485,7 @@
         scrollToProgress(progress);
         return;
       }
-      var spacer = $('#scroll-spacer');
-      if (spacer) {
-        var spacerH = spacer.offsetHeight;
-        window.scrollTo({ top: progress * spacerH, behavior: 'smooth' });
-      }
+      window.scrollTo({ top: progress * spacerH, behavior: 'smooth' });
     }
 
     els.depthLabels.forEach(function (lbl) {
@@ -1339,9 +1504,6 @@
       var key = e.key;
       if (key !== 'ArrowUp' && key !== 'ArrowDown' && key !== 'Home' && key !== 'End') return;
       e.preventDefault();
-      var spacer = $('#scroll-spacer');
-      if (!spacer) return;
-      var spacerH = spacer.offsetHeight;
       var currentY = window.scrollY || window.pageYOffset;
       var currentProgress = currentY / spacerH;
       var newProgress = currentProgress;
@@ -1423,6 +1585,16 @@
      This runs only in the fine-pointer desktop drill. Touch/document-flow
      visitors keep the browser's normal scrolling behaviour unchanged. */
   function initNestedScrollHandoff() {
+    /* Perf: cache the active stratum's scroll metrics instead of reading
+       scrollHeight/clientHeight/scrollTop on every wheel tick. Refresh on
+       section change and on resize (rAF-throttled below). */
+    var handoffInner = null;
+    var handoffMax = 0;
+    function refreshHandoffInner() {
+      var inner = document.querySelector('.stratum.is-active .stratum__inner');
+      handoffInner = inner;
+      handoffMax = inner ? (inner.scrollHeight - inner.clientHeight) : 0;
+    }
     document.addEventListener('wheel', function (e) {
       if (e.defaultPrevented || e.ctrlKey || e.metaKey || e.altKey || e.shiftKey || !e.deltaY) return;
 
@@ -1430,8 +1602,8 @@
       if (!target || typeof target.closest !== 'function') return;
       var inner = target.closest('.stratum__inner');
       if (!inner || !inner.closest('.stratum.is-active')) return;
-
-      var maxScroll = inner.scrollHeight - inner.clientHeight;
+      if (inner !== handoffInner) refreshHandoffInner();
+      var maxScroll = handoffMax;
       if (maxScroll <= 1) return;
 
       var atTop = inner.scrollTop <= 1;
@@ -1452,6 +1624,17 @@
       e.preventDefault();
       window.scrollBy({ top: delta, left: 0, behavior: 'auto' });
     }, { passive: false });
+
+    /* Refresh the cached metrics when the active stratum changes (section
+       change dispatches a 'stratumchange' document event) or the viewport
+       resizes. */
+    document.addEventListener('stratumchange', refreshHandoffInner);
+    var handoffResizeRaf = 0;
+    window.addEventListener('resize', function () {
+      if (!handoffResizeRaf) {
+        handoffResizeRaf = requestAnimationFrame(function () { handoffResizeRaf = 0; refreshHandoffInner(); });
+      }
+    }, { passive: true });
   }
 
   /* ═════════════════════════════════════════════════════════ */
@@ -1477,11 +1660,7 @@
       if (key >= 1 && key <= SECTIONS.length) {
         e.preventDefault();
         var sec = SECTIONS[key - 1];
-        var spacer = $('#scroll-spacer');
-        if (!spacer) return;
-        var spacerH = spacer.offsetHeight;
-        var targetScroll = sec.start * spacerH;
-        window.scrollTo({ top: targetScroll, behavior: prefersRM ? 'auto' : 'smooth' });
+        window.scrollTo({ top: sec.start * spacerH, behavior: prefersRM ? 'auto' : 'smooth' });
       }
     });
   }
@@ -1527,26 +1706,18 @@
       });
     }
 
-    var spacer = $('#scroll-spacer');
-    if (!spacer) return;
-
     var lastProgress = 0;
 
     scrollTriggerInstance = ScrollTrigger.create({
-      trigger: spacer,
+      trigger: $('#scroll-spacer'),
       start: 'top top',
       end: 'bottom bottom',
       scrub: 0.4,
       onUpdate: function (self) {
         lastProgress = self.progress;
-
+        spacerH = spacerH || ($('#scroll-spacer') ? $('#scroll-spacer').offsetHeight : 0);
         /* Skip during depth gauge drag — drag handler updates directly */
         if (isDragging) return;
-
-        /* Velocity tracking */
-        var newY = window.scrollY || window.pageYOffset;
-        scrollVelocity = (newY - lastScrollY) * 0.01;
-        lastScrollY = newY;
 
         /* Update everything */
         updateSections(lastProgress);
@@ -1558,50 +1729,10 @@
 
         /* Pass to neural background */
         pushSectionToBackground(lastProgress);
-
-        /* Restart velocity tick if it stopped while idle */
-        startVelocityTick();
       }
     });
 
-    /* Velocity decay loop — stops when idle to save CPU */
-    function velocityTick() {
-      scrollVelocity *= 0.92;
-      if (Math.abs(scrollVelocity) < 0.005) scrollVelocity = 0;
-      displayVelocity += (scrollVelocity - displayVelocity) * 0.15;
-      if (Math.abs(displayVelocity) < 0.01) displayVelocity = 0;
-      if (displayVelocity !== 0) {
-        updateFogVelocity(displayVelocity);
-      }
-
-      if (scrollVelocity === 0 && displayVelocity === 0) {
-        velocityRafId = 0;
-        gsap.ticker.remove(velocityTick);
-        return;
-      }
-    }
-
-    function startVelocityTick() {
-      if (!velocityRafId) {
-        velocityRafId = 1;
-        gsap.ticker.add(velocityTick);
-      }
-    }
-
-    function stopVelocityTick() {
-      if (velocityRafId) {
-        gsap.ticker.remove(velocityTick);
-        velocityRafId = 0;
-      }
-    }
-
-    startVelocityTick();
-    document.addEventListener('visibilitychange', function () {
-      if (document.hidden) stopVelocityTick();
-      else startVelocityTick();
-    });
     window.addEventListener('pagehide', function () {
-      stopVelocityTick();
       killActiveTweens();
       if (scrollTriggerInstance) {
         scrollTriggerInstance.kill();
@@ -1688,6 +1819,7 @@
       initScrollEngine();
       initDepthGaugeDrag();
       measureDepthTrack();
+      measureSpacerHeight();
       window.addEventListener('resize', scheduleDepthMeasure, { passive: true });
       /* Set initial state */
       updateSections(0);
@@ -1848,10 +1980,9 @@
       if (!smooth) window.scrollTo(0, 0);
       return;
     }
-    var spacer = $('#scroll-spacer');
-    if (!spacer) { window.scrollTo(0, 0); return; }
+    if (!spacerH) measureSpacerHeight();
     window.scrollTo({
-      top: sec.start * spacer.offsetHeight,
+      top: sec.start * spacerH,
       behavior: smooth && !prefersRM ? 'smooth' : 'auto',
     });
   }
@@ -1873,6 +2004,7 @@
          only because they're intercepted and converted at click time. The
          dark-flash this scrollTo(0,0) guards against is a *restored* mid-
          drill position, which a deliberate target isn't. */
+      measureSpacerHeight();
       seedScrollFromHash();
     }
     window.addEventListener('hashchange', function () {
@@ -1881,6 +2013,13 @@
 
     initBreakpointReload();
     var hideLoader = initLoader();
+    /* Keep the cached spacer height honest across viewport resizes. */
+    if (!prefersRM) {
+      window.addEventListener('resize', scheduleDepthMeasure);
+      window.addEventListener('resize', function () {
+        if (spacerH || window.__canDepthDrill) measureSpacerHeight();
+      });
+    }
 
     if (prefersRM) {
       var loaderEl = document.getElementById('loader');

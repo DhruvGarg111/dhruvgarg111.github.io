@@ -48,18 +48,14 @@
   font-display: swap;
 }
 
+/* Perf: MartianMono-Medium.woff2 and MartianMono-SemiBold.woff2 were
+   byte-identical to MartianMono-Regular.woff2 (verified by MD5) — the same
+   glyphs, only the declared weight differed. One file serves all three
+   weights; the browser synthesizes the heavier strokes. */
 @font-face {
   font-family: 'Martian Mono';
-  src: url('../fonts/MartianMono-Medium.woff2') format('woff2');
-  font-weight: 500;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Martian Mono';
-  src: url('../fonts/MartianMono-SemiBold.woff2') format('woff2');
-  font-weight: 600;
+  src: url('../fonts/MartianMono-Regular.woff2') format('woff2');
+  font-weight: 500 600;
   font-style: normal;
   font-display: swap;
 }
@@ -162,7 +158,9 @@
   --dur-press: 160ms;                                /* button/press feedback */
 
   --z-neural: 0;
-  --z-fog: 1;
+  /* Perf: the fog vignette and paper grain are merged into ONE full-screen
+     layer (.fog-vignette) so the compositor composites one layer over the
+     live WebGL canvas instead of two. --z-grain is its slot; --z-fog is gone. */
   --z-grain: 2;
   --z-content: 5;
   --z-hud: 40;
@@ -336,8 +334,7 @@ button, input, textarea { font: inherit; color: inherit; }
 .stratum__link:focus-visible,
 .capability__proof:focus-visible,
 .contact-card__email:focus-visible,
-.contact-card__socials a:focus-visible,
-.mm-replay:focus-visible {
+.contact-card__socials a:focus-visible {
   outline: none;
   background-image:
     linear-gradient(var(--reticle), var(--reticle)), linear-gradient(var(--reticle), var(--reticle)),
@@ -355,6 +352,9 @@ button, input, textarea { font: inherit; color: inherit; }
   border-radius: 4px;
   box-shadow: 0 14px 36px var(--ink-18);
 }
+
+/* Print-only masthead — shown by the @media print block at the end. */
+.print-masthead { display: none; }
 .skip-link:focus { left: 1rem; top: 0.5rem; }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
 
@@ -470,29 +470,31 @@ body.has-neural-depth #neural-bg-canvas {
    confirmed no perceptible difference (docs/superpowers/plans/
    2026-07-12-adaptive-performance-mobile-optimization.md, Task 4.1). */
 
+/* Perf: the fog vignette and paper grain are merged into ONE fixed layer.
+   Two stacked full-screen layers (z1 fog over z0 canvas, z2 grain over both)
+   forced the compositor to re-composite two extra full-viewport textures
+   every frame the WebGL canvas repainted. Source-over compositing is
+   associative, so a single element painting the grain (alpha 0.07, baked
+   from 0.14×0.5) under the fog gradient (stop alpha 0.25 — the old 0.5
+   gradient stop × the 0.5 default opacity) is pixel-identical to the old
+   pair with the grain's layer order preserved (grain first = paints on top
+   of the fog, matching the old z2-over-z1 stack). */
 .fog-vignette {
-  position: fixed; inset: 0; z-index: var(--z-fog);
-  pointer-events: none;
-  background: radial-gradient(ellipse at center, transparent 40%, rgba(240, 235, 224, 0.5) 100%);
-  opacity: var(--fog-opacity, 0.5);
-}
-
-.paper-grain {
   position: fixed; inset: 0; z-index: var(--z-grain);
   pointer-events: none;
-  /* Perf: was opacity 0.2 + mix-blend-mode: multiply. Blend modes force a
-     full-screen composite pass every time anything beneath moves. Dropped
-     the blend mode and lowered opacity to compensate visually (normal
-     blending over the paper tone reads close to the multiplied grain). */
-  opacity: 0.14;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+  /* --veil-gradient is set at runtime by script.js (section light/dark
+     vignette); the fallback covers no-JS. Static alphas — the scroll-
+     velocity fog writer was removed 2026-08-17 (no opacity consumer). */
+  background-image:
+    var(--veil-grain, url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.07'/%3E%3C/svg%3E")),
+    var(--veil-gradient, radial-gradient(ellipse at center, transparent 40%, rgba(240, 235, 224, 0.25) 100%));
 }
 
-/* Perf: on the lowest device tier (see the tier-detection script in
-   index.html <head>), drop the grain layer entirely rather than just
-   keeping it cheap — one less full-viewport composited layer. */
-html.tier-low .paper-grain {
-  display: none;
+/* Perf: on the lowest device tier, drop the grain layer entirely rather than
+   just keeping it cheap — one less full-viewport composited layer. The fog
+   vignette itself stays (matches the pre-merge tier-low behaviour). */
+html.tier-low .fog-vignette {
+  --veil-grain: none;
 }
 
 #fluid-canvas {
@@ -557,7 +559,11 @@ body { scrollbar-width: thin; scrollbar-color: rgba(26, 43, 60, 0.12) transparen
 
 .depth-gauge__track {
   width: 4px; height: 100%; position: relative;
-  background: var(--ink-08);
+  /* Core-sample substrate: the recovered core is a physical, paper-lit
+     object — it stays light even when the page descends into dark strata.
+     script.js lays the per-section band gradient over this as an inline
+     background-image (see buildCoreColumnGradient). */
+  background-color: var(--paper-58);
   border-radius: 2px;
   box-shadow: inset 0 0 0 1px var(--cream-50);
   cursor: pointer;
@@ -603,6 +609,10 @@ body { scrollbar-width: thin; scrollbar-color: rgba(26, 43, 60, 0.12) transparen
   z-index: 3;
   touch-action: none;
 }
+/* Perf: the marker's transform is rewritten on every scroll frame (via
+   --depth-offset) — promote it so each update composites instead of
+   re-painting. One tiny layer, and only in the drill. */
+html.can-depth-drill .depth-gauge__marker { will-change: transform; }
 
 @media (hover: hover) and (pointer: fine) {
   .depth-gauge__marker:hover {
@@ -654,7 +664,6 @@ body { scrollbar-width: thin; scrollbar-color: rgba(26, 43, 60, 0.12) transparen
   font-weight: 600;
 }
 
-body.is-dark .depth-gauge__track { background: rgba(244, 240, 232, 0.08); }
 body.is-dark .depth-gauge__marker { border-color: var(--dark-bg); }
 body.is-dark .depth-gauge__label { color: rgba(244, 240, 232, 0.72); } /* headroom for the translucent --dark-bg (0.72 alpha) letting the canvas lighten the backdrop */
 body.is-dark .depth-gauge__label.is-active { color: var(--survey); }
@@ -764,6 +773,36 @@ html.can-depth-drill .stratum.is-active {
   --heading-accent: var(--validated-bright);
 }
 #proof { --heading-accent: var(--gold); }
+
+/* Per-section discipline accents — one source for the core-sample gauge
+   bands, the mobile slab accent bars, the section sigil strokes, and the
+   living favicon. script.js reads the computed values into SECTIONS[].core /
+   .band at boot, so no second copy of the palette exists in JS.
+   Base hex/rgba here; oklch/color-mix redeclarations in the @supports block.
+   --strata-accent-bright exists only on the two dark strata: the variant
+   legible on their navy windows. #hero deliberately has no accent (the
+   favicon keeps its authored red beacon at the surface) — only a band. */
+#hero           { --strata-band: rgba(26, 43, 60, 0.14); }
+#perception     { --strata-accent: #B24F20; --strata-band: rgba(178, 79, 32, 0.20); }
+#training       { --strata-accent: #2A6054; --strata-band: rgba(42, 96, 84, 0.50); --strata-accent-bright: #75C4A4; }
+#infrastructure { --strata-accent: #3D72A4; --strata-band: rgba(61, 114, 164, 0.20); }
+#interface      { --strata-accent: #75C4A4; --strata-band: rgb(35, 66, 69); --strata-accent-bright: #E8B86D; }
+#journey        { --strata-accent: #B88530; --strata-band: rgba(184, 133, 48, 0.20); }
+#skills         { --strata-accent: #3C6176; --strata-band: rgba(60, 97, 118, 0.20); }
+#proof          { --strata-accent: #D8A246; --strata-band: rgba(216, 162, 70, 0.22); }
+#contact        { --strata-accent: #1D2938; --strata-band: rgba(29, 41, 56, 0.55); }
+
+@supports (color: oklch(50% 0.1 50)) {
+  #hero           { --strata-band: color-mix(in oklch, var(--ink) 14%, transparent); }
+  #perception     { --strata-accent: var(--survey);           --strata-band: color-mix(in oklch, var(--survey) 20%, transparent); }
+  #training       { --strata-accent: var(--validated);        --strata-band: color-mix(in oklch, var(--validated) 50%, transparent); --strata-accent-bright: var(--validated-bright); }
+  #infrastructure { --strata-accent: var(--datum);            --strata-band: color-mix(in oklch, var(--datum) 20%, transparent); }
+  #interface      { --strata-accent: var(--validated-bright); --strata-band: color-mix(in oklch, var(--validated) 45%, var(--dark-bg-solid)); --strata-accent-bright: #E8B86D; }
+  #journey        { --strata-accent: var(--cap-generation);   --strata-band: color-mix(in oklch, var(--cap-generation) 20%, transparent); }
+  #skills         { --strata-accent: var(--hero-role);        --strata-band: color-mix(in oklch, var(--hero-role) 20%, transparent); }
+  #proof          { --strata-accent: var(--gold);             --strata-band: color-mix(in oklch, var(--gold) 22%, transparent); }
+  #contact        { --strata-accent: var(--dark-bg-solid);    --strata-band: color-mix(in oklch, var(--dark-bg-solid) 55%, transparent); }
+}
 
 /* ═══════════════════════════════════════════════════════════ */
 /* WINDOWED FRAME — frosted glass panel around each stratum   */
@@ -878,13 +917,22 @@ html.can-depth-drill .stratum.is-active {
   text-transform: uppercase; color: var(--survey-text);
   margin-bottom: 0.85rem; opacity: 0.86;
 }
-.stratum__label::before {
-  content: "";
-  width: 0.58rem; height: 0.58rem;
-  border: 1px solid currentColor;
-  transform: rotate(45deg);
-  opacity: 0.72;
+/* Per-section sigil: a tiny authored glyph in the section's discipline
+   color (label text keeps the accessible --survey-text). Dash-drawn on
+   entry by whichever motion engine owns the layout; the default state is
+   fully drawn, so reduced-motion/no-JS need nothing. Replaces the old
+   generic rotated-square diamond ::before. */
+.stratum__sigil {
+  width: 0.72rem;
+  height: 0.72rem;
+  flex: 0 0 auto;
+  color: var(--strata-accent, currentColor);
+  opacity: 0.85;
 }
+.stratum--dark .stratum__sigil {
+  color: var(--strata-accent-bright, var(--strata-accent, currentColor));
+}
+
 .stratum--dark .stratum__label { color: rgba(244, 240, 232, 0.5); }
 
 .stratum__grid {
@@ -991,6 +1039,17 @@ html.can-depth-drill .stratum.is-active {
   box-shadow: 0 0 0 0 var(--survey-glow);
   animation: live-pulse 2.4s ease-out infinite;
 }
+/* Perf: the old live-pulse animated box-shadow spread, which repainted the
+   dot every frame. A scaling+fading ring on ::after reads identically (an
+   expanding shadow) while animating only transform/opacity — composited.
+   Same duration, same keyframes, same survey-glow colour. */
+.stratum__link--live::after {
+  content: ""; position: absolute; left: 6px; top: 50%; width: 6px; height: 6px;
+  margin-top: -3px; border-radius: 50%; pointer-events: none;
+  background: var(--survey-glow);
+  animation: live-pulse-ring 2.4s ease-out infinite;
+}
+.stratum__link--live { position: relative; }
 .stratum__link--live:hover { background: var(--survey-14); color: var(--survey); }
 .stratum--dark .stratum__link--live {
   color: #E8B86D; background: rgba(232, 116, 40, 0.10);
@@ -1001,8 +1060,13 @@ html.can-depth-drill .stratum.is-active {
   70%  { box-shadow: 0 0 0 6px rgba(178, 79, 32, 0); }
   100% { box-shadow: 0 0 0 0 rgba(178, 79, 32, 0); }
 }
+@keyframes live-pulse-ring {
+  0%   { transform: scale(1); opacity: 0.34; }
+  70%  { transform: scale(2.8); opacity: 0; }
+  100% { transform: scale(2.8); opacity: 0; }
+}
 @media (prefers-reduced-motion: reduce) {
-  .stratum__link--live::before { animation: none; }
+  .stratum__link--live::before, .stratum__link--live::after { animation: none; }
 }
 
 /* ═══════════════════════════════════════════════════════════ */
@@ -1259,6 +1323,13 @@ html.bg-webgl.can-depth-drill .hero-plate__paper { opacity: 0.08; }
   animation: hero-scan 6s ease-in-out infinite;
   will-change: transform, opacity;
 }
+/* Perf: once the drill leaves the hero, the scanline's 6s loop (and its
+   promoted will-change layer) keeps ticking inside an opacity-0 stratum for
+   the whole descent — pause it. Zero visual impact: inactive strata are
+   invisible. */
+html.can-depth-drill #hero:not(.is-active) .hero__scanline {
+  animation-play-state: paused;
+}
 .hero__scanline::after {
   content: "";
   position: absolute; left: 0; right: 0; bottom: 0; height: 2px;
@@ -1330,6 +1401,12 @@ html:not(.can-depth-drill) .hero__scanline { animation: none; }
   animation: cue-pulse 2.5s ease-in-out infinite;
 }
 .hero__scroll-cue svg { width: 11px; height: 16px; animation: cue-arrow 2.5s ease-in-out infinite; }
+/* Perf: pause the cue loops once the drill leaves the hero (same reasoning
+   as the scanline pause above). */
+html.can-depth-drill #hero:not(.is-active) .hero__scroll-cue,
+html.can-depth-drill #hero:not(.is-active) .hero__scroll-cue svg {
+  animation-play-state: paused;
+}
 
 @media (max-width: 899px) {
   .hero__scroll-cue { display: none; }
@@ -1404,12 +1481,8 @@ html:not(.can-depth-drill) .hero__scanline { animation: none; }
     border-bottom: 1px solid var(--ink-18);
     background: rgba(244, 240, 232, 0.6);
   }
-  #hero .hero-plate__rail--top #hero-rail-field {
-    display: block;
-    margin-left: auto;
-    color: var(--survey-text);
-    overflow: hidden;
-    text-overflow: ellipsis;
+  #hero .hero-plate__rail--top .hero-plate__cell:not(.hero-plate__cell--key) {
+    display: none;
   }
   #hero .hero-plate__rail--bottom {
     order: 3;
@@ -1453,7 +1526,7 @@ html:not(.can-depth-drill) .hero__scanline { animation: none; }
     min-height: 180px;
     max-height: 230px;
     aspect-ratio: auto;
-    border: 1px solid var(--dark-border);
+    border: 1px solid var(--cream-16);
     border-radius: 8px;
     background: #0B131E;
     box-shadow:
@@ -1462,11 +1535,25 @@ html:not(.can-depth-drill) .hero__scanline { animation: none; }
       inset 0 0 0 1px var(--cream-05);
   }
 
+  #hero-surface-tag {
+    display: none;
+  }
+
   .hero-manifest {
     width: 100%;
     margin-top: 0.5rem;
     padding-top: 0.65rem;
     border-top: 1px solid var(--ink-18);
+  }
+
+  .hero-manifest__jump {
+    min-height: 44px;
+    padding: 0.35rem 0.5rem;
+  }
+
+  .hero-manifest__badge {
+    min-height: 44px;
+    padding: 0 0.65rem;
   }
 }
 
@@ -1633,6 +1720,12 @@ html.can-depth-drill .pipe-card { opacity: 0; transform: translateY(12px); }
   border-radius: 50%; animation: spin 1s linear infinite;
 }
 @keyframes spin { 100% { transform: rotate(360deg); } }
+/* Perf: the terminal spinner and cursor blink run forever inside strata that
+   are opacity-0 whenever the drill is elsewhere — pause them while inactive. */
+html.can-depth-drill .stratum:not(.is-active) .spinner,
+html.can-depth-drill .stratum:not(.is-active) .tcursor {
+  animation-play-state: paused;
+}
 
 .pipe-card--db {
   background: var(--ink); color: var(--dark-ink); font-size: 0.55rem;
@@ -1710,6 +1803,27 @@ html.can-depth-drill .tline { opacity: 0; transform: translateY(6px); }
   height: 2px;
   background: linear-gradient(90deg, var(--depth-line), var(--survey) 40%, var(--validated) 80%, var(--depth-line));
 }
+
+/* Surveyed borehole — replaces the ruler-straight ::before line on the
+   desktop drill. Mobile keeps the straight line for space (its ≤767px
+   vertical override is untouched); reduced-motion and no-JS desktops keep
+   it too — the can-depth-drill class is never set there. The path threads
+   the era markers: viewBox y=12 lands on the marker center (8px from the
+   track's top), so top = 8 − 12 = −4px. */
+.journey-bore { display: none; }
+html.can-depth-drill .journey-bore {
+  display: block;
+  position: absolute;
+  top: -4px; left: 0;
+  width: 100%; height: 24px;
+  z-index: 0;
+  pointer-events: none;
+}
+html.can-depth-drill .journey-track::before { content: none; }
+.journey-bore__stop--edge { stop-color: var(--depth-line); }
+.journey-bore__stop--survey { stop-color: var(--survey); }
+.journey-bore__stop--validated { stop-color: var(--validated); }
+.journey-bore__path { stroke-dasharray: 1000; stroke-dashoffset: 0; }
 .journey-era {
   display: flex;
   flex-direction: column;
@@ -2015,7 +2129,9 @@ html.can-depth-drill .stat-card__bar-fill { transform: scaleX(0); }
   /* Perf: was image-set(...) 2x → footer.jpg (1.8 MB). The 1920px source is
      already high enough resolution to look sharp scaled down on retina
      displays at this card's size — dropped the oversized 2x layer rather
-     than shipping a second multi-megabyte asset. */
+     than shipping a second multi-megabyte asset. #contact is the last
+     stratum, so script.js prefetches the image when the section approaches;
+     until then the fetch happens at CSS parse. */
   background-image: image-set(
     url('../img/footer-1920.webp') type('image/webp') 1x,
     url('../img/footer-1920.jpg') type('image/jpeg') 1x
@@ -2042,6 +2158,8 @@ html.can-depth-drill .stat-card__bar-fill { transform: scaleX(0); }
 .contact-card__dot--tr { top: 14px; right: 14px; }
 .contact-card__dot--bl { bottom: 14px; left: 14px; }
 .contact-card__dot--br { bottom: 14px; right: 14px; }
+
+
 
 /* ── Top row: title+email left, copyright right ── */
 .contact-card__top {
@@ -2145,6 +2263,9 @@ html.can-depth-drill .stat-card__bar-fill { transform: scaleX(0); }
   z-index: 45;
   pointer-events: none;
   opacity: 0;
+  /* Perf: at rest the layer holds a full-screen fixed element — take it out
+     of the visibility tree (the transition engine toggles it back). */
+  visibility: hidden;
   overflow: hidden;
 }
 .transition-fx {
@@ -2200,6 +2321,22 @@ html.can-depth-drill .stat-card__bar-fill { transform: scaleX(0); }
     overflow-x: hidden;
   }
 
+  /* Perf: in document flow, off-screen strata don't need layout/paint. The
+     fixed-strata drill (html.can-depth-drill .strata) is excluded because it
+     has no document flow — but the same rule applies to touch tablets and
+     reduced-motion desktops, which also run flow layout. content-visibility
+     skips render work until each section approaches the viewport; the `auto`
+     intrinsic size remembers the real size after first render so anchors and
+     scroll positions stay stable. Browsers without content-visibility just
+     ignore it. */
+  html:not(.can-depth-drill) .stratum {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 100vh;
+  }
+  html:not(.can-depth-drill) .stratum__window {
+    contain: layout style;
+  }
+
   .scroll-spacer {
     height: 0 !important;
   }
@@ -2220,12 +2357,12 @@ html.can-depth-drill .stat-card__bar-fill { transform: scaleX(0); }
     opacity: 1 !important;
     transform: none !important;
     pointer-events: auto;
-    padding: 0.75rem clamp(0.5rem, 2.5vw, 0.85rem);
+    padding: 0.85rem clamp(0.85rem, 3.5vw, 1.25rem);
     background: transparent !important;
   }
 
   #hero {
-    padding-top: calc(clamp(0.6rem, 2vh, 1.2rem) + env(safe-area-inset-top, 0px));
+    padding-top: calc(clamp(0.75rem, 2vh, 1.25rem) + env(safe-area-inset-top, 0px));
     padding-bottom: 0.75rem;
   }
 
@@ -2247,7 +2384,11 @@ html.can-depth-drill .stat-card__bar-fill { transform: scaleX(0); }
     max-height: none;
     overflow: hidden;
     padding: clamp(1.15rem, 4vw, 1.6rem);
-    contain: none;
+    /* Perf: keep layout/style containment on the mobile slab (desktop windows
+       already carry `contain: layout style`); the old `contain: none` reset
+       disabled it exactly where document flow makes it useful. The JS-injected
+       gallery/lightbox scroll boxes inside are still uncontained. */
+    contain: layout style;
     position: relative;
   }
 
@@ -2262,19 +2403,35 @@ html.can-depth-drill .stat-card__bar-fill { transform: scaleX(0); }
       inset 0 1px 0 var(--cream-12);
   }
 
+  /* R1 — atmosphere parity: on tier-med/high phones the slabs go
+     translucent (same paper-82 / dark-bg alphas as the desktop drill's
+     windows) so the neural background and fog drift through like on PC.
+     tier-low stays fully opaque — alpha compositing only, no
+     backdrop-filter (the costly part on phones). background-color
+     longhand so the dot-grid background-image above is preserved. */
+  html:not(.tier-low) .stratum__window {
+    background-color: var(--paper-82);
+  }
+  html:not(.tier-low) .stratum--dark .stratum__window {
+    background-color: var(--dark-bg);
+  }
+
   .stratum__window::before {
     content: '';
     position: absolute;
     top: 0; left: 0; right: 0;
     height: 3px;
-    background: linear-gradient(90deg, var(--survey) 0%, transparent 60%);
+    /* Each stratum's discipline color on the one existing accent strip —
+       the mobile counterpart of the desktop's full atmospheric shift. */
+    background: linear-gradient(90deg, var(--strata-accent, var(--survey)) 0%, transparent 60%);
     opacity: 0.65;
     border-radius: 14px 14px 0 0;
     z-index: 2;
   }
 
   .stratum--dark .stratum__window::before {
-    background: linear-gradient(90deg, var(--survey) 0%, var(--validated) 60%, transparent 100%);
+    /* Dark strata use their bright variant so the strip reads on navy. */
+    background: linear-gradient(90deg, var(--strata-accent-bright, var(--strata-accent, var(--survey))) 0%, transparent 60%);
     opacity: 0.6;
   }
 
@@ -2312,29 +2469,18 @@ html.can-depth-drill .stat-card__bar-fill { transform: scaleX(0); }
     max-width: 34ch;
   }
 
-  /* ── Multi-step Visual Apparatus & Architecture Gallery ── */
+  /* ── Multi-step Visual Apparatus & Architecture (stacked, R3) ──
+     The dual-mode tab bar is gone; apparatus and architecture now render
+     one above the other — both visible, no swipe, no hidden pane — the
+     same "both in the grid" intent as the desktop drill. */
   #perception .stratum__visual,
   #training .stratum__visual,
   #infrastructure .stratum__visual,
   #interface .stratum__visual {
     position: relative;
     display: flex;
+    flex-direction: column;
     gap: 0.75rem;
-    overflow-x: auto;
-    overflow-y: hidden;
-    overscroll-behavior-inline: contain;
-    scroll-snap-type: x mandatory;
-    scroll-padding-inline: 0.1rem;
-    padding-bottom: 0.35rem;
-    touch-action: pan-x pan-y;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-  }
-  #perception .stratum__visual::-webkit-scrollbar,
-  #training .stratum__visual::-webkit-scrollbar,
-  #infrastructure .stratum__visual::-webkit-scrollbar,
-  #interface .stratum__visual::-webkit-scrollbar {
-    display: none;
   }
 
   #perception .stratum__visual > .aerial-stage,
@@ -2345,9 +2491,8 @@ html.can-depth-drill .stat-card__bar-fill { transform: scaleX(0); }
   #infrastructure .stratum__visual > .arch-figure,
   #interface .stratum__visual > .terminal,
   #interface .stratum__visual > .arch-figure {
-    flex: 0 0 100%;
+    flex: none;
     width: 100%;
-    scroll-snap-align: start;
   }
 
   #perception .stratum__visual > .arch-figure,
@@ -2378,15 +2523,6 @@ html.can-depth-drill .stat-card__bar-fill { transform: scaleX(0); }
     order: 1;
   }
 
-  .stratum__grid .stratum__instrument,
-  .stratum__grid--reverse .stratum__instrument {
-    order: 2;
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-  }
-
-  /* Visual keeps flex-direction: row for horizontal apparatus ↔ architecture scroll-snap */
   .stratum__grid .stratum__visual,
   .stratum__grid--reverse .stratum__visual {
     order: 2;
@@ -2709,8 +2845,11 @@ html.can-depth-drill .stat-card__bar-fill { transform: scaleX(0); }
   }
 
   .fog-vignette {
-    background: radial-gradient(ellipse at center, transparent 58%, rgba(240, 235, 224, 0.5) 100%);
-    opacity: 0.42;
+    /* Mobile: static vignette (no JS fog writes) — merged layer keeps the
+       grain and the fog gradient with the mobile gradient shape baked in. */
+    background-image:
+      var(--veil-grain, url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.07'/%3E%3C/svg%3E")),
+      var(--veil-gradient, radial-gradient(ellipse at center, transparent 58%, rgba(240, 235, 224, 0.21) 100%));
   }
   html.tier-low .fog-vignette { display: none; }
   html.touch-first #fluid-canvas { display: none; }
@@ -2741,121 +2880,6 @@ html.can-depth-drill .stat-card__bar-fill { transform: scaleX(0); }
 /* MOBILE MOTION & TACTILE INSTRUMENTS (mobile-motion.js)      */
 /* ═══════════════════════════════════════════════════════════ */
 
-/* ── Dual-Mode Instrument Tabs ──
-   The tab bar exists only while .stratum__visual is a horizontal snap
-   gallery — mobile-motion.js gates its creation on the same ≤767px boundary.
-   Keep the styles behind the same media query so the two never disagree
-   (they did once: tablets got live-looking tabs whose scrollTo() hit a
-   non-scrolling container). The actions bar stays global: replay/inspect are
-   injected on tablets too, where they work fine. */
-@media (max-width: 767px) {
-  .mm-instrument-bar {
-    display: flex;
-    align-items: center;
-    gap: 0.35rem;
-    margin-bottom: 0.65rem;
-    padding: 0.2rem;
-    background: var(--ink-06);
-    border: 1px solid var(--ink-12);
-    border-radius: 6px;
-    width: fit-content;
-  }
-  .stratum--dark .mm-instrument-bar {
-    background: rgba(0, 0, 0, 0.35);
-    border-color: var(--cream-12);
-  }
-
-  .mm-tab {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.45rem;
-    min-height: 36px;
-    padding: 0 0.75rem;
-    font-family: var(--font-mono);
-    font-size: 0.58rem;
-    font-weight: 500;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--ink-soft);
-    background: transparent;
-    border: 1px solid transparent;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-  }
-  .stratum--dark .mm-tab {
-    color: rgba(244, 240, 232, 0.6);
-  }
-
-  .mm-tab.is-active {
-    color: var(--survey-text);
-    background: var(--paper);
-    border-color: var(--ink-14);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-  }
-  .stratum--dark .mm-tab.is-active {
-    color: var(--validated-bright);
-    background: #192332;
-    border-color: rgba(244, 240, 232, 0.16);
-  }
-
-  .mm-tab__dot {
-    width: 5px;
-    height: 5px;
-    border-radius: 50%;
-    background: currentColor;
-  }
-}
-
-/* ── Stage Action Bar (Replay + Fullscreen Lightbox) ── */
-.mm-stage-actions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-  margin-top: 0.65rem;
-  width: 100%;
-}
-
-.mm-replay,
-.mm-expand-arch {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 44px;
-  padding: 0 0.85rem;
-  font-family: var(--font-mono);
-  font-size: 0.58rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--ink-soft);
-  background: transparent;
-  border: 1px solid var(--ink-14);
-  border-radius: 5px;
-  cursor: pointer;
-  transition: transform var(--dur-press) var(--ease-out), border-color 0.2s ease, color 0.2s ease;
-}
-.mm-replay:active,
-.mm-expand-arch:active {
-  transform: scale(0.96);
-}
-.stratum--dark .mm-replay,
-.stratum--dark .mm-expand-arch {
-  color: rgba(244, 240, 232, 0.7);
-  border-color: var(--cream-16);
-}
-.mm-expand-arch {
-  color: var(--survey-text);
-  border-color: var(--survey);
-  background: var(--survey-08);
-}
-.stratum--dark .mm-expand-arch {
-  color: var(--validated-bright);
-  border-color: var(--validated);
-  background: rgba(42, 96, 84, 0.15);
-}
-
 /* ── Fullscreen Architecture SVG Lightbox Modal ── */
 .mm-lightbox {
   position: fixed;
@@ -2868,18 +2892,21 @@ html.can-depth-drill .stat-card__bar-fill { transform: scaleX(0); }
   padding: env(safe-area-inset-top, 1rem) env(safe-area-inset-right, 1rem) env(safe-area-inset-bottom, 1rem) env(safe-area-inset-left, 1rem);
   opacity: 0;
   pointer-events: none;
+  /* Perf: while closed, keep the element out of the visibility tree so no
+     engine allocates a backdrop-filter backing store behind the opaque
+     overlay. */
+  visibility: hidden;
   transition: opacity 0.28s ease;
 }
 .mm-lightbox.is-open {
   opacity: 1;
   pointer-events: auto;
+  visibility: visible;
 }
 .mm-lightbox__backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(10, 15, 24, 0.88);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: rgba(10, 15, 24, 0.9);
 }
 .mm-lightbox__content {
   position: relative;
@@ -2971,28 +2998,38 @@ html.can-depth-drill .stat-card__bar-fill { transform: scaleX(0); }
 
 .mm-depth-rod__track {
   position: relative;
-  width: 2px;
+  /* 4px to carry the same core-sample bands as the desktop gauge —
+     mobile-motion.js applies the shared gradient as an inline
+     background-image over this paper-lit substrate. */
+  width: 4px;
   height: 100%;
-  background: var(--ink-14);
-  border-radius: 1px;
-}
-body.is-dark .mm-depth-rod__track {
-  background: rgba(244, 240, 232, 0.16);
+  background-color: var(--paper-58);
+  border-radius: 2px;
 }
 
 .mm-depth-rod__bead {
+  appearance: none;
+  -webkit-appearance: none;
+  padding: 0;
+  border: 0;
+  font: inherit;
+  color: inherit;
   --bead-offset: 0px;
+  --bead-squash-x: 1;
+  --bead-squash-y: 1;
   position: absolute;
   left: 50%;
   top: 0;
   width: 10px;
   height: 10px;
-  transform: translate3d(-50%, calc(var(--bead-offset) - 5px), 0);
+  transform: translate3d(-50%, calc(var(--bead-offset) - 5px), 0) scale(var(--bead-squash-x), var(--bead-squash-y));
+  transform-origin: center;
   border-radius: 50%;
   background: var(--survey);
   box-shadow: 0 0 0 2px var(--paper), 0 0 8px var(--survey-glow);
   cursor: pointer;
-  transition: transform 0.15s ease-out;
+  /* No CSS transition: mobile-motion drives a per-frame spring on this
+     transform — a transition on the same property would be lag-on-lag. */
   will-change: transform;
 }
 body.is-dark .mm-depth-rod__bead {
@@ -3006,7 +3043,21 @@ body.is-dark .mm-depth-rod__bead {
   right: 14px;
   width: 24px;
 }
+@media (max-width: 640px) {
+  .mm-depth-rod__ticks { display: none; }
+  /* R2 — declutter: below 640px the rod is a bare 22px strip with a bead
+     (its ticks are already hidden), and the labeled depth pill + drawer
+     carry the wayfinding; one nav affordance, not two. display:none so
+     the bead spring keeps running harmlessly for 641–767px tablets. */
+  .mm-depth-rod { display: none; }
+}
 .mm-depth-tick {
+  appearance: none;
+  -webkit-appearance: none;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  text-align: right;
   position: absolute;
   right: 0;
   transform: translateY(-50%);
@@ -3083,18 +3134,20 @@ body.is-dark .mm-depth__label {
   justify-content: flex-end;
   opacity: 0;
   pointer-events: none;
+  /* Perf: same as the lightbox — closed drawers must not hold a
+     backdrop-filter backing store. */
+  visibility: hidden;
   transition: opacity 0.25s ease;
 }
 .mm-drawer.is-open {
   opacity: 1;
   pointer-events: auto;
+  visibility: visible;
 }
 .mm-drawer__backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(10, 15, 24, 0.72);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  background: rgba(10, 15, 24, 0.85);
 }
 .mm-drawer__panel {
   position: relative;
@@ -3167,7 +3220,7 @@ body.is-dark .mm-drawer__close {
 }
 .mm-drawer__link {
   display: grid;
-  grid-template-columns: 3.2rem minmax(0, 1fr) auto;
+  grid-template-columns: 1rem 3.2rem minmax(0, 1fr) auto;
   align-items: center;
   gap: 0.65rem;
   min-height: 44px;
@@ -3180,6 +3233,11 @@ body.is-dark .mm-drawer__close {
   font-size: 0.85rem;
   border: 1px solid transparent;
   transition: color 0.18s ease, background-color 0.18s ease, border-color 0.18s ease;
+}
+.mm-drawer__sigil {
+  width: 0.85rem;
+  height: 0.85rem;
+  opacity: 0.8;
 }
 body.is-dark .mm-drawer__link {
   color: var(--dark-ink);
@@ -3268,17 +3326,92 @@ html:not(.can-depth-drill) .journey-seismic__line { stroke-dashoffset: 0; }
      collapses it, but a desktop keeps the can-depth-drill class when it
      prints, so it survived into the print output as ~1000vh of blank trailing
      pages. */
-  .paper-grain, .fog-vignette, .depth-gauge,
+  .fog-vignette, .depth-gauge,
   .skip-link, #fluid-canvas, .scroll-spacer,
   #neural-bg-canvas, .loader, .transition-layer,
   /* Phone chrome injected by mobile-motion.js — fixed overlays that would
      otherwise print (once per page, in some engines). */
   .mm-depth, .mm-depth-rod, .mm-drawer, .mm-lightbox { display: none !important; }
   body { background: #FAF8F3; color: #142236; }
-  .strata { position: relative; perspective: none; }
-  .stratum { position: relative; opacity: 1 !important; transform: none !important; page-break-inside: avoid; }
+  /* !important is load-bearing here, not decorative: the drill's own rules
+     are html.can-depth-drill-qualified (specificity 0,2,1) and would
+     otherwise beat these — which is exactly how desktop print used to ship
+     all nine sections stacked on one spot. */
+  .strata { position: relative !important; perspective: none !important; overflow: visible !important; inset: auto !important; }
+  .stratum { position: relative !important; inset: auto !important; opacity: 1 !important; transform: none !important; pointer-events: auto !important; page-break-inside: avoid; }
   .stratum--dark { background: #FAF8F3 !important; color: #142236 !important; }
   .stratum__window { background: transparent !important; border: none !important; box-shadow: none !important; max-height: none !important; }
   .stratum__window::before, .stratum__window::after { display: none !important; }
   .stratum__inner { flex: none !important; max-height: none !important; overflow: visible !important; }
+
+  @page { margin: 1.4cm; }
+
+  /* Field-report masthead */
+  .print-masthead {
+    display: flex !important;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 1rem;
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+    border-bottom: 2px solid #142236;
+    font-size: 0.65rem;
+    letter-spacing: 0.14em;
+    color: #142236;
+  }
+  .print-masthead__meta { opacity: 0.7; }
+
+  /* The drill's hidden-until-scrolled initial states must not survive into
+     print: a desktop printing without a full scroll used to get invisible
+     eras, cards, counters, and a cropped aerial image. Mirrors the
+     reduced-motion reset set, plus the drill-only clip states. */
+  html.can-depth-drill .tline,
+  html.can-depth-drill .journey-era,
+  html.can-depth-drill .capability,
+  html.can-depth-drill .stat-card,
+  html.can-depth-drill .pipe-card { opacity: 1 !important; transform: none !important; }
+  html.can-depth-drill .capability__tools li { opacity: 1 !important; }
+  html.can-depth-drill .journey-era__card { clip-path: none !important; }
+  html.can-depth-drill .stat-card__bar-fill { transform: scaleX(1) !important; }
+  html.can-depth-drill .aerial-stage__sharp { clip-path: none !important; }
+  html.can-depth-drill .seam-stage__style { clip-path: inset(0 50% 0 0) !important; }
+  .journey-bore { display: none !important; }
+  html.can-depth-drill .journey-track::before { content: '' !important; }
+
+  /* Section labels as log entries — the depth tag is already in the text. */
+  .stratum__label {
+    display: flex;
+    width: 100%;
+    padding: 0.35rem 0;
+    border-top: 1.5px solid #142236;
+    border-bottom: 1px solid rgba(20, 34, 54, 0.25);
+    margin-bottom: 1rem;
+    color: #142236;
+  }
+
+  /* Dark strata print on paper: re-ink their text and heading tokens
+     (cream-on-white would otherwise wash out). The heading override must
+     match the id-level specificity of the screen rule it replaces. */
+  #training, #interface { --heading-primary: #142236; --heading-accent: #2A6054; }
+  .stratum--dark .stratum__id,
+  .stratum--dark .stratum__desc { color: #3a4756 !important; }
+  .stratum--dark .stratum__desc strong { color: #142236 !important; }
+  .stratum--dark .stratum__desc em,
+  .stratum--dark .stratum__desc code { color: #85350E !important; background: rgba(178, 79, 32, 0.08) !important; }
+  .stratum--dark .stratum__tags span { color: #3a4756 !important; border-color: rgba(20, 34, 54, 0.25) !important; background: transparent !important; }
+  .stratum--dark .stratum__link { color: #85350E !important; }
+
+  /* Designed dark components whose backgrounds browsers would otherwise
+     drop — the terminal mock, the dark pipeline cards, the hero field
+     panel, and the contact card's ghat illustration. */
+  .terminal, .pipe-card--api, .pipe-card--db, .hero__image-wrap, .contact-card {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  /* Proof stats as an assay table. */
+  .stat-cluster { display: table; width: 100%; border-collapse: collapse; margin-bottom: 0; }
+  .stat-card { display: table-cell; width: auto; border: 1px solid #142236; border-radius: 0; box-shadow: none; }
+  .stat-card__value { font-size: 1.6rem; }
+  .stat-card__bar, .stat-card__texture { display: none; }
 }

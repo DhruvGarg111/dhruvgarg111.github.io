@@ -34,8 +34,89 @@
   var sectionById = {};
   sections.forEach(function (s) { sectionById[s.id] = s; });
 
+  /* The same authored sigils that mark the desktop strata labels — one
+     vocabulary, two surfaces (the drawer's rows carry them statically;
+     the draw-in belongs to the sections themselves). */
+  var SIGILS = {
+    hero: '<path pathLength="1" d="M8 3 A5 5 0 1 1 8 13 A5 5 0 1 1 8 3"/><path pathLength="1" d="M8 1 V3.5 M8 12.5 V15 M1 8 H3.5 M12.5 8 H15"/>',
+    perception: '<path pathLength="1" d="M8 2.5 L2.8 13.2"/><path pathLength="1" d="M8 2.5 L13.2 13.2"/><path pathLength="1" d="M2.8 13.2 A 7.9 7.9 0 0 0 13.2 13.2"/>',
+    training: '<path pathLength="1" d="M2.5 2.5 H13.5 V13.5 H2.5 Z"/><path pathLength="1" d="M8 2.5 V13.5"/>',
+    infrastructure: '<circle cx="3" cy="3" r="1.4" fill="currentColor" stroke="none"/><circle cx="13" cy="3" r="1.4" fill="currentColor" stroke="none"/><circle cx="13" cy="13" r="1.4" fill="currentColor" stroke="none"/><circle cx="3" cy="13" r="1.4" fill="currentColor" stroke="none"/><path pathLength="1" d="M4.8 3 H11.2 M13 4.8 V11.2 M11.2 13 H4.8 M3 11.2 V4.8"/>',
+    interface: '<path pathLength="1" d="M3 4 L7 8 L3 12"/><path pathLength="1" d="M9 12.5 H13.5"/>',
+    journey: '<path pathLength="1" d="M1 8 H4.5 L6 4 L8 12 L9.5 5.5 L11 10.5 L12.2 8 H15"/>',
+    skills: '<path pathLength="1" d="M8 2 A6 6 0 1 1 8 14 A6 6 0 1 1 8 2"/><path pathLength="1" d="M8 5.2 A2.8 2.8 0 1 1 8 10.8 A2.8 2.8 0 1 1 8 5.2"/><circle cx="8" cy="8" r="1" fill="currentColor" stroke="none"/>',
+    proof: '<path pathLength="1" d="M8 2 L14 8 L8 14 L2 8 Z"/><path pathLength="1" d="M2 8 H14"/><path pathLength="1" d="M5 8 L8 14 M11 8 L8 14"/>',
+    contact: '<path pathLength="1" d="M4.5 4.5 A3.5 1.6 0 0 1 11.5 4.5 M4.5 4.5 V11.5 A3.5 1.6 0 0 0 11.5 11.5 V4.5"/>'
+  };
+  function sigilSvg(id, color) {
+    var body = SIGILS[id];
+    if (!body) return '';
+    return '<svg class="mm-drawer__sigil" viewBox="0 0 16 16" aria-hidden="true"' +
+      (color ? ' style="color:' + color + '"' : '') +
+      '><g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">' +
+      body + '</g></svg>';
+  }
+
   function $(sel, root) { return (root || document).querySelector(sel); }
   function $$(sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); }
+
+  var modalState = { active: null, opener: null, inerted: [] };
+  function setModalBackground(on) {
+    if (on) {
+      modalState.inerted = Array.prototype.slice.call(document.body.children).filter(function (el) {
+        return el !== modalState.active;
+      }).map(function (el) {
+        return {
+          el: el,
+          ariaHidden: el.getAttribute('aria-hidden'),
+          inert: 'inert' in el ? el.inert : el.hasAttribute('inert')
+        };
+      });
+      modalState.inerted.forEach(function (item) {
+        item.el.setAttribute('aria-hidden', 'true');
+        if ('inert' in item.el) item.el.inert = true; else item.el.setAttribute('inert', '');
+      });
+    } else {
+      modalState.inerted.forEach(function (item) {
+        if (item.ariaHidden === null) item.el.removeAttribute('aria-hidden');
+        else item.el.setAttribute('aria-hidden', item.ariaHidden);
+        if ('inert' in item.el) item.el.inert = item.inert;
+        else if (item.inert) item.el.setAttribute('inert', '');
+        else item.el.removeAttribute('inert');
+      });
+      modalState.inerted = [];
+    }
+  }
+  function modalKeydown(e) {
+    if (!modalState.active) return;
+    if (e.key === 'Escape') {
+      if (modalState.active === drawer) closeStratumDrawer();
+      else closeLightbox();
+      return;
+    }
+    if (e.key !== 'Tab') return;
+    var focusable = $$('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])', modalState.active)
+      .filter(function (el) { return !el.disabled && el.getAttribute('aria-hidden') !== 'true'; });
+    if (!focusable.length) return;
+    var first = focusable[0], last = focusable[focusable.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  }
+  function openModal(el, opener) {
+    modalState.active = el;
+    modalState.opener = opener || document.activeElement;
+    setModalBackground(true);
+    document.addEventListener('keydown', modalKeydown);
+  }
+  function closeModal(el) {
+    if (modalState.active !== el) return;
+    document.removeEventListener('keydown', modalKeydown);
+    setModalBackground(false);
+    var opener = modalState.opener;
+    modalState.active = null;
+    modalState.opener = null;
+    if (opener && opener.isConnected && opener.focus) opener.focus();
+  }
 
   function belowViewport(el) {
     return el.getBoundingClientRect().top > window.innerHeight;
@@ -101,16 +182,24 @@
     var ticksHtml = sections.map(function (s, i) {
       var topPct = Math.round((i / (sections.length - 1)) * 96 + 2);
       var shortDepth = s.depth === '0m' ? '0m' : s.depth === '9000m' ? '9.0k' : (parseInt(s.depth, 10) / 1000).toFixed(1) + 'k';
-      return '<span class="mm-depth-tick mono' + (i === 0 ? ' is-active' : '') + '" data-section="' + s.id + '" style="top:' + topPct + '%">' + shortDepth + '</span>';
+      return '<button type="button" class="mm-depth-tick mono' + (i === 0 ? ' is-active' : '') + '" data-section="' + s.id + '" style="top:' + topPct + '%" aria-label="Go to ' + s.label + ', ' + s.depth + '">' + shortDepth + '</button>';
     }).join('');
 
     depthRod.innerHTML =
       '<div class="mm-depth-rod__track">' +
-        '<div class="mm-depth-rod__bead" id="mm-depth-bead" title="Tap to open stratum jump drawer"></div>' +
+        '<button type="button" class="mm-depth-rod__bead" id="mm-depth-bead" title="Tap to open stratum jump drawer" aria-label="Open stratum navigation drawer"></button>' +
       '</div>' +
       '<div class="mm-depth-rod__ticks">' + ticksHtml + '</div>';
 
     document.body.appendChild(depthRod);
+
+    /* Same core column as the desktop gauge, one scale down — band
+       proportions come from the shared SECTIONS manifest via script.js. */
+    var rodTrack = $('.mm-depth-rod__track', depthRod);
+    if (rodTrack && window.__coreColumnGradient) {
+      rodTrack.style.backgroundImage = window.__coreColumnGradient;
+    }
+
     depthBead = $('#mm-depth-bead', depthRod);
     depthTicks = $$('.mm-depth-tick', depthRod);
 
@@ -135,19 +224,19 @@
 
   /* ── Stratum Quick-Jump Drawer ───────────────────────────── */
   var drawer = null;
-  var drawerOpener = null;
   function buildStratumDrawer() {
     if (document.querySelector('.mm-drawer')) return;
     drawer = document.createElement('div');
     drawer.className = 'mm-drawer';
     drawer.setAttribute('role', 'dialog');
     drawer.setAttribute('aria-modal', 'true');
-    drawer.setAttribute('aria-label', 'Stratum Core Sample Navigation');
+    drawer.setAttribute('aria-labelledby', 'mm-drawer-title');
 
     var listHtml = sections.map(function (s, i) {
       var num = i < 10 ? '0' + i : String(i);
       return '<li class="mm-drawer__item">' +
         '<a href="#' + s.id + '" class="mm-drawer__link mono' + (i === 0 ? ' is-active' : '') + '" data-section="' + s.id + '">' +
+          sigilSvg(s.id, s.core) +
           '<span class="mm-drawer__depth">' + s.depth + '</span>' +
           '<span class="mm-drawer__name">' + s.label + '</span>' +
           '<span class="mm-drawer__tag">' + num + '</span>' +
@@ -159,7 +248,7 @@
       '<div class="mm-drawer__backdrop"></div>' +
       '<div class="mm-drawer__panel">' +
         '<div class="mm-drawer__header">' +
-          '<span class="mm-drawer__title mono">CORE SAMPLE DRILL · 9 STRATA</span>' +
+          '<span class="mm-drawer__title mono" id="mm-drawer-title">CORE SAMPLE DRILL · 9 STRATA</span>' +
           '<button type="button" class="mm-drawer__close mono" aria-label="Close navigation drawer">✕ CLOSE</button>' +
         '</div>' +
         '<ul class="mm-drawer__list">' + listHtml + '</ul>' +
@@ -184,18 +273,13 @@
       });
     });
 
-    window.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' && drawer.classList.contains('is-open')) {
-        closeStratumDrawer();
-      }
-    });
   }
 
   function openStratumDrawer() {
     if (!drawer) return;
-    drawerOpener = document.activeElement;
     drawer.classList.add('is-open');
     document.body.style.overflow = 'hidden';
+    openModal(drawer, document.activeElement);
     $$('.mm-drawer__link', drawer).forEach(function (link) {
       link.classList.toggle('is-active', link.getAttribute('data-section') === activeId);
     });
@@ -209,20 +293,18 @@
     if (!drawer) return;
     drawer.classList.remove('is-open');
     document.body.style.removeProperty('overflow');
-    if (drawerOpener && drawerOpener.focus) drawerOpener.focus();
-    drawerOpener = null;
+    closeModal(drawer);
   }
 
   /* ── Fullscreen Architecture SVG Lightbox Modal ─────────── */
   var lightbox = null, lightboxImg = null, lightboxCaption = null;
-  var lightboxOpener = null;
   function buildLightbox() {
     if (document.querySelector('.mm-lightbox')) return;
     lightbox = document.createElement('div');
     lightbox.className = 'mm-lightbox';
     lightbox.setAttribute('role', 'dialog');
     lightbox.setAttribute('aria-modal', 'true');
-    lightbox.setAttribute('aria-label', 'System Architecture Diagram Inspection');
+    lightbox.setAttribute('aria-labelledby', 'mm-lightbox-title');
 
     /* No src on the img until one is assigned: an empty src attribute
        resolves against the document URL and some browsers fetch it. */
@@ -230,7 +312,7 @@
       '<div class="mm-lightbox__backdrop"></div>' +
       '<div class="mm-lightbox__content">' +
         '<div class="mm-lightbox__header">' +
-          '<span class="mm-lightbox__title mono">SYSTEM ARCHITECTURE · INSPECT</span>' +
+          '<span class="mm-lightbox__title mono" id="mm-lightbox-title">SYSTEM ARCHITECTURE · INSPECT</span>' +
           '<button type="button" class="mm-lightbox__close mono" aria-label="Close architecture view">✕ CLOSE</button>' +
         '</div>' +
         '<div class="mm-lightbox__viewport">' +
@@ -255,12 +337,12 @@
 
   function openArchLightbox(imgSrc, captionText, altText, opener) {
     if (!lightbox || !lightboxImg) return;
-    lightboxOpener = opener || null;
     lightboxImg.alt = altText || 'System architecture diagram';
     lightboxImg.src = imgSrc;
     if (lightboxCaption) lightboxCaption.textContent = captionText || 'High-resolution system architecture specification.';
     lightbox.classList.add('is-open');
     document.body.style.overflow = 'hidden';
+    openModal(lightbox, opener);
     /* role=dialog + aria-modal without moving focus strands keyboard/screen-
        reader users on the page behind the modal. */
     var closeBtn = $('.mm-lightbox__close', lightbox);
@@ -271,8 +353,7 @@
     if (!lightbox) return;
     lightbox.classList.remove('is-open');
     document.body.style.removeProperty('overflow');
-    if (lightboxOpener && lightboxOpener.focus) lightboxOpener.focus();
-    lightboxOpener = null;
+    closeModal(lightbox);
   }
 
   /* ── Active Section & Progress Tracking ──────────────────── */
@@ -295,6 +376,12 @@
       tick.classList.toggle('is-active', tick.getAttribute('data-section') === id);
     });
 
+    /* Living favicon follows the descent here too (hero restores the
+       authored beacon; the swap function is owned by script.js). */
+    if (typeof window.__groundTruthFavicon === 'function') {
+      window.__groundTruthFavicon(sec);
+    }
+
     pushToBackground();
   }
 
@@ -308,12 +395,66 @@
     maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
     if (!trackEl && depthRod) { trackEl = $('.mm-depth-rod__track', depthRod); }
     if (trackEl) { trackH = trackEl.clientHeight; }
+    /* A late layout settle (images/fonts) changes the bead's travel range —
+       re-aim the spring so it lands where the document now says it should. */
+    if (typeof beadTravelTarget === 'function') {
+      beadTarget = beadTravelTarget(docProgress);
+      beadWake();
+    }
   }
   window.addEventListener('resize', refreshScrollMetrics, { passive: true });
   /* scrollHeight keeps growing as below-fold images/fonts settle — without
      these the bead's travel range is computed from a half-laid-out page. */
   window.addEventListener('load', refreshScrollMetrics);
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(refreshScrollMetrics);
+
+  /* Bead spring: the rod bead chases a target with a lightly damped spring
+     instead of tracking raw scroll 1:1 — a fast flick overshoots a few px,
+     then the bead seats with a velocity-scaled squash. Real instruments
+     have inertia, and mobile is where touch velocity is highest. The
+     desktop gauge is excluded by design: its marker rides ScrollTrigger's
+     scrub, and a spring after scrubbing is lag-on-lag. dtN normalizes to
+     60fps so 120Hz phones get identical physics. */
+  var beadPos = 0, beadVel = 0, beadTarget = 0, beadRaf = 0, beadLastT = 0;
+  function beadTravelTarget(p) {
+    return trackH ? (p * trackH * 0.96 + trackH * 0.02) : (p * 200);
+  }
+  function beadWrite(squash) {
+    if (!depthBead) return;
+    depthBead.style.setProperty('--bead-offset', beadPos.toFixed(2) + 'px');
+    if (squash) {
+      var v = Math.abs(beadVel);
+      depthBead.style.setProperty('--bead-squash-y', (1 + Math.min(v * 0.03, 0.28)).toFixed(3));
+      depthBead.style.setProperty('--bead-squash-x', (1 - Math.min(v * 0.015, 0.14)).toFixed(3));
+    } else {
+      depthBead.style.setProperty('--bead-squash-y', '1');
+      depthBead.style.setProperty('--bead-squash-x', '1');
+    }
+  }
+  function beadTick(t) {
+    var dt = beadLastT ? t - beadLastT : 16.7;
+    beadLastT = t;
+    var dtN = Math.min(dt / 16.666, 3); // cap huge gaps (background-tab resume)
+    beadVel += (beadTarget - beadPos) * 0.14 * dtN;
+    beadVel *= Math.pow(0.75, dtN);
+    beadPos += beadVel;
+    if (Math.abs(beadTarget - beadPos) < 0.05 && Math.abs(beadVel) < 0.05) {
+      beadPos = beadTarget;
+      beadVel = 0;
+      beadWrite(false);
+      beadRaf = 0;
+      beadLastT = 0;
+      return;
+    }
+    beadWrite(true);
+    beadRaf = requestAnimationFrame(beadTick);
+  }
+  function beadWake() {
+    if (!beadRaf && depthBead) {
+      beadLastT = 0;
+      beadRaf = requestAnimationFrame(beadTick);
+    }
+  }
 
   function pushToBackground() {
     if (!window.__neuralSetProgress) return;
@@ -327,10 +468,8 @@
       scrollScheduled = false;
       if (!maxScroll) refreshScrollMetrics();
       docProgress = maxScroll > 0 ? Math.max(0, Math.min(1, window.scrollY / maxScroll)) : 0;
-      if (depthBead) {
-        var offsetPx = trackH ? (docProgress * (trackH * 0.96) + trackH * 0.02) : (docProgress * 200);
-        depthBead.style.setProperty('--bead-offset', offsetPx.toFixed(1) + 'px');
-      }
+      beadTarget = beadTravelTarget(docProgress);
+      beadWake();
       pushToBackground();
     });
   }, { passive: true });
@@ -344,11 +483,55 @@
   }, { rootMargin: '-40% 0px -40% 0px' });
   stratumEls.forEach(function (el) { activeIO.observe(el); });
 
+  /* Section sigil dash-draw — the same ~400ms stroke-draw as the seismic
+     wave, fired from each section choreo's prep/play. Default state is
+     fully drawn, so sections without a choreo (or above the fold at load)
+     never hide anything. */
+  function prepSigil(sectionId) {
+    var sec = document.getElementById(sectionId);
+    $$('.stratum__sigil [pathLength]', sec || undefined).forEach(function (sh) {
+      sh.style.strokeDashoffset = '1';
+    });
+  }
+  function drawSigil(sectionId) {
+    var sec = document.getElementById(sectionId);
+    $$('.stratum__sigil [pathLength]', sec || undefined).forEach(function (sh, i) {
+      sh.style.strokeDashoffset = '';
+      var anim = sh.animate(
+        [{ strokeDashoffset: 1 }, { strokeDashoffset: 0 }],
+        { duration: 400, delay: i * 60, easing: EASE_EXPO, fill: 'forwards' }
+      );
+      anim.onfinish = function () { anim.cancel(); };
+    });
+  }
+
+  /* Sigils draw on their OWN label's entry, not the section choreo's: the
+     label sits at the section top while the choreo root (stage, pipeline,
+     terminal) may still be below the fold — tying them left a hidden glyph
+     next to already-visible text on a slow read. */
+  var sigilIO = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (!e.isIntersecting) return;
+      sigilIO.unobserve(e.target);
+      var sec = e.target.closest('.stratum');
+      if (sec) drawSigil(sec.id);
+    });
+  }, { rootMargin: '0px 0px -10% 0px' });
+
+  $$('.stratum__label').forEach(function (label) {
+    var sec = label.closest('.stratum');
+    if (!sec) return;
+    if (belowViewport(label)) {
+      prepSigil(sec.id);
+      sigilIO.observe(label);
+    }
+  });
+
   /* ── Choreography System with State Reset ─────────────────── */
   var CHOREO = [];
   var CHOREO_MAP = {}; // id -> { prep, play }
 
-  function registerChoreo(id, rootEl, prep, play, replayable) {
+  function registerChoreo(id, rootEl, prep, play) {
     if (!rootEl) return;
     CHOREO_MAP[id] = { prep: prep, play: play };
     if (!belowViewport(rootEl)) {
@@ -381,120 +564,39 @@
     }
   };
 
-  /* ── Dual-Mode Instrument Tabs & Actions Factory ──────────── */
-  function setupProjectVisualTabs(sectionId, stageId, replayLabel) {
+  /* ── Architecture Figure Wiring (tap-to-inspect lightbox) ──
+     R3: the dual-mode tab bar and its instrument wrapper are gone — the
+     apparatus stage and the architecture figure now stack vertically in
+     the ≤767px visual (see style.css), both visible without a swipe.
+     What remains is the direct tap-to-inspect on the figure itself. */
+  function setupProjectArchInspect(sectionId) {
     var sec = document.getElementById(sectionId);
     if (!sec) return;
     var visual = $('.stratum__visual', sec);
     if (!visual) return;
 
-    if (sec.querySelector('.mm-instrument-bar')) return;
-
     var archFig = $('.arch-figure', visual);
+    if (!archFig) return;
 
-    /* The tabs only make sense while .stratum__visual is a horizontal
-       scroll-snap gallery — and that CSS lives in the max-width:767px block.
-       On touch tablets (768px+) mobile-motion still runs, but the visual is
-       normal stacked flow there, so a tab bar would highlight on tap while
-       scrolling nothing. Replay/inspect still apply everywhere. */
-    var galleryMode = window.matchMedia('(max-width: 767px)').matches;
+    var archImg = $('img', archFig);
+    var figCap = $('figcaption', archFig);
+    var imgSrc = archImg ? archImg.src : '';
+    var altText = archImg ? archImg.alt : '';
+    var captionText = figCap ? figCap.textContent : '';
 
-    // Create instrument wrapper
-    var instrumentWrap = document.createElement('div');
-    instrumentWrap.className = 'stratum__instrument';
-
-    visual.parentNode.insertBefore(instrumentWrap, visual);
-
-    // 1. Injected segmented tab bar (gallery widths only — see above)
-    if (galleryMode) {
-      var tabGroup = document.createElement('div');
-      tabGroup.className = 'mm-instrument-bar';
-      tabGroup.setAttribute('role', 'tablist');
-      tabGroup.setAttribute('aria-label', 'Visual Instrument Mode');
-
-      tabGroup.innerHTML =
-        '<button type="button" role="tab" class="mm-tab is-active mono" aria-selected="true" data-tab="stage">' +
-          '<span class="mm-tab__dot"></span> 01 APPARATUS' +
-        '</button>' +
-        (archFig ? '<button type="button" role="tab" class="mm-tab mono" aria-selected="false" data-tab="arch">02 ARCHITECTURE</button>' : '');
-
-      instrumentWrap.appendChild(tabGroup);
+    archFig.style.cursor = 'pointer';
+    archFig.setAttribute('role', 'button');
+    archFig.setAttribute('tabindex', '0');
+    archFig.setAttribute('aria-label', 'Inspect high-resolution architecture diagram');
+    function inspectFigure() {
+      openArchLightbox(imgSrc, captionText, altText, archFig);
     }
-    instrumentWrap.appendChild(visual);
-
-    if (galleryMode) {
-      var tabs = $$('.mm-tab', instrumentWrap);
-      var tabStage = tabs[0];
-      var tabArch = tabs[1];
-
-      if (tabStage) {
-        tabStage.addEventListener('click', function () {
-          visual.scrollTo({ left: 0, behavior: 'smooth' });
-          setActiveTab(0);
-        });
-      }
-      if (tabArch) {
-        tabArch.addEventListener('click', function () {
-          visual.scrollTo({ left: visual.offsetWidth || 340, behavior: 'smooth' });
-          setActiveTab(1);
-        });
-      }
-
-      function setActiveTab(index) {
-        tabs.forEach(function (t, i) {
-          var active = i === index;
-          t.classList.toggle('is-active', active);
-          t.setAttribute('aria-selected', active ? 'true' : 'false');
-        });
-      }
-
-      // Sync tabs when swiping horizontally
-      var visualW = visual.offsetWidth || 1;
-      window.addEventListener('resize', function () { visualW = visual.offsetWidth || 1; }, { passive: true });
-      visual.addEventListener('scroll', function () {
-        var scrollFraction = visual.scrollLeft / visualW;
-        setActiveTab(scrollFraction >= 0.5 ? 1 : 0);
-      }, { passive: true });
-    }
-
-    // 2. Injected Action Controls underneath visual
-    var actionsBar = document.createElement('div');
-    actionsBar.className = 'mm-stage-actions';
-
-    var replayBtn = document.createElement('button');
-    replayBtn.type = 'button';
-    replayBtn.className = 'mm-replay mono';
-    replayBtn.textContent = '↺ replay';
-    replayBtn.setAttribute('aria-label', replayLabel || 'Replay animation');
-    replayBtn.addEventListener('click', function () { window.__mmReplay(stageId); });
-    actionsBar.appendChild(replayBtn);
-
-    if (archFig) {
-      var inspectBtn = document.createElement('button');
-      inspectBtn.type = 'button';
-      inspectBtn.className = 'mm-expand-arch mono';
-      inspectBtn.textContent = '⤢ INSPECT ARCHITECTURE';
-      inspectBtn.setAttribute('aria-label', 'Inspect high-resolution architecture diagram');
-
-      var archImg = $('img', archFig);
-      var figCap = $('figcaption', archFig);
-      var imgSrc = archImg ? archImg.src : '';
-      var altText = archImg ? archImg.alt : '';
-      var captionText = figCap ? figCap.textContent : '';
-
-      inspectBtn.addEventListener('click', function () {
-        openArchLightbox(imgSrc, captionText, altText, inspectBtn);
-      });
-
-      archFig.style.cursor = 'pointer';
-      archFig.addEventListener('click', function () {
-        openArchLightbox(imgSrc, captionText, altText, inspectBtn);
-      });
-
-      actionsBar.appendChild(inspectBtn);
-    }
-
-    instrumentWrap.appendChild(actionsBar);
+    archFig.addEventListener('click', inspectFigure);
+    archFig.addEventListener('keydown', function (e) {
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      e.preventDefault();
+      inspectFigure();
+    });
   }
 
   /* ═══ Section Choreographies ════════════════════════════════ */
@@ -525,8 +627,8 @@
         );
       }
     }
-    registerChoreo('searchlight', stageEl, prep, play, true);
-    setupProjectVisualTabs('perception', 'searchlight', 'Replay the coarse-to-fine detection sweep');
+    registerChoreo('searchlight', stageEl, prep, play);
+    setupProjectArchInspect('perception');
   })();
 
   /* Stratum II: Neural Canvas */
@@ -556,8 +658,8 @@
         );
       }
     }
-    registerChoreo('seam', stageEl, prep, play, true);
-    setupProjectVisualTabs('training', 'seam', 'Replay the style-transfer seam sweep');
+    registerChoreo('seam', stageEl, prep, play);
+    setupProjectArchInspect('training');
   })();
 
   /* Stratum III: PixelQueue */
@@ -573,8 +675,8 @@
     function play() {
       reveal(cards, 120);
     }
-    registerChoreo('pipeline', pipeline, prep, play, true);
-    setupProjectVisualTabs('infrastructure', 'pipeline', 'Replay the annotation pipeline build-up');
+    registerChoreo('pipeline', pipeline, prep, play);
+    setupProjectArchInspect('infrastructure');
   })();
 
   /* Stratum IV: PyGOG CLI */
@@ -595,8 +697,8 @@
       hideLines();
       reveal(lines, 160, 6, function (line) { line.classList.add('is-typed'); });
     }
-    registerChoreo('terminal', terminal, prep, play, true);
-    setupProjectVisualTabs('interface', 'terminal', 'Replay the terminal session');
+    registerChoreo('terminal', terminal, prep, play);
+    setupProjectArchInspect('interface');
   })();
 
   /* Stratum V: Journey with Seismic Wave */
@@ -635,7 +737,7 @@
         }
       }
     }
-    registerChoreo('journey', track, prep, play, false);
+    registerChoreo('journey', track, prep, play);
   })();
 
   /* Stratum VI: Capabilities */
@@ -647,7 +749,7 @@
 
     function prep() { stage(capabilities); }
     function play() { reveal(capabilities, 110); }
-    registerChoreo('capabilities', section, prep, play, false);
+    registerChoreo('capabilities', section, prep, play);
 
     capabilities.forEach(function (capability) {
       var timer = null;
@@ -694,7 +796,7 @@
         requestAnimationFrame(step);
       });
     }
-    registerChoreo('proof', section, prep, play, false);
+    registerChoreo('proof', section, prep, play);
   })();
 
   /* Stratum VIII: Contact */
@@ -704,7 +806,7 @@
     if (!card) return;
     function prep() { stage([card]); }
     function play() { reveal([card], 0); }
-    registerChoreo('contact', card, prep, play, false);
+    registerChoreo('contact', card, prep, play);
   })();
 
   /* Flow field touch instructions */
@@ -724,9 +826,11 @@
   buildStratumDrawer();
   buildLightbox();
 
-  docProgress = (function () {
-    var max = document.documentElement.scrollHeight - window.innerHeight;
-    return max > 0 ? Math.max(0, Math.min(1, window.scrollY / max)) : 0;
-  })();
+  refreshScrollMetrics();
+  docProgress = maxScroll > 0 ? Math.max(0, Math.min(1, window.scrollY / maxScroll)) : 0;
+  /* Power-on: on a mid-page reload the bead springs from the top to the
+     restored position — the instrument settling into the survey. */
+  beadTarget = beadTravelTarget(docProgress);
+  beadWake();
   pushToBackground();
 })();
