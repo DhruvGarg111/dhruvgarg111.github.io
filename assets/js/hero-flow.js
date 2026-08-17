@@ -104,6 +104,7 @@
   var rafId = 0;
   var useGsapTicker = !!(window.gsap && window.gsap.ticker);
   var visible = true;
+  var drillHeroVisible = true; // set by script.js's depth engine (see groundtruth:herovis below)
   var sampleFlash = 0; // frames remaining on the "SAMPLE" HUD state
   var hudCache = { deg: 0, mag: 0 }; // last-sampled telemetry, reused between throttled HUD updates
 
@@ -139,6 +140,17 @@
      rAF-throttled listener — never synchronously inside the pointer handler. */
   var canvasRect = null;
   function refreshCanvasRect() { canvasRect = canvas.getBoundingClientRect(); }
+
+  /* Perf: refresh the canvas rect at most once per animation frame during
+     scroll (never synchronously per mousemove), and only while the field
+     might actually be rendering — the depth engine's intro/exit transform
+     only moves the hero while it is in range, and once the drill has left
+     the hero the loop is stopped (groundtruth:herovis), so the rect is
+     re-fetched on every startLoop(). */
+  var rectRaf = 0;
+  function scheduleRectRefresh() {
+    if (!rectRaf && running) { rectRaf = requestAnimationFrame(function () { rectRaf = 0; refreshCanvasRect(); }); }
+  }
 
   /* ── compact gradient (Perlin-style) value noise ── */
   var perm = new Uint8Array(512);
@@ -229,6 +241,37 @@
   function rgbaFor(ci, alpha) {
     var step = alpha <= 0 ? 0 : (alpha >= 1 ? 255 : (alpha * 255 + 0.5) | 0);
     return RGBA_LUT[ci][step];
+  }
+
+  /* Perf: pre-built 5-colour × 128-bucket unit CanvasGradient LUT.
+     Each gradient runs from (0,0) to (1,0) in local space; the draw loop
+     maps it onto the tail→head chord via save/translate/transform so zero
+     CanvasGradient objects are allocated per frame. The 128-bucket headAlpha
+     quantisation is within 1/127 ≈ 0.0079 — under 2/255, below what 8-bit
+     compositing can represent. See remediation report §1.3. */
+  var GRAD_BUCKETS = 128;
+  var GRAD_LUT = (function () {
+    var sources = config.palette.concat([config.active]);
+    var table = new Array(sources.length);
+    for (var c = 0; c < sources.length; c++) {
+      var row = new Array(GRAD_BUCKETS);
+      for (var a = 0; a < GRAD_BUCKETS; a++) {
+        var ha = a / (GRAD_BUCKETS - 1);
+        var g = ctx.createLinearGradient(0, 0, 1, 0);
+        g.addColorStop(0, RGBA_LUT[c][0]);
+        g.addColorStop(0.25, rgbaFor(c, ha * 0.0625));
+        g.addColorStop(0.5, rgbaFor(c, ha * 0.25));
+        g.addColorStop(0.75, rgbaFor(c, ha * 0.5625));
+        g.addColorStop(1, rgbaFor(c, ha));
+        row[a] = g;
+      }
+      table[c] = row;
+    }
+    return table;
+  })();
+  function gradFor(ci, headAlpha) {
+    var bucket = headAlpha <= 0 ? 0 : (headAlpha >= 1 ? GRAD_BUCKETS - 1 : (headAlpha * (GRAD_BUCKETS - 1) + 0.5) | 0);
+    return GRAD_LUT[ci][bucket];
   }
 
   /* ── particles ──
@@ -387,32 +430,40 @@
 
       /* Perf: one beginPath/stroke per particle instead of one per trail
          segment (was up to ~15 draw calls/particle → ~12k/frame worst case).
-         A gradient along the ribbon reproduces the same tail→head alpha
-         taper (t² easing) in a single stroke.
+         A pre-built unit gradient from GRAD_LUT reproduces the same tail→head
+         alpha taper (t² easing) in a single stroke. The chord transform
+         (save/translate/transform) maps unit space (0,0)→(1,0) onto the
+         actual tail→head vector, so zero CanvasGradient objects are allocated
+         per frame. Trail points are projected into local space via the
+         inverse chord matrix. See remediation report §1.3. */
+      var cdx = hx - x0;
+      var cdy = hy - y0;
+      var chordLenSq = cdx * cdx + cdy * cdy;
+      if (chordLenSq < 0.25) { continue; } // degenerate ribbon
+      var invCSq = 1 / chordLenSq;
 
-         Five stops, not one per trail point. The gradient axis is the straight
-         tail→head chord either way; the stops only sample the t² curve along
-         it, and piecewise-linear interpolation across quarters is within
-         0.008 of true t² — under 2/255 of alpha at the maximum head value, so
-         below what 8-bit compositing can represent. Sixteen stops cost 3x the
-         colour parses to describe the same ramp. */
+      ctx.save();
+      ctx.translate(x0, y0);
+      /* Rotation + uniform scale in one call: maps local (1,0) → (cdx,cdy)
+         and local (0,1) → (-cdy,cdx). Never raw setTransform — DPR base
+         transform (set in resize()) is preserved by the relative multiply. */
+      ctx.transform(cdx, cdy, -cdy, cdx, 0, 0);
       // resolve widens the ribbon slightly — sharpness is density+width, not new colour
-      ctx.lineWidth = config.lineWidth + res * 0.7;
-      var grad = ctx.createLinearGradient(x0, y0, hx, hy);
-      grad.addColorStop(0, RGBA_LUT[ci][0]);
-      grad.addColorStop(0.25, rgbaFor(ci, headAlpha * 0.0625));
-      grad.addColorStop(0.5, rgbaFor(ci, headAlpha * 0.25));
-      grad.addColorStop(0.75, rgbaFor(ci, headAlpha * 0.5625));
-      grad.addColorStop(1, rgbaFor(ci, headAlpha));
-      ctx.strokeStyle = grad;
+      var chordLen = Math.sqrt(chordLenSq);
+      ctx.lineWidth = (config.lineWidth + res * 0.7) / chordLen;
+      ctx.strokeStyle = gradFor(ci, headAlpha);
       ctx.beginPath();
-      ctx.moveTo(x0, y0);
+      ctx.moveTo(0, 0); // tail is origin in local space
       var ri = tail + 1; if (ri >= trailCap) { ri = 0; }
       for (var k = 1; k < n; k++) {
-        ctx.lineTo(tx[ri], ty[ri]);
+        var dx = tx[ri] - x0;
+        var dy = ty[ri] - y0;
+        ctx.lineTo((dx * cdx + dy * cdy) * invCSq,
+                    (-dx * cdy + dy * cdx) * invCSq);
         ri++; if (ri >= trailCap) { ri = 0; }
       }
       ctx.stroke();
+      ctx.restore();
 
       // Accumulate resolved heads into the density grid for the bracket detector
       if (accumBins && res > 0.25) {
@@ -537,6 +588,9 @@
   var hudFrameCounter = 0;
 
   function drawHud() {
+    if (window.__isTouchFirst || W < 440) {
+      return; // Keep mobile particle canvas unburdened by overlapping telemetry
+    }
     // The bar/text canvas is cleared by drawParticles() every frame, so the
     // HUD must still be repainted every frame — throttling only the (more
     // expensive) noise-sample + text recompute, reusing the last values
@@ -621,7 +675,10 @@
   }
 
   function startLoop() {
-    if (running || reduceMotion || !visible || document.hidden) { return; }
+    if (running || reduceMotion || !visible || !drillHeroVisible || document.hidden) { return; }
+    /* Re-fit the canvas rect on every (re)start — a loop parked by the depth
+       engine must not resume with a rect from its last active pass. */
+    refreshCanvasRect();
     running = true;
     if (useGsapTicker) {
       window.gsap.ticker.add(frame);
@@ -755,13 +812,10 @@
   }
   window.addEventListener('resize', scheduleResize, { passive: true });
 
-  // Perf: the hero panel drifts under the depth-engine's intro/exit transform
-  // while scrolling, so its viewport rect can go stale — refresh it at most
-  // once per animation frame during scroll (never synchronously per mousemove).
-  var rectRaf = 0;
-  function scheduleRectRefresh() {
-    if (!rectRaf) { rectRaf = requestAnimationFrame(function () { rectRaf = 0; refreshCanvasRect(); }); }
-  }
+  /* Perf: the hero panel drifts under the depth-engine's intro/exit transform
+     while scrolling, so its viewport rect can go stale — refresh it at most
+     once per animation frame during scroll (never synchronously per mousemove),
+     and only while the loop is actually running (scheduleRectRefresh). */
   window.addEventListener('scroll', scheduleRectRefresh, { passive: true });
 
   // Re-fit when the panel's layout box changes (intro settling, fonts, reflow).
@@ -774,13 +828,25 @@
     if (document.hidden) { stopLoop(); } else { startLoop(); }
   });
 
-  // Pause when the hero scrolls out of view.
+  // Pause when the hero scrolls out of view (mobile document flow).
   if ('IntersectionObserver' in window) {
     var io = new IntersectionObserver(function (entries) {
       visible = entries[0].isIntersecting;
-      if (visible) { startLoop(); } else { stopLoop(); }
+      if (visible && drillHeroVisible) { startLoop(); } else { stopLoop(); }
     }, { threshold: 0.05 });
     io.observe(canvas);
+  }
+
+  /* Desktop depth drill: #hero stays geometrically in the viewport even at
+     6000m (it is a fixed overlay the engine hides with opacity/transform), so
+     the IntersectionObserver alone can never park the loop. script.js's depth
+     engine dispatches groundtruth:herovis when the hero enters/leaves the
+     drill's active range; without it (mobile / no drill) behaviour is
+     unchanged. */
+  window.addEventListener('groundtruth:herovis', onHeroVis);
+  function onHeroVis(e) {
+    drillHeroVisible = !!(e.detail && e.detail.visible);
+    if (drillHeroVisible && visible) { startLoop(); } else { stopLoop(); }
   }
 
   resize(); // bakes a static frame internally when reduceMotion is set
@@ -802,6 +868,7 @@
     stopLoop();
     window.removeEventListener('devicetierchange', handleDeviceTierChange);
     window.removeEventListener('hero:surface-lock', onSurfaceLock);
+    window.removeEventListener('groundtruth:herovis', onHeroVis);
     window.removeEventListener('resize', scheduleResize);
     window.removeEventListener('scroll', scheduleRectRefresh);
     if (resizeRaf) {

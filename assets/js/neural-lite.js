@@ -251,11 +251,13 @@
     var pointGreen = Math.round(lerp(LIGHT_POINT[1], DARK_POINT[1], darkness));
     var pointBlue = Math.round(lerp(LIGHT_POINT[2], DARK_POINT[2], darkness));
     ctx.fillStyle = 'rgba(' + pointRed + ',' + pointGreen + ',' + pointBlue + ',' + (0.35 * (0.4 + 0.6 * morphT)).toFixed(3) + ')';
+    /* Perf: all points share one fillStyle — accumulate every arc into a single
+       path and fill once instead of a beginPath/arc/fill per point. */
+    ctx.beginPath();
     for (i = 0; i < points.length; i++) {
-      ctx.beginPath();
       ctx.arc(points[i].dx, points[i].dy, 1.4, 0, Math.PI * 2);
-      ctx.fill();
     }
+    ctx.fill();
   }
 
   function start() {

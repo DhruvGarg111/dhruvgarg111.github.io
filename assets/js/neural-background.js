@@ -80,6 +80,13 @@
 
   var lookAheadDelta = 0.03;
 
+  /* Perf: reusable target vectors for the per-frame camera-path lookups
+     (getPointAt/getTangentAt accept an optional target). */
+  var _pathPos = new THREE.Vector3();
+  var _lookAt = new THREE.Vector3();
+  var _tangent = new THREE.Vector3();
+  var tangentLook = new THREE.Vector3();
+
   /* ═════════════════════════════════════════════════════════ */
   /* SMOKE SHADER (3-octave FBM, lighter)                     */
   /* ═════════════════════════════════════════════════════════ */
@@ -737,6 +744,10 @@
       shaderMouse.x = e.clientX / viewW;
       shaderMouse.y = 1 - e.clientY / viewH;
     }, { passive: true });
+    canvas.addEventListener('webglcontextlost', function (e) {
+      e.preventDefault();
+      stop();
+    }, false);
   }
 
   /* Render resolution. Unlike `antialias` and `powerPreference` — which are
@@ -807,9 +818,9 @@
     var darkness = 0;
     var fade = 0.025;
     if (sectionManifest.length) {
-      sectionManifest.forEach(function (section) {
-        darkness = Math.max(darkness, sectionDarkness(section, progress, fade));
-      });
+      for (var si = 0; si < sectionManifest.length; si++) {
+        darkness = Math.max(darkness, sectionDarkness(sectionManifest[si], progress, fade));
+      }
     } else {
       darkness = Math.max(darkness, sectionDarkness(activeSection, progress, fade));
     }
@@ -827,10 +838,17 @@
        of all of this; anything dimmer and the mesh reads as page texture
        rather than as a structure. */
     var m = 0.84 + 0.16 * morphT;
-    sphereMat.opacity = (baseSpOp + (1.0 - baseSpOp) * darkness * 0.7) * m;
-    boxMat.opacity    = (baseBxOp + (1.0 - baseBxOp) * darkness * 0.6) * m;
-    haloMat.opacity   = (baseHaOp + (1.0 - baseHaOp) * darkness * 0.5) * m;
+    /* Perf: dirty-check the three opacity writes — when the progress/fade
+       haven't moved, the values are unchanged and a material write (and its
+       uniform flush) is skipped entirely. */
+    var spOp = (baseSpOp + (1.0 - baseSpOp) * darkness * 0.7) * m;
+    var bxOp = (baseBxOp + (1.0 - baseBxOp) * darkness * 0.6) * m;
+    var haOp = (baseHaOp + (1.0 - baseHaOp) * darkness * 0.5) * m;
+    if (Math.abs(spOp - lastSpOp) > 1e-4) { sphereMat.opacity = lastSpOp = spOp; }
+    if (Math.abs(bxOp - lastBxOp) > 1e-4) { boxMat.opacity = lastBxOp = bxOp; }
+    if (Math.abs(haOp - lastHaOp) > 1e-4) { haloMat.opacity = lastHaOp = haOp; }
   }
+  var lastSpOp = 0, lastBxOp = 0, lastHaOp = 0;
 
   /* ═════════════════════════════════════════════════════════ */
   /* RENDER LOOP                                               */
@@ -845,10 +863,8 @@
   /* Live-adjustable on a devicetierchange event, without recreating the
      WebGL context: render cadence, smoke cost, and render pixel ratio
      (downward only — see renderDprCap). NOT live-adjustable:
-     particle/pulse instance counts (baked into fixed-size THREE.js
-     geometry at init) and antialias/powerPreference (constructor options —
-     these do require a new context) — those stay pinned to the tier this
-     module booted with. */
+     antialias/powerPreference (constructor options — these do require a new
+     context) — those stay pinned to the tier this module booted with. */
   function handleDeviceTierChange(e) {
     var t = e.detail && e.detail.tier;
     if (!t) return;
@@ -868,20 +884,27 @@
   function tick(now) {
     if (!running) return;
     if (useGsapTicker) now *= 1000;
-    if (!useGsapTicker) rafId = requestAnimationFrame(tick);
-    if (now - lastRender < frameInterval) return;
+    if (now - lastRender < frameInterval) {
+      /* Perf: the no-GSAP fallback must not run the callback at the display's
+         full refresh rate (120/144Hz) — schedule the next check after the
+         frame interval instead of every rAF. */
+      if (!useGsapTicker) rafId = requestAnimationFrame(tick);
+      return;
+    }
     lastRender = now;
+    if (!useGsapTicker) rafId = requestAnimationFrame(tick);
 
     scrollProgress += (targetProgress - scrollProgress) * 0.08;
 
-    /* Camera position on path */
+    /* Camera position on path — target vectors are module-scoped and reused so
+       the path lookups allocate zero Vector3s per frame. */
     var clamped = Math.max(0, Math.min(0.999, scrollProgress));
-    var pathPos = cameraPath.getPointAt(clamped);
+    var pathPos = cameraPath.getPointAt(clamped, _pathPos);
     var lookAheadT = Math.min(clamped + lookAheadDelta, 0.999);
-    var lookAt = cameraPath.getPointAt(lookAheadT);
+    var lookAt = cameraPath.getPointAt(lookAheadT, _lookAt);
     if (clamped >= 0.96) {
-      var tangent = cameraPath.getTangentAt(clamped);
-      var tangentLook = pathPos.clone().addScaledVector(tangent, 1.5);
+      var tangent = cameraPath.getTangentAt(clamped, _tangent);
+      tangentLook.copy(pathPos).addScaledVector(tangent, 1.5);
       var blend = (clamped - 0.96) / 0.039;
       lookAt.lerp(tangentLook, Math.min(1, blend));
     }
@@ -915,7 +938,8 @@
 
     /* Pulses — update InstancedMesh matrices */
     var pulseNeedsUpdate = false;
-    pulses.forEach(function (pulse, idx) {
+    for (var idx = 0; idx < pulses.length; idx++) {
+      var pulse = pulses[idx];
       pulse.prog += pulse.speed;
       if (pulse.prog >= 1) {
         pulse.layer++;
@@ -931,7 +955,7 @@
       dummy.updateMatrix();
       pulseInstanced.setMatrixAt(idx, dummy.matrix);
       pulseNeedsUpdate = true;
-    });
+    }
     if (pulseNeedsUpdate) pulseInstanced.instanceMatrix.needsUpdate = true;
 
     /* Particles — drift speed and ambient hue react to the active section's

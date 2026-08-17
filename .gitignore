@@ -3,3 +3,10 @@ Agents.md
 .hermes/
 .superpowers/
 .playwright-mcp/
+
+# Local QA evidence + machine-local agent tool configs — never commit.
+# verify/ was 113 MB of screenshots in the 2026-08-16 pass; .claude/ and
+# .commandcode/ hold machine-specific permission allowlists.
+verify/
+.claude/
+.commandcode/

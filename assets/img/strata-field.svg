@@ -1,23 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="576" height="288" viewBox="0 0 576 288">
-  <!-- Tileable core-sample texture: six sediment-band contour lines in the
-       site's existing palette (survey terracotta / gold / heading-accent
-       olive / datum teal-blue / validated teal-green), plus sparse tick
-       marks echoing the footer illustration's dither fill. Each path starts
-       and ends at the same (x,y) so background-repeat tiles seamlessly. -->
-  <g fill="none" stroke-linecap="round">
-    <path d="M0,36 C32,31 64,31 96,36 C128,41 160,41 192,36 C224,31 256,31 288,36 C320,41 352,41 384,36 C416,31 448,31 480,36 C512,41 544,41 576,36"
-          stroke="#3D72A4" stroke-opacity="0.055" stroke-width="1.4"/>
-    <path d="M0,84 C32,78 64,78 96,84 C128,90 160,90 192,84 C224,78 256,78 288,84 C320,90 352,90 384,84 C416,78 448,78 480,84 C512,90 544,90 576,84"
-          stroke="#556429" stroke-opacity="0.06" stroke-width="1.6"/>
-    <path d="M0,138 C32,131 64,131 96,138 C128,145 160,145 192,138 C224,131 256,131 288,138 C320,145 352,145 384,138 C416,131 448,131 480,138 C512,145 544,145 576,138"
-          stroke="#D8A246" stroke-opacity="0.075" stroke-width="2"/>
-    <path d="M0,186 C32,180 64,180 96,186 C128,192 160,192 192,186 C224,180 256,180 288,186 C320,192 352,192 384,186 C416,180 448,180 480,186 C512,192 544,192 576,186"
-          stroke="#B24F20" stroke-opacity="0.07" stroke-width="1.8"/>
-    <path d="M0,234 C32,229 64,229 96,234 C128,239 160,239 192,234 C224,229 256,229 288,234 C320,239 352,239 384,234 C416,229 448,229 480,234 C512,239 544,239 576,234"
-          stroke="#85350E" stroke-opacity="0.05" stroke-width="1.4"/>
-    <path d="M0,264 C32,260 64,260 96,264 C128,268 160,268 192,264 C224,260 256,260 288,264 C320,268 352,268 384,264 C416,260 448,260 480,264 C512,268 544,268 576,264"
-          stroke="#2A6054" stroke-opacity="0.045" stroke-width="1.2"/>
-    <path d="M50,18 L58,18 M54,14 L54,22 M326,20 L334,20 M330,16 L330,24 M466,108 L474,108 M470,104 L470,112 M116,160 L124,160 M120,156 L120,164 M396,168 L404,168 M400,164 L400,172 M26,214 L34,214 M30,210 L30,218 M246,252 L254,252 M250,248 L250,256 M516,230 L524,230 M520,226 L520,234"
-          stroke="#1A2B3C" stroke-opacity="0.06" stroke-width="1.1"/>
-  </g>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="576" height="288" viewBox="0 0 576 288"><!-- Tileable core-sample texture: six sediment-band contour lines in the
+ site's existing palette (survey terracotta / gold / heading-accent
+ olive / datum teal-blue / validated teal-green), plus sparse tick
+ marks echoing the footer illustration's dither fill. Each path starts
+ and ends at the same (x,y) so background-repeat tiles seamlessly. --><g fill="none" stroke-linecap="round"><path d="M0,36 C32,31 64,31 96,36 C128,41 160,41 192,36 C224,31 256,31 288,36 C320,41 352,41 384,36 C416,31 448,31 480,36 C512,41 544,41 576,36"
+ stroke="#3D72A4" stroke-opacity="0.05" stroke-width="1.4"/><path d="M0,84 C32,78 64,78 96,84 C128,90 160,90 192,84 C224,78 256,78 288,84 C320,90 352,90 384,84 C416,78 448,78 480,84 C512,90 544,90 576,84"
+ stroke="#556429" stroke-opacity="0.06" stroke-width="1.6"/><path d="M0,138 C32,131 64,131 96,138 C128,145 160,145 192,138 C224,131 256,131 288,138 C320,145 352,145 384,138 C416,131 448,131 480,138 C512,145 544,145 576,138"
+ stroke="#D8A246" stroke-opacity="0.07" stroke-width="2"/><path d="M0,186 C32,180 64,180 96,186 C128,192 160,192 192,186 C224,180 256,180 288,186 C320,192 352,192 384,186 C416,180 448,180 480,186 C512,192 544,192 576,186"
+ stroke="#B24F20" stroke-opacity="0.07" stroke-width="1.8"/><path d="M0,234 C32,229 64,229 96,234 C128,239 160,239 192,234 C224,229 256,229 288,234 C320,239 352,239 384,234 C416,229 448,229 480,234 C512,239 544,239 576,234"
+ stroke="#85350E" stroke-opacity="0.05" stroke-width="1.4"/><path d="M0,264 C32,260 64,260 96,264 C128,268 160,268 192,264 C224,260 256,260 288,264 C320,268 352,268 384,264 C416,260 448,260 480,264 C512,268 544,268 576,264"
+ stroke="#2A6054" stroke-opacity="0.04" stroke-width="1.2"/><path d="M50,18 L58,18 M54,14 L54,22 M326,20 L334,20 M330,16 L330,24 M466,108 L474,108 M470,104 L470,112 M116,160 L124,160 M120,156 L120,164 M396,168 L404,168 M400,164 L400,172 M26,214 L34,214 M30,210 L30,218 M246,252 L254,252 M250,248 L250,256 M516,230 L524,230 M520,226 L520,234"
+ stroke="#1A2B3C" stroke-opacity="0.06" stroke-width="1.1"/></g></svg>

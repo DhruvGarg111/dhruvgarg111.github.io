@@ -5,24 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Depth not found — Dhruv Garg</title>
     <meta name="robots" content="noindex">
-    <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Martian+Mono:wght@400;500;600&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link href="https://fonts.googleapis.com/css2?family=Martian+Mono:wght@400;500;600&display=swap" rel="stylesheet"></noscript>
-    <link rel="preload" href="assets/fonts/aldrich.woff2" as="font" type="font/woff2" crossorigin>
-    <link rel="preload" href="assets/fonts/Switzer-Regular.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="icon" type="image/svg+xml" href="/assets/img/favicon.svg">
+    <link rel="preload" href="/assets/fonts/aldrich.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/assets/fonts/Switzer-Regular.woff2" as="font" type="font/woff2" crossorigin>
     <style>
         @font-face {
             font-family: 'Aldrich';
-            src: url('assets/fonts/aldrich.woff2') format('woff2');
+            src: url('/assets/fonts/aldrich.woff2') format('woff2');
             font-weight: 400;
             font-style: normal;
             font-display: swap;
         }
         @font-face {
             font-family: 'Switzer';
-            src: url('assets/fonts/Switzer-Regular.woff2') format('woff2');
+            src: url('/assets/fonts/Switzer-Regular.woff2') format('woff2');
+            font-weight: 400;
+            font-style: normal;
+            font-display: swap;
+        }
+        @font-face {
+            font-family: 'Martian Mono';
+            src: url('/assets/fonts/MartianMono-Regular.woff2') format('woff2');
             font-weight: 400;
             font-style: normal;
             font-display: swap;
@@ -100,7 +103,7 @@
             font-family: "Aldrich", ui-monospace, "SFMono-Regular", monospace;
             font-size: 3rem;
             line-height: 0.95;
-            font-weight: 800;
+            font-weight: 400;
             letter-spacing: -0.02em;
             text-transform: uppercase;
             margin-bottom: 1rem;
@@ -119,14 +122,56 @@
             font-weight: 700;
             text-underline-offset: 0.3em;
         }
+        .dry-hole {
+            width: 96px;
+            height: auto;
+            margin: 0 auto 1.4rem;
+            color: var(--ink);
+        }
+        .dry-hole text {
+            font-family: "Martian Mono", ui-monospace, monospace;
+            font-size: 8px;
+            fill: var(--ink-soft);
+            letter-spacing: 0.08em;
+        }
     </style>
 </head>
 <body>
     <main>
-        <div class="eyebrow">404 · survey anomaly</div>
-        <h1><span style="color: var(--heading-primary);">Depth not</span> <span style="color: var(--heading-accent);">found</span></h1>
-        <p>This stratum doesn't exist. Return to the surface to continue the field survey.</p>
-        <p><a href="/">Back to Ground Truth</a></p>
+        <svg class="dry-hole" viewBox="0 0 120 210" role="img" aria-label="A stratigraphic core column with a gap where this page should be">
+            <defs>
+                <pattern id="void-hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+                    <rect width="6" height="6" fill="#EDE7DA"/>
+                    <line x1="0" y1="0" x2="0" y2="6" stroke="#B24F20" stroke-width="0.8" opacity="0.5"/>
+                </pattern>
+            </defs>
+            <!-- borehole ruler -->
+            <line x1="14" y1="12" x2="14" y2="198" stroke="currentColor" stroke-width="1" opacity="0.35"/>
+            <g stroke="currentColor" stroke-width="1" opacity="0.5">
+                <line x1="10" y1="12" x2="14" y2="12"/><line x1="10" y1="32" x2="14" y2="32"/>
+                <line x1="10" y1="52" x2="14" y2="52"/><line x1="10" y1="72" x2="14" y2="72"/>
+                <line x1="10" y1="92" x2="14" y2="92"/><line x1="10" y1="112" x2="14" y2="112"/>
+                <line x1="10" y1="132" x2="14" y2="132"/><line x1="10" y1="152" x2="14" y2="152"/>
+                <line x1="10" y1="172" x2="14" y2="172"/><line x1="10" y1="198" x2="14" y2="198"/>
+            </g>
+            <!-- the column, in the site's section order; the fifth slot is the void -->
+            <rect x="30" y="12" width="60" height="20" fill="#5F6870" opacity="0.25"/>
+            <rect x="30" y="32" width="60" height="20" fill="#B24F20" opacity="0.3"/>
+            <rect x="30" y="52" width="60" height="20" fill="#2A6054" opacity="0.45"/>
+            <rect x="30" y="72" width="60" height="20" fill="#3D72A4" opacity="0.3"/>
+            <rect x="30" y="92" width="60" height="20" fill="url(#void-hatch)" stroke="#B24F20" stroke-width="1" stroke-dasharray="3 3"/>
+            <rect x="30" y="112" width="60" height="20" fill="#B88530" opacity="0.3"/>
+            <rect x="30" y="132" width="60" height="20" fill="#3C6176" opacity="0.3"/>
+            <rect x="30" y="152" width="60" height="20" fill="#D8A246" opacity="0.3"/>
+            <rect x="30" y="172" width="60" height="20" fill="#1D2938" opacity="0.6"/>
+            <text x="18" y="15">0m</text>
+            <text x="18" y="201">9000m</text>
+            <text x="96" y="104" text-anchor="end">∅ 404</text>
+        </svg>
+        <div class="eyebrow">404 · dry hole</div>
+        <h1><span style="color: var(--heading-primary);">Dry hole</span><br><span style="color: var(--heading-accent);">no formation at this depth</span></h1>
+        <p>The drill came up empty here — this page was never cored, or the bore log is wrong.</p>
+        <p><a href="/">← Trip out to surface</a></p>
     </main>
 </body>
 </html>

@@ -2,9 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Dhruv Garg — Ground Truth</title>
-  <meta name="description" content="Dhruv Garg builds perception systems that ship — coarse-to-fine computer vision, production PyTorch, and full-stack ML infrastructure.">
   <!-- One theme-color, matching the design. The second entry promised a dark
        UI to OS-dark users, but there is no prefers-color-scheme: dark block
        anywhere in the stylesheet — this is a light paper design at every
@@ -12,6 +11,7 @@
        a light page. Removed rather than faked, and manifest.json's theme_color
        now agrees with it instead of carrying the same stale dark value. -->
   <meta name="theme-color" content="#EDE7DA">
+  <meta name="description" content="Dhruv Garg builds perception systems that ship — coarse-to-fine computer vision, production PyTorch, and full-stack ML infrastructure.">
   <meta property="og:title" content="Dhruv Garg — Ground Truth">
   <meta property="og:description" content="Field survey of production ML: Searchlight, Neural Canvas, PixelQueue, PyGOG.">
   <meta property="og:type" content="website">
@@ -24,26 +24,167 @@
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Dhruv Garg — Ground Truth">
   <meta name="twitter:description" content="Production ML engineer. Computer vision, generative systems, and the full stack around them.">
+  <meta name="twitter:image" content="https://www.dhruvgarg.tech/assets/img/og-card.jpg">
   <link rel="canonical" href="https://www.dhruvgarg.tech/">
   <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
-  <link rel="apple-touch-icon" href="assets/img/favicon.svg">
+  <link rel="apple-touch-icon" href="assets/img/icon-192.png">
   <link rel="manifest" href="manifest.json">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Martian+Mono:wght@400;500;600&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
-  <noscript><link href="https://fonts.googleapis.com/css2?family=Martian+Mono:wght@400;500;600&display=swap" rel="stylesheet"></noscript>
-  <!-- All five faces render inside the first viewport, so all five are
-       preloaded. SemiBold (.hero-manifest__name, .capability__domain) and Bold
-       (.hero__tagline strong) were previously discovered only from the
-       stylesheet, which meant the hero's project list and the emphasised words
-       in the tagline swapped in late and reflowed the block that had just
-       finished animating in. -->
+  <!-- Above-the-fold font preloads. Aldrich, Martian Mono Regular (serves
+       weights 400/500/600), Switzer Regular (the body face — weight 400) and
+       Switzer Medium cover the loader and hero's first-paint text. The
+       remaining Switzer weights ride normal CSS discovery once the loader
+       settles. -->
   <link rel="preload" href="assets/fonts/aldrich.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/MartianMono-Regular.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fonts/Switzer-Regular.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fonts/Switzer-Medium.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="preload" href="assets/fonts/Switzer-SemiBold.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="preload" href="assets/fonts/Switzer-Bold.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="assets/css/style.css?v=13">
+  <style>
+  /* ── Critical inline CSS (loader + base tokens + body) ──
+     Perf: the full stylesheet is loaded async below; this inline block is the
+     matching critical prefix (design tokens, base, loader) that lets the loader
+     paint on first render instead of waiting for the whole stylesheet. */
+  @font-face {
+    font-family: 'Aldrich';
+    src: url('assets/fonts/aldrich.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: 'Switzer';
+    src: url('assets/fonts/Switzer-Regular.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: 'Switzer';
+    src: url('assets/fonts/Switzer-Medium.woff2') format('woff2');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: 'Switzer';
+    src: url('assets/fonts/Switzer-SemiBold.woff2') format('woff2');
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: 'Switzer';
+    src: url('assets/fonts/Switzer-Bold.woff2') format('woff2');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: 'Martian Mono';
+    src: url('assets/fonts/MartianMono-Regular.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: 'Martian Mono';
+    src: url('assets/fonts/MartianMono-Regular.woff2') format('woff2');
+    font-weight: 500 600;
+    font-style: normal;
+    font-display: swap;
+  }
+  :root {
+    --paper: #EDE7DA;
+    --paper-deep: #DDD3C0;
+    --ink: #1A2B3C;
+    --ink-soft: #5F6870;
+    --ink-faint: rgba(26, 43, 60, 0.34);
+    --survey: #B24F20;
+    --survey-text: #85350E;
+    --survey-glow: rgba(178, 79, 32, 0.34);
+    --reticle: #BE6D45;
+    --field-coarse: rgba(244, 240, 232, 0.42);
+    --field-fine: rgba(240, 168, 104, 0.78);
+    --validated: #2A6054;
+    --validated-bright: #75C4A4;
+    --datum: #3D72A4;
+    --dark-bg: rgba(18, 26, 38, 0.72);
+    --dark-bg-solid: #1D2938;
+    --dark-ink: #F4F0E8;
+    --dark-ink-soft: rgba(244, 240, 232, 0.7);
+    --gold: #D8A246;
+    --cream-05: rgba(244, 240, 232, 0.05);
+    --cream-50: rgba(237, 231, 218, 0.50);
+    --ink-04: rgba(26, 43, 60, 0.04);
+    --ink-06: rgba(26, 43, 60, 0.06);
+    --ink-08: rgba(26, 43, 60, 0.08);
+    --ink-09: rgba(26, 43, 60, 0.09);
+    --ink-10: rgba(26, 43, 60, 0.10);
+    --ink-12: rgba(26, 43, 60, 0.12);
+    --ink-14: rgba(26, 43, 60, 0.14);
+    --ink-18: rgba(26, 43, 60, 0.18);
+    --ink-soft-70: rgba(62, 81, 104, 0.7);
+    --font-display: "Aldrich", Verdana, "Trebuchet MS", "DejaVu Sans", sans-serif;
+    --font-body: "Switzer", -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-mono: "Martian Mono", ui-monospace, monospace;
+    --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+    --dur-press: 160ms;
+    --z-neural: 0;
+    --z-grain: 2;
+    --z-content: 5;
+    --z-hud: 40;
+    --z-cursor: 50;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-font-smoothing: antialiased; scroll-behavior: auto; overflow-x: hidden; color-scheme: light; }
+  body {
+    font-family: var(--font-body);
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--ink);
+    background-color: var(--paper);
+    background-image:
+      linear-gradient(90deg, rgba(26, 43, 60, 0.035) 1px, transparent 1px),
+      linear-gradient(0deg, rgba(26, 43, 60, 0.03) 1px, transparent 1px),
+      url('assets/img/strata-field.svg');
+    background-size: 72px 72px, 72px 72px, 576px 288px;
+    background-position: 0 0, 0 0, 0 0;
+    background-repeat: repeat, repeat, repeat;
+    transition: background-color 0.6s ease, color 0.6s ease;
+  }
+  .loader {
+    position: fixed; inset: 0;
+    z-index: 9999;
+    background: var(--paper);
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column;
+    gap: 0;
+    pointer-events: all;
+    transition: opacity 0.4s ease;
+  }
+  .loader.is-done { opacity: 0; pointer-events: none; }
+  .loader__inner { display: flex; flex-direction: column; align-items: center; gap: 1.2rem; }
+  .loader__logo { position: relative; animation: loader-pulse 1.2s ease-in-out infinite; }
+  @keyframes loader-pulse {
+    0%, 100% { transform: scale(1); filter: drop-shadow(0 0 6px var(--survey-glow)); }
+    50% { transform: scale(1.06); filter: drop-shadow(0 0 18px var(--survey-glow)); }
+  }
+  .loader__hex--outer { stroke-dasharray: 220; stroke-dashoffset: 220; animation: loader-draw 0.6s ease forwards; }
+  .loader__hex--mid   { stroke-dasharray: 180; stroke-dashoffset: 180; animation: loader-draw 0.6s 0.1s ease forwards; }
+  .loader__hex--inner { stroke-dasharray: 140; stroke-dashoffset: 140; animation: loader-draw 0.6s 0.2s ease forwards; }
+  .loader__core { transform: scale(0.92); transform-origin: center; animation: loader-core 0.3s 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; opacity: 0; }
+  @keyframes loader-draw { to { stroke-dashoffset: 0; } }
+  @keyframes loader-core { to { transform: scale(1); opacity: 1; } }
+  .loader__text { text-align: center; display: flex; flex-direction: column; gap: 0.35rem; }
+  .loader__name { font-size: 0.75rem; letter-spacing: 0.22em; color: var(--ink); font-weight: 600; }
+  .loader__status { font-size: 0.55rem; letter-spacing: 0.14em; color: var(--survey-text); min-height: 1em; }
+  .loader__depth { font-size: 0.55rem; letter-spacing: 0.1em; color: var(--ink-soft); }
+  .loader__bar { width: 180px; height: 2px; background: var(--ink-08); border-radius: 999px; overflow: hidden; }
+  .loader__bar-fill { height: 100%; background: linear-gradient(90deg, var(--survey), var(--validated)); border-radius: 999px; width: 100%; transform: scaleX(0); transform-origin: left center; transition: transform 0.05s linear; }
+  .mono { font-family: var(--font-mono); }
+  </style>
+  <link rel="stylesheet" href="assets/css/style.min.css?v=22" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="assets/css/style.min.css?v=22"></noscript>
   <script>
   /* Perf instrumentation — gated FPS/frame-time meter. Activate with ?fps=1.
      Self-contained, zero cost when inactive (single regex test). */
@@ -111,7 +252,6 @@
         return String(ext ? gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER));
       } catch (e) { return ''; }
     }
-    var renderer = gpuRenderer();
 
     function scoreOf(cores, mem, dpr, isSmall, renderer, saveData) {
       var score = 0;
@@ -135,7 +275,19 @@
       window.__deviceTier = tier;
     }
 
-    var score = scoreOf(cores, mem, dpr, isSmall, renderer, saveData);
+    /* Perf: the GPU probe above creates a WebGL context synchronously in
+       <head> — typically 5-50ms on the pre-paint critical path. The probe's
+       only effect on the score is +2 / 0 / -2 (its regex branches), so when
+       every possible probe result lands on the same tier AND the same
+       __bgMode decision (bgMode keys off raw `score <= -4`, not the tier),
+       the probe cannot change any outcome — skip it. The probe still runs for
+       every ambiguous device. */
+    var scoreNoGpu = scoreOf(cores, mem, dpr, isSmall, '', saveData);
+    var probeNeeded = !(tierOf(scoreNoGpu - 2) === tierOf(scoreNoGpu) &&
+                        tierOf(scoreNoGpu) === tierOf(scoreNoGpu + 2) &&
+                        (scoreNoGpu + 2 <= -4 || scoreNoGpu - 2 > -4));
+    var renderer = probeNeeded ? gpuRenderer() : '';
+    var score = probeNeeded ? scoreOf(cores, mem, dpr, isSmall, renderer, saveData) : scoreNoGpu;
     applyTier(tierOf(score));
     window.__deviceTierInfo = { score: score, cores: cores, mem: mem, dpr: dpr, isSmall: isSmall, renderer: renderer, saveData: saveData };
 
@@ -303,6 +455,14 @@
   </noscript>
 </head>
 <body>
+  <!-- Print-only masthead. display:none on screen; the @media print block
+       shows it. The date is stamped by script.js at boot (and refreshed on
+       beforeprint); with no JS it prints without a date. -->
+  <div class="print-masthead" aria-hidden="true">
+    <span class="print-masthead__brand mono">GROUND TRUTH · FIELD REPORT</span>
+    <span class="print-masthead__meta mono">dhruvgarg.tech<span id="print-date"></span></span>
+  </div>
+
   <div class="loader" id="loader" aria-label="Loading" role="status">
     <div class="loader__inner">
       <div class="loader__logo">
@@ -338,10 +498,12 @@
   <a class="skip-link" href="#strata">Skip to content</a>
   <div class="sr-only" aria-live="polite" aria-atomic="true" id="section-announcer"></div>
 
-  <!-- ═══ ATMOSPHERIC LAYERS ═══ -->
+  <!-- ═══ ATMOSPHERIC LAYERS ═══
+       Perf: the fog vignette + paper grain are ONE merged layer (.fog-vignette,
+       see style.css) so the compositor composites a single full-screen layer
+       over the live WebGL canvas instead of two. -->
   <canvas id="neural-bg-canvas" aria-hidden="true"></canvas>
   <div class="fog-vignette" id="fog-vignette" aria-hidden="true"></div>
-  <div class="paper-grain" aria-hidden="true"></div>
   <canvas id="fluid-canvas" aria-hidden="true"></canvas>
 
   <!-- ═══ DEPTH GAUGE (right side — draggable navigation) ═══ -->
@@ -482,7 +644,7 @@
       <div class="stratum__window">
       <div class="attention-grain" aria-hidden="true"></div>
       <div class="stratum__inner">
-        <div class="stratum__label mono">Stratum I · 1200m</div>
+        <div class="stratum__label mono"><svg class="stratum__sigil" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path pathLength="1" stroke-dasharray="1" d="M8 2.5 L2.8 13.2"/><path pathLength="1" stroke-dasharray="1" d="M8 2.5 L13.2 13.2"/><path pathLength="1" stroke-dasharray="1" d="M2.8 13.2 A 7.9 7.9 0 0 0 13.2 13.2"/></g></svg>Stratum I · 1200m</div>
         <div class="stratum__grid">
           <div class="stratum__copy">
             <p class="stratum__id mono">SP-01 · Searchlight Protocol</p>
@@ -494,7 +656,7 @@
               <a class="stratum__link" href="https://github.com/DhruvGarg111/The-Searchlight-Protocol" target="_blank" rel="noopener noreferrer">View repository →</a>
             </div>
           </div>
-          <div class="stratum__visual" role="region" aria-label="Searchlight visual steps — swipe between the live field and architecture on touch devices">
+          <div class="stratum__visual" role="region" aria-label="Searchlight visual steps — live field then architecture diagram">
             <div class="aerial-stage aerial-stage--single-decode" id="aerial-stage">
               <picture>
                 <source srcset="assets/img/hero-aerial-800.webp" type="image/webp">
@@ -516,9 +678,9 @@
     <section class="stratum stratum--dark" id="training">
       <div class="stratum__window">
       <div class="stratum__inner">
-        <div class="stratum__label mono">Stratum II · 2400m</div>
+        <div class="stratum__label mono"><svg class="stratum__sigil" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path pathLength="1" stroke-dasharray="1" d="M2.5 2.5 H13.5 V13.5 H2.5 Z"/><path pathLength="1" stroke-dasharray="1" d="M8 2.5 V13.5"/></g></svg>Stratum II · 2400m</div>
         <div class="stratum__grid stratum__grid--reverse">
-          <div class="stratum__visual" role="region" aria-label="Neural Canvas visual steps — swipe between the style-transfer seam and architecture on touch devices">
+          <div class="stratum__visual" role="region" aria-label="Neural Canvas visual steps — style-transfer seam then architecture diagram">
             <div class="seam-stage" id="seam-stage">
               <div class="seam-stage__content">
                 <svg viewBox="0 0 800 400" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"><rect width="100%" height="100%" fill="#E5DFCD"/><g stroke="rgba(26,43,60,0.06)" stroke-width="1"><line x1="0" y1="100" x2="800" y2="100"/><line x1="0" y1="200" x2="800" y2="200"/><line x1="0" y1="300" x2="800" y2="300"/><line x1="200" y1="0" x2="200" y2="400"/><line x1="400" y1="0" x2="400" y2="400"/><line x1="600" y1="0" x2="600" y2="400"/></g><path d="M100 350 L300 120 L500 350 Z" fill="none" stroke="#1A2B3C" stroke-width="2" opacity="0.6"/><circle cx="550" cy="120" r="40" fill="none" stroke="#1A2B3C" stroke-width="2" opacity="0.5"/></svg>
@@ -552,7 +714,7 @@
     <section class="stratum" id="infrastructure">
       <div class="stratum__window">
       <div class="stratum__inner">
-        <div class="stratum__label mono">Stratum III · 3600m</div>
+        <div class="stratum__label mono"><svg class="stratum__sigil" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="3" cy="3" r="1.4" fill="currentColor" stroke="none"/><circle cx="13" cy="3" r="1.4" fill="currentColor" stroke="none"/><circle cx="13" cy="13" r="1.4" fill="currentColor" stroke="none"/><circle cx="3" cy="13" r="1.4" fill="currentColor" stroke="none"/><path pathLength="1" stroke-dasharray="1" d="M4.8 3 H11.2 M13 4.8 V11.2 M11.2 13 H4.8 M3 11.2 V4.8"/></g></svg>Stratum III · 3600m</div>
         <div class="stratum__grid">
           <div class="stratum__copy">
             <p class="stratum__id mono">PQ-02 · PixelQueue</p>
@@ -563,7 +725,7 @@
               <a class="stratum__link" href="https://github.com/DhruvGarg111/PixelQueue" target="_blank" rel="noopener noreferrer">View repository →</a>
             </div>
           </div>
-          <div class="stratum__visual">
+          <div class="stratum__visual" role="region" aria-label="PixelQueue visual steps — pipeline then architecture diagram">
             <div class="pipeline" id="pipeline">
               <div class="pipe-card pipe-card--ui">
                 <div class="pipe-card__grid-bg"></div>
@@ -605,9 +767,9 @@
     <section class="stratum stratum--dark" id="interface">
       <div class="stratum__window">
       <div class="stratum__inner">
-        <div class="stratum__label mono">Stratum IV · 4800m</div>
+        <div class="stratum__label mono"><svg class="stratum__sigil" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path pathLength="1" stroke-dasharray="1" d="M3 4 L7 8 L3 12"/><path pathLength="1" stroke-dasharray="1" d="M9 12.5 H13.5"/></g></svg>Stratum IV · 4800m</div>
         <div class="stratum__grid stratum__grid--reverse">
-          <div class="stratum__visual">
+          <div class="stratum__visual" role="region" aria-label="PyGOG visual steps — terminal session then architecture diagram">
             <div class="terminal" id="terminal">
               <div class="terminal__chrome"><span class="tdot"></span><span class="tdot"></span><span class="tdot"></span><span class="terminal__title mono">pygog — agentic CLI</span></div>
               <div class="terminal__body">
@@ -643,10 +805,27 @@
     <section class="stratum" id="journey">
       <div class="stratum__window">
       <div class="stratum__inner stratum__inner--center">
-        <div class="stratum__label mono">Core Sample · 6000m</div>
+        <div class="stratum__label mono"><svg class="stratum__sigil" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path pathLength="1" stroke-dasharray="1" d="M1 8 H4.5 L6 4 L8 12 L9.5 5.5 L11 10.5 L12.2 8 H15"/></g></svg>Core Sample · 6000m</div>
         <h2 class="stratum__title stratum__title--center">Journey</h2>
         <div class="journey-timeline" id="journey-timeline">
           <div class="journey-track">
+            <!-- Surveyed borehole path — desktop drill only (CSS-gated). A few
+                 px of deterministic dogleg between era markers: real boreholes
+                 drift. Geometry only — the honest labels remain the era years.
+                 Threads the marker centers (the old ::before line ran 12px
+                 below them; this path is placed on the markers). -->
+            <svg class="journey-bore" viewBox="0 0 1000 24" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+              <defs>
+                <linearGradient id="journey-bore-gradient" x1="0" y1="0" x2="1" y2="0">
+                  <stop class="journey-bore__stop--edge" offset="0"/>
+                  <stop class="journey-bore__stop--survey" offset="0.4"/>
+                  <stop class="journey-bore__stop--validated" offset="0.8"/>
+                  <stop class="journey-bore__stop--edge" offset="1"/>
+                </linearGradient>
+              </defs>
+              <path class="journey-bore__path" pathLength="1000" fill="none" stroke="url(#journey-bore-gradient)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"
+                d="M0 12 L100 12 L175 5.5 L240 7.5 L300 12 L370 16.5 L440 18 L500 12 L575 6.5 L640 5 L700 12 L775 17.5 L840 18.5 L900 12 L1000 9.5"/>
+            </svg>
             <div class="journey-era" data-year="2022" data-stratum="sandstone">
               <div class="journey-era__marker"></div>
               <div class="journey-era__card">
@@ -720,7 +899,7 @@
     <section class="stratum" id="skills">
       <div class="stratum__window">
       <div class="stratum__inner stratum__inner--center">
-        <div class="stratum__label mono">Sensor Matrix · 7200m</div>
+        <div class="stratum__label mono"><svg class="stratum__sigil" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path pathLength="1" stroke-dasharray="1" d="M8 2 A6 6 0 1 1 8 14 A6 6 0 1 1 8 2"/><path pathLength="1" stroke-dasharray="1" d="M8 5.2 A2.8 2.8 0 1 1 8 10.8 A2.8 2.8 0 1 1 8 5.2"/><circle cx="8" cy="8" r="1" fill="currentColor" stroke="none"/></g></svg>Sensor Matrix · 7200m</div>
         <h2 class="stratum__title stratum__title--center">Capabilities</h2>
         <p class="capability-log__note mono">Every capability below is bound to a system I shipped — not a self-rating.</p>
         <!-- A real <ul>/<li>, not <div role="list"> + <article role="listitem">.
@@ -797,14 +976,14 @@
     <section class="stratum" id="proof">
       <div class="stratum__window">
       <div class="stratum__inner stratum__inner--center">
-        <div class="stratum__label mono">Verification · 8400m</div>
+        <div class="stratum__label mono"><svg class="stratum__sigil" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path pathLength="1" stroke-dasharray="1" d="M8 2 L14 8 L8 14 L2 8 Z"/><path pathLength="1" stroke-dasharray="1" d="M2 8 H14"/><path pathLength="1" stroke-dasharray="1" d="M5 8 L8 14 M11 8 L8 14"/></g></svg>Verification · 8400m</div>
         <h2 class="stratum__title stratum__title--center">Proof</h2>
         <div class="stat-cluster" id="stat-cluster">
           <div class="stat-card">
             <div class="stat-card__texture"></div>
             <div class="stat-card__inner">
               <div class="stat-card__value mono">
-                <span class="stat-count" data-count="200" aria-hidden="true">200</span>
+                <span class="stat-count" data-count="250" aria-hidden="true">250</span>
                 <span class="stat-card__suffix">+</span>
               </div>
               <div class="stat-card__label mono">Open Source Contributions</div>
@@ -815,7 +994,7 @@
             <div class="stat-card__texture"></div>
             <div class="stat-card__inner">
               <div class="stat-card__value mono">
-                <span class="stat-count" data-count="500" aria-hidden="true">500</span>
+                <span class="stat-count" data-count="550" aria-hidden="true">550</span>
                 <span class="stat-card__suffix">+</span>
               </div>
               <div class="stat-card__label mono">LeetCode Questions Solved</div>
@@ -826,14 +1005,15 @@
             <div class="stat-card__texture"></div>
             <div class="stat-card__inner">
               <div class="stat-card__value mono">
-                <span class="stat-count" data-count="1730" aria-hidden="true">1730</span>
+                <span class="stat-count" data-count="1760" aria-hidden="true">1760</span>
+                <span class="stat-card__suffix">+</span>
               </div>
               <div class="stat-card__label mono">LC Contest Rating</div>
               <div class="stat-card__bar"><div class="stat-card__bar-fill"></div></div>
             </div>
           </div>
         </div>
-        <span class="sr-only">200+ open source contributions, 500+ questions solved on LeetCode, 1730 LeetCode contest rating</span>
+        <span class="sr-only">250+ open source contributions, 550+ questions solved on LeetCode, 1760+ LeetCode contest rating</span>
       </div>
       </div>
     </section>
@@ -887,10 +1067,21 @@
     <div class="transition-label mono" id="transition-label">DRILLING TO STRATUM II</div>
   </div>
 
-  <script defer src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js" crossorigin="anonymous" integrity="sha384-HOvlOYPIs/zjoIkWUGXkVmXsjr8GuZLV+Q+rcPwmJOVZVpvTSXQChiN4t9Euv9Vc"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js" crossorigin="anonymous" integrity="sha384-P8VzCVnT9NBUkMrpcIZrJbA7EBjJvh/fJS6PmP+4nLIM284DtsImIv8D0fFjIkeh"></script>
-  <script defer src="assets/js/hero-flow.js?v=9"></script>
-  <script defer src="assets/js/script.js?v=7"></script>
+  <script defer src="assets/vendor/gsap.min.js"></script>
+  <script>
+  /* Perf: ScrollTrigger (~25KB raw, ~8KB gzip) is only used by the desktop
+     depth-drill engine. Mobile/touch visitors never run it — script.js guards
+     with typeof checks (lines 1716, 1872). Skip the fetch entirely when the
+     depth engine won't run. document.write is appropriate here: it runs
+     during initial parse (never after load), so the browser inserts a
+     parser-synchronous defer script that respects the execution order
+     between gsap.min.js (above) and script.min.js (below). */
+  if (window.__canDepthDrill) {
+    document.write('<script defer src="assets/vendor/ScrollTrigger.min.js"><\/script>');
+  }
+  </script>
+  <script defer src="assets/js/hero-flow.min.js?v=11"></script>
+  <script defer src="assets/js/script.min.js?v=12"></script>
   <script>
   /* Perf: three.js (~600KB) and its neural-background consumer, plus @mojs/core
      and splitting, aren't needed for first paint or for the core scroll/depth
@@ -924,14 +1115,11 @@
          fast idle callback could load mobile-motion before neural-lite. */
       var liteReady = Promise.resolve();
       if (window.__bgMode === 'webgl') {
-        loadScript('https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js', {
-          integrity: 'sha384-CI3ELBVUz9XQO+97x6nwMDPosPR5XvsxW2ua7N1Xeygeh1IxtgqtCkGfQY9WWdHu',
-          crossorigin: 'anonymous'
-        }).then(function () {
-          return loadScript('assets/js/neural-background.js?v=7');
+        loadScript('assets/vendor/three.slim.min.js').then(function () {
+          return loadScript('assets/js/neural-background.min.js?v=10');
         }).catch(function () { /* no THREE available — page works fine without the bg */ });
       } else if (window.__bgMode === 'lite') {
-        liteReady = loadScript('assets/js/neural-lite.js?v=4').catch(function () {});
+        liteReady = loadScript('assets/js/neural-lite.min.js?v=5').catch(function () {});
       }
 
       /* Mobile choreography controller: linear-flow + motion-OK profiles
@@ -949,16 +1137,16 @@
             }
             return;
           }
-          loadScript('assets/js/mobile-motion.js?v=3').catch(function () {});
+          loadScript('assets/js/mobile-motion.min.js?v=9').catch(function () {});
         }
         liteReady.then(function () {
           loadMobileMotionWhenBaselineIsReady(0);
         });
       }
       /* 'off': #neural-bg-canvas simply never gets a renderer. The
-         existing .fog-vignette and .paper-grain layers (already present,
-         already near-zero cost) remain the sole atmosphere — a
-         deliberate, honest degrade, not a broken page. */
+         merged .fog-vignette atmosphere layer (already present, already
+         near-zero cost) remains the sole atmosphere — a deliberate,
+         honest degrade, not a broken page. */
 
       /* mo.js and Splitting are consumed exclusively by the desktop drill
          timelines (playTransitionEffect, animateLabel — both typeof-guarded
@@ -969,15 +1157,11 @@
          handlers as a global finger trail. Idle-load it only where a fine
          hover pointer exists and motion is OK. */
       if (window.__canDepthDrill) {
-        loadScript('https://cdn.jsdelivr.net/npm/@mojs/core@1.7.1/dist/mo.umd.min.js', {
-          integrity: 'sha384-mhL8ajiHMuHLBYm4rYiotXHCRSc7BS9whyLA8g0dbVemOdYfZd14yGJa/riwFW0M', crossorigin: 'anonymous'
-        }).catch(function () {});
-        loadScript('https://cdn.jsdelivr.net/npm/splitting@1.1.0/dist/splitting.min.js', {
-          integrity: 'sha384-4xKCEoe7sOCJeUwo9HheqN+yYVNglF+fjekGEZx4DcdgbJWToC2k5MgQ+6T9sfUT', crossorigin: 'anonymous'
-        }).catch(function () {});
+        loadScript('assets/vendor/mo.umd.min.js').catch(function () {});
+        loadScript('assets/vendor/splitting.min.js').catch(function () {});
       }
       if (!window.__isTouchFirst && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-        loadScript('assets/js/fluid-cursor.js?v=3').catch(function () {});
+        loadScript('assets/js/fluid-cursor.min.js?v=8').catch(function () {});
       }
     }
 
@@ -987,6 +1171,14 @@
       setTimeout(loadDeferredExtras, 200);
     }
   })();
+
+  /* Service worker: cache-first repeat visits (GH Pages sends max-age=600).
+     Registered on load so it never competes with first-paint resources. */
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('sw.js').catch(function () {});
+    });
+  }
   </script>
 </body>
 </html>
